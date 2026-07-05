@@ -1,0 +1,16 @@
+{
+  "$schema": "https://lvcn.dev/schema.json",
+  "style": "new-york",
+  "styleEngine": "nativewind",
+  "tsx": true,
+  "tailwind": {
+    "config": "tailwind.config.js",
+    "css": "src/global.css"
+  },
+  "aliases": {
+    "components": "@/components",
+    "utils": "@/lib/utils",
+    "ui": "@/components/ui"
+  },
+  "components": []
+}
