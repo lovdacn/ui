@@ -938,10 +938,10 @@ fs.writeFileSync(
   path.join(componentsDir, "index.mdx"),
   `---
 title: Components
-description: Here you can find all the components available in lvcn. Built for Expo with NativeWind and Uniwind.
+description: Here you can find all the components available in lovdaCN. Built for Expo with NativeWind and Uniwind.
 ---
 
-lvcn ships **${COMPONENTS.length}** UI components you can add to your Expo project with the CLI.
+lovdaCN ships **${COMPONENTS.length}** UI components you can add to your Expo project with the CLI.
 
 <ComponentsList />
 
