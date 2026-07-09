@@ -1,0 +1,74 @@
+---
+title: Input
+description: Displays a form input field or a component that looks like an input field.
+component: true
+---
+
+<ComponentPreviewCard title="Input" />
+
+## Installation
+
+<PackageManagerTabs>
+<PMTabContent value="npm">
+
+```bash
+npx lovdacn@latest add input
+```
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+```bash
+yarn dlx lovdacn@latest add input
+```
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+```bash
+pnpm dlx lovdacn@latest add input
+```
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+```bash
+bunx lovdacn@latest add input
+```
+
+</PMTabContent>
+</PackageManagerTabs>
+
+*(You can also use the shortened `lvcn` alias, e.g., `npx lvcn@latest add input`)*
+
+This copies the component source into your project (typically `components/ui/input.tsx`) and installs any required dependencies.
+
+**Registry dependencies:** `utils`
+
+## Usage
+
+```tsx
+import { Input } from "@/components/ui/input"
+
+export function Example() {
+  return <Input placeholder="Email" keyboardType="email-address" />
+}
+```
+
+## Styles
+
+lvcn components are available across all style packs:
+
+| Style | Notes |
+| --- | --- |
+| `default` | Classic rounded system |
+| `new-york` | Compact, refined |
+| `nova` | Sharp corners (default in many setups) |
+| `luma` / `lyra` / `maia` / `mira` | Radius & font variants |
+| `rhea` / `sera` / `vega` | Pill, zero-radius, balanced |
+
+Style is set at project init via `lvcn.json` (`style` + `styleEngine`).
+
+## Platform
+
+These components target **Expo / React Native** with **NativeWind** or **Uniwind**. They use `Platform.select` where web and native need different behavior.

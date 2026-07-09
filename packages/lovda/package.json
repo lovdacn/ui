@@ -16,7 +16,7 @@
   "bin": "./dist/index.js",
   "scripts": {
     "test": "vitest run",
-    "build": "tsup && node -e \"const fs=require('fs-extra'); fs.removeSync('./templates'); fs.copySync('../templates', './templates', {filter: (src) => !src.includes('node_modules') && !src.includes('.expo') && !src.includes('.git') && !src.includes('package-lock.json') && !src.includes('bun.lock')})\"",
+    "build": "tsup && node -e \"const fs=require('fs-extra'); fs.removeSync('./templates'); fs.copySync('../templates', './templates', {filter: (src) => !src.includes('node_modules') && !src.includes('.expo') && !src.includes('.git') && !src.includes('package-lock.json') && !src.includes('bun.lock') && !src.includes('styles')})\"",
     "dev": "tsup --watch",
     "start": "node dist/index.js",
     "clean": "rimraf dist templates"

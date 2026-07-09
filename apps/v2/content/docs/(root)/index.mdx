@@ -1,0 +1,61 @@
+---
+title: Introduction
+description: lovdaCN is a set of beautifully designed React Native components and a code distribution platform for Expo. Works with NativeWind and Uniwind. Open Source. Open Code.
+---
+
+**This is not a component library. It is how you build your component library — for React Native.**
+
+You know how most traditional component libraries work: you install a package from NPM, import the components, and use them in your app.
+
+That approach works until you need to customize a component for your design system. Often you end up wrapping library components, writing workarounds to override styles, or mixing APIs that do not fit together.
+
+This is what **lovdaCN** aims to solve for Expo. It is forked from the fantastic [React Native Reusables](https://reactnativereusables.com) project, built on top of accessible, unstyled [rn-primitives](https://rnprimitives.com), and inspired by the design principles of [shadcn/ui](https://ui.shadcn.com):
+
+- **Forked from Reusables:** Inherits battle-tested universal structures for React Native.
+- **Built on Primitives:** Powered by `rn-primitives` for accessible, unstyled logic.
+- **Open Code:** The top layer of your component code is open for modification.
+- **Composition:** Every component uses a common, composable interface.
+- **Distribution:** A flat-file schema and CLI make it easy to distribute components.
+- **Beautiful Defaults:** Carefully chosen default styles for NativeWind and Uniwind.
+- **AI-Ready:** Open code for LLMs to read, understand, and improve.
+
+## Open Code
+
+lovdaCN hands you the actual component source. You have full control to customize and extend components for your design system:
+
+- **Full Transparency:** You see exactly how each component is built for React Native.
+- **Easy Customization:** Edit files under `components/ui` like any other app code.
+- **AI Integration:** Models can read and improve components because the code lives in your repo.
+
+_In a typical library, changing button behavior means fighting props and style overrides. With lovdaCN, you edit the button file directly._
+
+## Style engines
+
+lovdaCN supports two styling runtimes for Expo:
+
+| Engine | Description |
+| --- | --- |
+| **NativeWind** | Classic Tailwind utility runtime for React Native |
+| **Uniwind** | Tailwind v4-style runtime using `@theme` in CSS |
+
+Pick one at `init` time. Components are compiled per engine and per visual style.
+
+## Beautiful defaults
+
+lovdaCN ships **32 UI components** across **10 styles** and **9 base colors**:
+
+- Styles: `default`, `new-york`, `luma`, `lyra`, `maia`, `mira`, `nova`, `rhea`, `sera`, `vega`
+- Base colors: `zinc`, `slate`, `stone`, `gray`, `neutral`, `taupe`, `mauve`, `olive`, `mist`
+
+## Next steps
+
+- [Installation](/docs/installation) — scaffold a new project or add lovdaCN to an existing Expo app
+- [Manual Installation](/docs/manual) — setup dependencies and styles manually
+- [Components](/docs/components) — browse every available component
+- [lvcn.json](/docs/lvcn-json) — configuration file reference
+- [CLI](/docs/cli) — `init` and `add` reference
+- [Theming](/docs/theming) — styles, base colors, and CSS variables
+- [Typography](/docs/typography) — text variants and font configuration
+- [Dark Mode](/docs/dark-mode) — light and dark theme setup
+- [Expo Router](/docs/expo-router) — file-based navigation with lovdaCN
+- [Changelog](/docs/changelog) — latest updates and roadmap

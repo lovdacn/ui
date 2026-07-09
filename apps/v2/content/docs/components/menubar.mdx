@@ -1,0 +1,94 @@
+---
+title: Menubar
+description: A visually persistent menu common in desktop applications.
+component: true
+---
+
+<ComponentPreviewCard title="Menubar" />
+
+## Installation
+
+<PackageManagerTabs>
+<PMTabContent value="npm">
+
+```bash
+npx lovdacn@latest add menubar
+```
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+```bash
+yarn dlx lovdacn@latest add menubar
+```
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+```bash
+pnpm dlx lovdacn@latest add menubar
+```
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+```bash
+bunx lovdacn@latest add menubar
+```
+
+</PMTabContent>
+</PackageManagerTabs>
+
+*(You can also use the shortened `lvcn` alias, e.g., `npx lvcn@latest add menubar`)*
+
+This copies the component source into your project (typically `components/ui/menubar.tsx`) and installs any required dependencies.
+
+**Registry dependencies:** `utils`, `text`, `icon`
+
+## Usage
+
+```tsx
+import {
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarTrigger,
+} from "@/components/ui/menubar"
+import { Text } from "@/components/ui/text"
+
+export function Example() {
+  return (
+    <Menubar>
+      <MenubarMenu>
+        <MenubarTrigger>
+          <Text>File</Text>
+        </MenubarTrigger>
+        <MenubarContent>
+          <MenubarItem>
+            <Text>New Tab</Text>
+          </MenubarItem>
+        </MenubarContent>
+      </MenubarMenu>
+    </Menubar>
+  )
+}
+```
+
+## Styles
+
+lvcn components are available across all style packs:
+
+| Style | Notes |
+| --- | --- |
+| `default` | Classic rounded system |
+| `new-york` | Compact, refined |
+| `nova` | Sharp corners (default in many setups) |
+| `luma` / `lyra` / `maia` / `mira` | Radius & font variants |
+| `rhea` / `sera` / `vega` | Pill, zero-radius, balanced |
+
+Style is set at project init via `lvcn.json` (`style` + `styleEngine`).
+
+## Platform
+
+These components target **Expo / React Native** with **NativeWind** or **Uniwind**. They use `Platform.select` where web and native need different behavior.

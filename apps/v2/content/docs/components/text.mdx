@@ -1,0 +1,82 @@
+---
+title: Text
+description: A themed text component with variants for body, large, small, muted, and more.
+component: true
+---
+
+<ComponentPreviewCard title="Text" />
+
+## Installation
+
+<PackageManagerTabs>
+<PMTabContent value="npm">
+
+```bash
+npx lovdacn@latest add text
+```
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+```bash
+yarn dlx lovdacn@latest add text
+```
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+```bash
+pnpm dlx lovdacn@latest add text
+```
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+```bash
+bunx lovdacn@latest add text
+```
+
+</PMTabContent>
+</PackageManagerTabs>
+
+*(You can also use the shortened `lvcn` alias, e.g., `npx lvcn@latest add text`)*
+
+This copies the component source into your project (typically `components/ui/text.tsx`) and installs any required dependencies.
+
+**Registry dependencies:** `utils`
+
+## Usage
+
+```tsx
+import { Text } from "@/components/ui/text"
+import { View } from "react-native"
+
+export function Example() {
+  return (
+    <View className="gap-2">
+      <Text variant="h1">Heading 1</Text>
+      <Text variant="large">Large text</Text>
+      <Text>Default body text</Text>
+      <Text variant="muted">Muted text</Text>
+    </View>
+  )
+}
+```
+
+## Styles
+
+lvcn components are available across all style packs:
+
+| Style | Notes |
+| --- | --- |
+| `default` | Classic rounded system |
+| `new-york` | Compact, refined |
+| `nova` | Sharp corners (default in many setups) |
+| `luma` / `lyra` / `maia` / `mira` | Radius & font variants |
+| `rhea` / `sera` / `vega` | Pill, zero-radius, balanced |
+
+Style is set at project init via `lvcn.json` (`style` + `styleEngine`).
+
+## Platform
+
+These components target **Expo / React Native** with **NativeWind** or **Uniwind**. They use `Platform.select` where web and native need different behavior.

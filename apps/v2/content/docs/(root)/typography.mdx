@@ -1,0 +1,164 @@
+---
+title: Typography
+description: Styles and utilities for headings, paragraphs, and inline text in your Expo app.
+---
+
+lvcn provides a `Text` component with built-in variants and a set of conventions for consistent typography across your React Native app.
+
+## Text component
+
+The `Text` component is the primary way to render styled text. It supports semantic variants via the `variant` prop.
+
+<PackageManagerTabs>
+<PMTabContent value="npm">
+
+```bash
+npx lovdacn@latest add text
+# or
+npx lvcn@latest add text
+```
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+```bash
+yarn dlx lovdacn@latest add text
+# or
+yarn dlx lvcn@latest add text
+```
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+```bash
+pnpm dlx lovdacn@latest add text
+# or
+pnpm dlx lvcn@latest add text
+```
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+```bash
+bunx lovdacn@latest add text
+# or
+bunx lvcn@latest add text
+```
+
+</PMTabContent>
+</PackageManagerTabs>
+
+### Import
+
+```tsx
+import { Text } from "@/components/ui/text"
+```
+
+### Variants
+
+```tsx
+<Text variant="h1">Heading 1</Text>
+<Text variant="h2">Heading 2</Text>
+<Text variant="h3">Heading 3</Text>
+<Text variant="h4">Heading 4</Text>
+<Text variant="large">Large text</Text>
+<Text>Default body text</Text>
+<Text variant="small">Small text</Text>
+<Text variant="muted">Muted text</Text>
+<Text variant="lead">Lead paragraph</Text>
+```
+
+### Variant reference
+
+| Variant | Size | Weight | Use case |
+| --- | --- | --- | --- |
+| `h1` | 36px | Extra bold | Page titles |
+| `h2` | 30px | Semibold | Section headings |
+| `h3` | 24px | Semibold | Subsection headings |
+| `h4` | 20px | Semibold | Card titles, group labels |
+| `large` | 18px | Semibold | Emphasized body text |
+| _(default)_ | 16px | Normal | Standard body text |
+| `small` | 14px | Medium | Captions, footnotes |
+| `muted` | 14px | Normal | Secondary, de-emphasized |
+| `lead` | 20px | Normal | Introductory paragraphs |
+
+All variants use the `text-foreground` color by default except `muted`, which uses `text-muted-foreground`.
+
+## Font configuration
+
+### NativeWind
+
+Fonts are loaded via `expo-font` and mapped to Tailwind classes in your `tailwind.config.js`:
+
+```js
+// tailwind.config.js
+module.exports = {
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ["Inter", "system-ui", "sans-serif"],
+        mono: ["JetBrains Mono", "monospace"],
+      },
+    },
+  },
+}
+```
+
+Then load the font in your root layout:
+
+```tsx
+import { useFonts } from "expo-font"
+
+export default function RootLayout() {
+  const [loaded] = useFonts({
+    Inter: require("../assets/fonts/Inter.ttf"),
+  })
+
+  if (!loaded) return null
+
+  return <Stack />
+}
+```
+
+### Uniwind
+
+Uniwind projects define fonts via `@theme` tokens in CSS:
+
+```css
+@theme {
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}
+```
+
+## Composing with className
+
+All `Text` variants can be further customized with Tailwind classes:
+
+```tsx
+<Text variant="h2" className="text-primary tracking-wider">
+  Custom heading
+</Text>
+
+<Text className="text-lg font-bold text-destructive">
+  Error message
+</Text>
+```
+
+## Platform considerations
+
+- On **native** (iOS/Android), `Text` renders a React Native `<Text>` element with NativeWind styles.
+- On **web** (Expo Web), it renders a `<span>` or `<p>` depending on your configuration, styled with the same utility classes.
+
+The `Text` component handles platform differences internally — you don't need `Platform.select` for basic typography.
+
+## Accessibility
+
+- Use semantic variants (`h1`, `h2`, etc.) for heading hierarchy. On web these map to appropriate `accessibilityRole` or HTML elements.
+- Use the `accessibilityLabel` prop when text alone doesn't convey meaning (e.g., icon-only labels).
+
+## Related
+
+- [Text component](/docs/components/text) — full API reference
+- [Theming](/docs/theming) — token-based color system
+- [Dark Mode](/docs/dark-mode) — light/dark text colors

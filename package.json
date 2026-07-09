@@ -1,5 +1,14 @@
 {
   "name": "lvcn",
+  "devDependencies": {
+    "prettier": "^3.7.4",
+    "turbo": "^2.10.0",
+    "typescript": "5.9.2"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "pnpm@9.0.0",
   "private": true,
   "scripts": {
     "build": "turbo run build",
@@ -8,13 +17,9 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types"
   },
-  "devDependencies": {
-    "prettier": "^3.7.4",
-    "turbo": "^2.10.0",
-    "typescript": "5.9.2"
-  },
-  "packageManager": "pnpm@9.0.0",
-  "engines": {
-    "node": ">=18"
+  "dependencies": {
+    "@types/mdx": "^2.0.14",
+    "fumadocs-core": "^16.11.1",
+    "fumadocs-mdx": "^15.1.0"
   }
 }

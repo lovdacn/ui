@@ -133,7 +133,7 @@ describe("runInit", () => {
   })
 
   it("should prompt for project name and package manager if not provided", async () => {
-    vi.mocked(prompts).mockResolvedValue({ styleEngine: "nativewind", style: "new-york", projectName: "prompted-app", packageManager: "pnpm" })
+    vi.mocked(prompts).mockResolvedValue({ styleEngine: "nativewind", style: "new-york", baseColor: "zinc", projectName: "prompted-app", packageManager: "pnpm" })
 
     const options = {
       cwd: tempCwd,
@@ -172,6 +172,7 @@ describe("runInit", () => {
     vi.mocked(prompts).mockResolvedValue({
       styleEngine: "nativewind",
       style: "mira",
+      baseColor: "zinc",
       projectName: "mira-app",
       packageManager: "npm",
     })
@@ -192,7 +193,7 @@ describe("runInit", () => {
 
     const cssPath = path.join(projectPath, "global.css")
     const cssContent = await readFile(cssPath, "utf8")
-    expect(cssContent).toContain(".style-mira")
+    expect(cssContent).toContain("--radius: 9999px")
   })
 
   it("should respect packageManager option if provided", async () => {
@@ -315,7 +316,7 @@ describe("runInit", () => {
     const cssPath = path.join(tempCwd, "global.css")
     expect(fs.existsSync(cssPath)).toBe(true)
     const cssContent = await readFile(cssPath, "utf8")
-    expect(cssContent).toContain('@import "tailwindcss"')
+    expect(cssContent).toContain('@tailwind base')
 
     // Verify global.css import is injected in App.tsx
     const appContent = await readFile(path.join(tempCwd, "App.tsx"), "utf8")
@@ -379,5 +380,75 @@ describe("runInit", () => {
       cwd: tempCwd,
       stdio: "inherit",
     })
+
+    // Uniwind @theme block must include the radius scale so rounded-lg/md/sm respect --radius
+    expect(cssContent).toContain("--radius-lg: var(--radius)")
+    expect(cssContent).toContain("--radius-md: calc(var(--radius) - 2px)")
+    expect(cssContent).toContain("--radius-sm: calc(var(--radius) - 4px)")
+    // And the color mapping
+    expect(cssContent).toContain("--color-primary: var(--primary)")
+    expect(cssContent).toContain("--color-background: var(--background)")
+  })
+
+  it("should patch existing tailwind.config.js with semantic color mapping (nativewind)", async () => {
+    // Existing expo project with a barebones tailwind.config.js (no theme.extend colors)
+    await writeFile(
+      path.join(tempCwd, "package.json"),
+      JSON.stringify({ name: "existing-expo-app", dependencies: {} }, null, 2),
+      "utf8"
+    )
+    await writeFile(
+      path.join(tempCwd, "tailwind.config.js"),
+      `/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: ["./app/**/*.{ts,tsx}"],
+  presets: [require("nativewind/preset")],
+  theme: { extend: {} },
+  plugins: [],
+};
+`,
+      "utf8"
+    )
+    await writeFile(
+      path.join(tempCwd, "App.tsx"),
+      `export default function App() {}`,
+      "utf8"
+    )
+
+    await runInit({ cwd: tempCwd, yes: true, force: false })
+
+    const tw = await readFile(path.join(tempCwd, "tailwind.config.js"), "utf8")
+    // Semantic color mapping bridges CSS vars → Tailwind utilities (bg-primary, text-foreground, etc.)
+    expect(tw).toContain('primary: {')
+    expect(tw).toContain('DEFAULT: "hsl(var(--primary))"')
+    expect(tw).toContain('background: "hsl(var(--background))"')
+    // Border radius wired to theme --radius so nova (0.125rem), sera (0.75rem), etc. take effect
+    expect(tw).toContain('lg: "var(--radius)"')
+    expect(tw).toContain('md: "calc(var(--radius) - 2px)"')
+    // Animations for accordion, dialog, etc.
+    expect(tw).toContain('tailwindcss-animate')
+    expect(tw).toContain('accordion-down')
+    expect(tw).toContain('darkMode: "class"')
+  })
+
+  it("should not touch tailwind.config.js for uniwind projects (uses @theme)", async () => {
+    await writeFile(
+      path.join(tempCwd, "package.json"),
+      JSON.stringify({ name: "existing-expo-app", dependencies: { uniwind: "^1.0.0" } }, null, 2),
+      "utf8"
+    )
+    const originalTw = `// uniwind app - keep me untouched\nmodule.exports = {}\n`
+    await writeFile(path.join(tempCwd, "tailwind.config.js"), originalTw, "utf8")
+    await fs.ensureDir(path.join(tempCwd, "src/app"))
+    await writeFile(
+      path.join(tempCwd, "src/app/_layout.tsx"),
+      `export default function Layout() {}`,
+      "utf8"
+    )
+
+    await runInit({ cwd: tempCwd, yes: true, force: false })
+
+    const tw = await readFile(path.join(tempCwd, "tailwind.config.js"), "utf8")
+    expect(tw).toBe(originalTw)
   })
 })

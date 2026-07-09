@@ -38,18 +38,18 @@ export const Fonts = Platform.select({
     mono: 'ui-monospace',
   },
   default: {
-    sans: 'normal',
+    sans: undefined,
     serif: 'serif',
-    rounded: 'normal',
+    rounded: undefined,
     mono: 'monospace',
   },
   web: {
-    sans: 'var(--font-display)',
+    sans: 'var(--font-sans)',
     serif: 'var(--font-serif)',
     rounded: 'var(--font-rounded)',
     mono: 'var(--font-mono)',
   },
-});
+}) as { sans: string | undefined; serif: string | undefined; rounded: string | undefined; mono: string | undefined };
 
 export const Spacing = {
   half: 2,

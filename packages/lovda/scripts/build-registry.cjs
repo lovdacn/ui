@@ -58,20 +58,36 @@ const PEER_DEPENDENCIES = new Set([
 // These mirror the kind of visual mutations shadcn applies per style.
 const STYLE_TRANSFORMS = {
   mira: {
-    // Mira uses fully rounded buttons / badges
+    // Mira uses fully rounded buttons, badges, cards, and dialogs
+    'rounded-sm': 'rounded-full',
     'rounded-md': 'rounded-full',
+    'rounded-lg': 'rounded-3xl',
+    'rounded-xl': 'rounded-3xl',
+    'rounded-2xl': 'rounded-full',
+    'rounded-3xl': 'rounded-full',
   },
   nova: {
     // Nova uses sharper corners
     'rounded-md': 'rounded-sm',
+    'rounded-lg': 'rounded-sm',
+    'rounded-xl': 'rounded-md',
+    'rounded-2xl': 'rounded-md',
   },
   sera: {
-    // Sera uses larger radii
+    // Sera uses larger curved corners
     'rounded-md': 'rounded-lg',
+    'rounded-lg': 'rounded-xl',
+    'rounded-xl': 'rounded-2xl',
+    'rounded-2xl': 'rounded-3xl',
   },
   vega: {
-    // Vega uses no rounding
+    // Vega uses completely square corners (0 radius)
+    'rounded-sm': 'rounded-none',
     'rounded-md': 'rounded-none',
+    'rounded-lg': 'rounded-none',
+    'rounded-xl': 'rounded-none',
+    'rounded-2xl': 'rounded-none',
+    'rounded-3xl': 'rounded-none',
   },
 };
 
@@ -386,8 +402,10 @@ function applyStyleTransforms(content, styleName) {
 
   let result = content;
   for (const [from, to] of Object.entries(transforms)) {
-    // Only replace in tailwind class strings, not in variable names
-    result = result.replace(new RegExp(from.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), to);
+    // Only replace standalone classes in tailwind class strings, not partial substrings
+    const escaped = from.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp('(^|\\s|[\'"`])' + escaped + '($|\\s|[\'"`])', 'g');
+    result = result.replace(regex, '$1' + to + '$2');
   }
   return result;
 }

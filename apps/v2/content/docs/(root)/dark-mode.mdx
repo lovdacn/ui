@@ -1,0 +1,47 @@
+---
+title: Dark Mode
+description: Adding dark mode to your Expo app with lvcn.
+---
+
+lvcn themes include full light and dark token sets. How you toggle dark mode depends on your style engine and platform.
+
+## Expo + NativeWind
+
+Use a color scheme hook and apply the `dark` class (or NativeWind dark mode config) consistently with your CSS.
+
+Templates ship with:
+
+```ts
+// hooks/use-color-scheme.ts
+import { useColorScheme as useRNColorScheme } from "react-native"
+
+export function useColorScheme() {
+  return useRNColorScheme()
+}
+```
+
+And theme-aware wrappers such as `ThemedView` / `ThemedText`.
+
+Ensure `global.css` defines both light (`:root`) and dark (`.dark`) variables for your chosen base color.
+
+## Expo + Uniwind
+
+Uniwind uses Tailwind v4-style `@theme` tokens. Light and dark values are generated at init. Toggle appearance via the system color scheme or your app’s theme provider.
+
+## Docs site
+
+This documentation site uses `next-themes` with the `class` strategy:
+
+```tsx
+<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+  {children}
+</ThemeProvider>
+```
+
+Use the sun/moon control in the header to preview light and dark tokens.
+
+## Checklist
+
+1. Light and dark CSS variables present for all tokens
+2. Root layout responds to system or user preference
+3. Components use semantic classes (`bg-background`, `text-foreground`, `border-border`) instead of hard-coded colors

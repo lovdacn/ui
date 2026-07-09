@@ -1,0 +1,199 @@
+---
+title: Installation
+description: How to install lovdaCN and structure your Expo app.
+---
+
+Choose the setup that matches your starting point. Or, you can perform a [Manual Installation](/docs/manual) to configure dependencies and styles yourself.
+
+*(Note: You can shorten any `lovdacn` CLI command to `lvcn` in your terminal, for example `npx lvcn@latest init` or `npx lvcn@latest add`.)*
+
+## New project
+
+Scaffold a new Expo app with lovdaCN configured (NativeWind or Uniwind, style pack, and base color):
+
+<PackageManagerTabs>
+<PMTabContent value="npm">
+
+```bash
+npx lovdacn@latest init -n my-app
+```
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+```bash
+yarn dlx lovdacn@latest init -n my-app
+```
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+```bash
+pnpm dlx lovdacn@latest init -n my-app
+```
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+```bash
+bunx lovdacn@latest init -n my-app
+```
+
+</PMTabContent>
+</PackageManagerTabs>
+
+You will be prompted for:
+
+1. **Style engine** — `nativewind` or `uniwind`
+2. **Style** — e.g. `nova`, `new-york`, `mira`
+3. **Base color** — e.g. `zinc`, `neutral`, `slate`
+
+Then install dependencies and start the app:
+
+<PackageManagerTabs>
+<PMTabContent value="npm">
+
+```bash
+cd my-app
+npx expo start
+```
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+```bash
+cd my-app
+yarn expo start
+```
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+```bash
+cd my-app
+pnpm expo start
+```
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+```bash
+cd my-app
+bun expo start
+```
+
+</PMTabContent>
+</PackageManagerTabs>
+
+## Existing project
+
+If you already have an Expo project, run `init` in that directory:
+
+<PackageManagerTabs>
+<PMTabContent value="npm">
+
+```bash
+npx lovdacn@latest init
+```
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+```bash
+yarn dlx lovdacn@latest init
+```
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+```bash
+pnpm dlx lovdacn@latest init
+```
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+```bash
+bunx lovdacn@latest init
+```
+
+</PMTabContent>
+</PackageManagerTabs>
+
+This will:
+
+- Detect or ask for your style engine (NativeWind / Uniwind)
+- Write `lvcn.json` with your style and base color
+- Configure CSS variables and utilities
+- Add the `cn` helper and theme plumbing
+
+Then add components:
+
+<PackageManagerTabs>
+<PMTabContent value="npm">
+
+```bash
+npx lovdacn@latest add button
+npx lovdacn@latest add card input label
+```
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+```bash
+yarn dlx lovdacn@latest add button
+yarn dlx lovdacn@latest add card input label
+```
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+```bash
+pnpm dlx lovdacn@latest add button
+pnpm dlx lovdacn@latest add card input label
+```
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+```bash
+bunx lovdacn@latest add button
+bunx lovdacn@latest add card input label
+```
+
+</PMTabContent>
+</PackageManagerTabs>
+
+## Requirements
+
+- **Expo SDK 57+** (expo-router, native tabs APIs as used by the templates)
+- **Node 18+**
+- A package manager: npm, yarn, pnpm, or bun
+
+## Configuration
+
+After init, your project includes `lvcn.json`:
+
+```json
+{
+  "style": "nova",
+  "styleEngine": "nativewind",
+  "baseColor": "neutral",
+  "aliases": {
+    "components": "@/components",
+    "utils": "@/lib/utils"
+  }
+}
+```
+
+The CLI uses this file when you run `lovdacn add` or `lvcn add`. See the [lvcn.json reference](/docs/lvcn-json) for all options.
+
+## Next steps
+
+- [Manual Installation](/docs/manual) — setup dependencies and styles manually
+- [lvcn.json](/docs/lvcn-json) — configuration file reference
+- [Theming](/docs/theming) — customize tokens and styles
+- [Typography](/docs/typography) — text variants and fonts
+- [CLI](/docs/cli) — full command reference
+- [Expo Router](/docs/expo-router) — file-based navigation setup
+- [Components](/docs/components) — add your first components

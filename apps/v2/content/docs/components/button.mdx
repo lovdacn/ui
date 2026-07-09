@@ -1,0 +1,128 @@
+---
+title: Button
+description: Displays a button or a component that looks like a button.
+component: true
+---
+
+<ComponentPreviewCard title="Button" />
+
+## Installation
+
+<PackageManagerTabs>
+<PMTabContent value="npm">
+
+```bash
+npx lovdacn@latest add button
+```
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+```bash
+yarn dlx lovdacn@latest add button
+```
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+```bash
+pnpm dlx lovdacn@latest add button
+```
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+```bash
+bunx lovdacn@latest add button
+```
+
+</PMTabContent>
+</PackageManagerTabs>
+
+*(You can also use the shortened `lvcn` alias, e.g., `npx lvcn@latest add button`)*
+
+This copies the component source into your project (typically `components/ui/button.tsx`) and installs any required dependencies.
+
+**Registry dependencies:** `text`, `utils`
+
+## Usage
+
+```tsx
+import { Button } from "@/components/ui/button"
+import { Text } from "@/components/ui/text"
+
+export function Example() {
+  return (
+    <Button>
+      <Text>Button</Text>
+    </Button>
+  )
+}
+```
+
+## Variants
+
+### Default
+
+```tsx
+<Button>
+  <Text>Default</Text>
+</Button>
+```
+
+### Outline
+
+```tsx
+<Button variant="outline">
+  <Text>Outline</Text>
+</Button>
+```
+
+### Secondary
+
+```tsx
+<Button variant="secondary">
+  <Text>Secondary</Text>
+</Button>
+```
+
+### Ghost
+
+```tsx
+<Button variant="ghost">
+  <Text>Ghost</Text>
+</Button>
+```
+
+### Destructive
+
+```tsx
+<Button variant="destructive">
+  <Text>Destructive</Text>
+</Button>
+```
+
+### Sizes
+
+```tsx
+<Button size="sm"><Text>Small</Text></Button>
+<Button size="default"><Text>Default</Text></Button>
+<Button size="lg"><Text>Large</Text></Button>
+```
+## Styles
+
+lvcn components are available across all style packs:
+
+| Style | Notes |
+| --- | --- |
+| `default` | Classic rounded system |
+| `new-york` | Compact, refined |
+| `nova` | Sharp corners (default in many setups) |
+| `luma` / `lyra` / `maia` / `mira` | Radius & font variants |
+| `rhea` / `sera` / `vega` | Pill, zero-radius, balanced |
+
+Style is set at project init via `lvcn.json` (`style` + `styleEngine`).
+
+## Platform
+
+These components target **Expo / React Native** with **NativeWind** or **Uniwind**. They use `Platform.select` where web and native need different behavior.

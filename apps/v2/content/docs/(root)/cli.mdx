@@ -1,0 +1,232 @@
+---
+title: CLI
+description: Use the lovdacn CLI (or the lvcn shortcut) to initialize projects and add components.
+---
+
+The **lovdacn** CLI (shortcut **lvcn**) is the command-line tool for Expo projects.
+
+*(Note: You can shorten any `lovdacn` CLI command to `lvcn` in your terminal, for example `npx lvcn@latest init` or `npx lvcn@latest add`.)*
+
+## init
+
+Use `init` to create a new project or configure an existing one.
+
+<PackageManagerTabs>
+<PMTabContent value="npm">
+
+```bash
+npx lovdacn@latest init
+```
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+```bash
+yarn dlx lovdacn@latest init
+```
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+```bash
+pnpm dlx lovdacn@latest init
+```
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+```bash
+bunx lovdacn@latest init
+```
+
+</PMTabContent>
+</PackageManagerTabs>
+
+Create a new project by name:
+
+<PackageManagerTabs>
+<PMTabContent value="npm">
+
+```bash
+npx lovdacn@latest init -n my-app
+```
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+```bash
+yarn dlx lovdacn@latest init -n my-app
+```
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+```bash
+pnpm dlx lovdacn@latest init -n my-app
+```
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+```bash
+bunx lovdacn@latest init -n my-app
+```
+
+</PMTabContent>
+</PackageManagerTabs>
+
+**Options**
+
+```bash
+Usage: lovdacn init [options]
+
+initialize your project and install dependencies
+
+Options:
+  -c, --cwd <cwd>                      working directory (default: current)
+  -n, --name <name>                     name for a new project
+  -y, --yes                             skip confirmation prompts
+  -f, --force                           force overwrite of existing files
+  -p, --package-manager <manager>       npm | yarn | pnpm | bun
+  -h, --help                            display help
+```
+
+`init` will:
+
+1. Scaffold a NativeWind or Uniwind Expo template (new projects)
+2. Write `lvcn.json` with style, style engine, and base color
+3. Set up CSS variables and `lib/utils`
+4. Install required dependencies
+
+## add
+
+Use `add` to install components from the registry into your project.
+
+<PackageManagerTabs>
+<PMTabContent value="npm">
+
+```bash
+npx lovdacn@latest add button
+```
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+```bash
+yarn dlx lovdacn@latest add button
+```
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+```bash
+pnpm dlx lovdacn@latest add button
+```
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+```bash
+bunx lovdacn@latest add button
+```
+
+</PMTabContent>
+</PackageManagerTabs>
+
+Add multiple components:
+
+<PackageManagerTabs>
+<PMTabContent value="npm">
+
+```bash
+npx lovdacn@latest add button card input label text
+```
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+```bash
+yarn dlx lovdacn@latest add button card input label text
+```
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+```bash
+pnpm dlx lovdacn@latest add button card input label text
+```
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+```bash
+bunx lovdacn@latest add button card input label text
+```
+
+</PMTabContent>
+</PackageManagerTabs>
+
+Interactive mode (pick from the full list):
+
+<PackageManagerTabs>
+<PMTabContent value="npm">
+
+```bash
+npx lovdacn@latest add
+```
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+```bash
+yarn dlx lovdacn@latest add
+```
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+```bash
+pnpm dlx lovdacn@latest add
+```
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+```bash
+bunx lovdacn@latest add
+```
+
+</PMTabContent>
+</PackageManagerTabs>
+
+**Options**
+
+```bash
+Usage: lovdacn add [options] [components...]
+
+add components to your project
+
+Arguments:
+  components                            component names to add
+
+Options:
+  -y, --yes                             skip confirmation prompt
+  -o, --overwrite                       overwrite existing files
+  -c, --cwd <cwd>                       working directory
+  -p, --package-manager <manager>       npm | yarn | pnpm | bun
+  -h, --help                            display help
+```
+
+Components are resolved from the registry at `https://lvcn-registry.vercel.app/r` (override with `LOVDA_REGISTRY_URL`).
+
+## Available components
+
+```
+accordion, alert, alert-dialog, aspect-ratio, avatar, badge, button,
+card, checkbox, collapsible, context-menu, dialog, dropdown-menu,
+hover-card, icon, input, label, menubar, native-only-animated-view,
+popover, progress, radio-group, select, separator, skeleton, switch,
+tabs, text, textarea, toggle, toggle-group, tooltip
+```
+
+Browse docs for each component under [Components](/docs/components).

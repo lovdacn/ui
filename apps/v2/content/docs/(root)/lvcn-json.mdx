@@ -1,0 +1,235 @@
+---
+title: lvcn.json
+description: Configuration for your project.
+---
+
+The `lvcn.json` file holds configuration for your project.
+
+We use it to understand how your project is set up and how to generate components customized for your project.
+
+> **Note:** The `lvcn.json` file is only required if you're using the CLI to add components to your project. If you're copying and pasting component source manually, you don't need this file.
+
+You can create a `lvcn.json` file in your project by running the following command:
+
+<PackageManagerTabs>
+<PMTabContent value="npm">
+
+```bash
+npx lovdacn@latest init
+```
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+```bash
+yarn dlx lovdacn@latest init
+```
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+```bash
+pnpm dlx lovdacn@latest init
+```
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+```bash
+bunx lovdacn@latest init
+```
+
+</PMTabContent>
+</PackageManagerTabs>
+
+*(Note: You can also use the shortened `lvcn` alias, e.g., `npx lvcn@latest init`.)*
+
+See the [CLI section](/docs/cli) for more information.
+
+## $schema
+
+You can see the JSON Schema for `lvcn.json` at [lvcn.dev/schema.json](https://lvcn.dev/schema.json).
+
+```json
+{
+  "$schema": "https://lvcn.dev/schema.json"
+}
+```
+
+## style
+
+The visual style for your components. **This cannot be changed after initialization** without re-adding components.
+
+```json
+{
+  "style": "nova"
+}
+```
+
+Available styles:
+
+| Style | Radius | Description |
+| --- | --- | --- |
+| `default` | `0.5rem` | Classic rounded system |
+| `new-york` | `0.5rem` | Compact, refined, shadcn-compatible |
+| `luma` | `0.75rem` | Soft rounded corners |
+| `lyra` | `0.125rem` | Nearly sharp, minimal |
+| `maia` | `1rem` | Large rounded corners |
+| `mira` | `9999px` | Pill-shaped (fully rounded) |
+| `nova` | `0.125rem` | Sharp corners, bold |
+| `rhea` | `9999px` | Pill-shaped variant |
+| `sera` | `0` | Zero radius, brutalist |
+| `vega` | `0.625rem` | Balanced, medium radius |
+
+## styleEngine
+
+The styling runtime used by your Expo project.
+
+```json
+{
+  "styleEngine": "nativewind"
+}
+```
+
+| Engine | Description |
+| --- | --- |
+| `nativewind` | Classic Tailwind utility runtime for React Native. Compatible with react-native-reusables. |
+| `uniwind` | Tailwind v4-style runtime using `@theme` tokens in CSS. |
+
+## tsx
+
+Whether your project uses TypeScript. Defaults to `true`.
+
+```json
+{
+  "tsx": true
+}
+```
+
+## tailwind
+
+Configuration to help the CLI understand how Tailwind CSS is set up in your project.
+
+### tailwind.config
+
+Path to your `tailwind.config.js` file (NativeWind projects only). Uniwind projects don't use a config file — styles are defined in CSS via `@theme`.
+
+```json
+{
+  "tailwind": {
+    "config": "tailwind.config.js"
+  }
+}
+```
+
+### tailwind.css
+
+Path to the CSS file that imports Tailwind CSS.
+
+```json
+{
+  "tailwind": {
+    "css": "./src/global.css"
+  }
+}
+```
+
+### tailwind.baseColor
+
+The base color palette for generating theme tokens.
+
+```json
+{
+  "tailwind": {
+    "baseColor": "zinc"
+  }
+}
+```
+
+Available base colors: `zinc`, `slate`, `stone`, `gray`, `neutral`, `taupe`, `mauve`, `olive`, `mist`.
+
+## aliases
+
+Import aliases used by the CLI when writing component source into your project.
+
+The CLI uses these paths to generate the correct import statements when adding components.
+
+```json
+{
+  "aliases": {
+    "components": "@/components",
+    "utils": "@/lib/utils",
+    "ui": "@/components/ui"
+  }
+}
+```
+
+### aliases.components
+
+Import alias for your components directory.
+
+```json
+{
+  "aliases": {
+    "components": "@/components"
+  }
+}
+```
+
+### aliases.utils
+
+Import alias for your utility functions (where `cn` lives).
+
+```json
+{
+  "aliases": {
+    "utils": "@/lib/utils"
+  }
+}
+```
+
+### aliases.ui
+
+Import alias for your UI components directory. Components are installed here by default.
+
+```json
+{
+  "aliases": {
+    "ui": "@/components/ui"
+  }
+}
+```
+
+## components
+
+An array of component names that have been added to your project. The CLI populates this automatically when you run `lovdacn add` or `lvcn add`.
+
+```json
+{
+  "components": ["button", "card", "input", "text"]
+}
+```
+
+## Full example
+
+Here's a complete `lvcn.json` file:
+
+```json
+{
+  "$schema": "https://lvcn.dev/schema.json",
+  "style": "nova",
+  "styleEngine": "nativewind",
+  "tsx": true,
+  "tailwind": {
+    "config": "tailwind.config.js",
+    "css": "./src/global.css",
+    "baseColor": "neutral"
+  },
+  "aliases": {
+    "components": "@/components",
+    "utils": "@/lib/utils",
+    "ui": "@/components/ui"
+  },
+  "components": []
+}
+```

@@ -1,0 +1,433 @@
+---
+title: Manual Installation
+description: Step-by-step guide to manually configure lovdaCN in your Expo project.
+---
+
+This guide covers how to set up `lovdaCN` in an existing Expo project without using the `init` command.
+
+<Steps>
+
+### Choose and set up your style engine
+
+`lovdaCN` supports both **NativeWind** and **Uniwind**. Select one and follow its configuration:
+
+<Tabs defaultValue="nativewind">
+<TabsList>
+  <TabsTrigger value="nativewind">NativeWind</TabsTrigger>
+  <TabsTrigger value="uniwind">Uniwind</TabsTrigger>
+</TabsList>
+
+<TabsContent value="nativewind">
+
+1. Follow the [official NativeWind v4 installation guide](https://www.nativewind.dev/docs/getting-started/installation) to add NativeWind to your Expo project.
+2. Update your `metro.config.js` to configure the Tailwind output with `inlineRem: 16` to ensure typography scales properly:
+
+```js title="metro.config.js"
+const { getDefaultConfig } = require("expo/metro-config")
+const { withNativeWind } = require("nativewind/metro")
+
+const config = getDefaultConfig(__dirname)
+
+module.exports = withNativeWind(config, {
+  input: "./global.css",
+  inlineRem: 16,
+})
+```
+
+</TabsContent>
+
+<TabsContent value="uniwind">
+
+1. Add `uniwind` to your project dependencies:
+
+<PackageManagerTabs>
+<PMTabContent value="npm">
+
+```bash
+npm install uniwind tailwindcss
+```
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+```bash
+yarn add uniwind tailwindcss
+```
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+```bash
+pnpm add uniwind tailwindcss
+```
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+```bash
+bun add uniwind tailwindcss
+```
+
+</PMTabContent>
+</PackageManagerTabs>
+
+2. Configure your `metro.config.js` using `withUniwind`:
+
+```js title="metro.config.js"
+const { getDefaultConfig } = require("expo/metro-config")
+const { withUniwind } = require("uniwind/metro")
+
+const config = getDefaultConfig(__dirname)
+
+module.exports = withUniwind(config, {
+  input: "./global.css",
+})
+```
+
+</TabsContent>
+</Tabs>
+
+### Install dependencies
+
+Install the core styling utilities and icons:
+
+<PackageManagerTabs>
+<PMTabContent value="npm">
+
+```bash
+npm install class-variance-authority clsx tailwind-merge lucide-react-native react-native-reanimated
+```
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+```bash
+yarn add class-variance-authority clsx tailwind-merge lucide-react-native react-native-reanimated
+```
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+```bash
+pnpm add class-variance-authority clsx tailwind-merge lucide-react-native react-native-reanimated
+```
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+```bash
+bun add class-variance-authority clsx tailwind-merge lucide-react-native react-native-reanimated
+```
+
+</PMTabContent>
+</PackageManagerTabs>
+
+### Configure path aliases
+
+Ensure your project is set up to resolve the `@/*` path alias in `tsconfig.json`:
+
+```json title="tsconfig.json"
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    }
+  }
+}
+```
+
+### Configure CSS variables and styling
+
+Create a `global.css` file in your project root (or `src/global.css`) and add the theme variables:
+
+<Tabs defaultValue="nativewind-css">
+<TabsList>
+  <TabsTrigger value="nativewind-css">NativeWind (HSL)</TabsTrigger>
+  <TabsTrigger value="uniwind-css">Uniwind (oklch)</TabsTrigger>
+</TabsList>
+
+<TabsContent value="nativewind-css">
+
+```css title="global.css"
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 5.9% 10%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+  }
+}
+```
+
+Also configure your `tailwind.config.js` to map these variables:
+
+```js title="tailwind.config.js"
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  darkMode: "class",
+  content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
+  presets: [require("nativewind/preset")],
+  theme: {
+    extend: {
+      colors: {
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
+        },
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
+        },
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
+        accent: {
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
+        },
+      },
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
+      },
+    },
+  },
+  plugins: [],
+}
+```
+
+</TabsContent>
+
+<TabsContent value="uniwind-css">
+
+```css title="global.css"
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-sm: calc(var(--radius) * 0.6);
+}
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.97 0 0);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.205 0 0);
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.145 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.145 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.985 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: oklch(0.269 0 0);
+  --input: oklch(0.269 0 0);
+  --ring: oklch(0.87 0 0);
+}
+```
+
+</TabsContent>
+</Tabs>
+
+### Add the `cn` helper
+
+Create a utility file to merge classNames together:
+
+```tsx title="lib/utils.ts"
+import { clsx, type ClassValue } from "clsx"
+import { twMerge } from "tailwind-merge"
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
+```
+
+### Import global CSS in root layout
+
+Ensure your styles are loaded at the top of your app entry point:
+
+```tsx title="app/_layout.tsx"
+import "../global.css"
+
+import { Stack } from "expo-router"
+
+export default function RootLayout() {
+  return <Stack />
+}
+```
+
+### Create `lvcn.json` file
+
+Create a configuration file in your project root:
+
+```json title="lvcn.json"
+{
+  "$schema": "https://lvcn.dev/schema.json",
+  "style": "nova",
+  "styleEngine": "nativewind",
+  "tsx": true,
+  "tailwind": {
+    "config": "tailwind.config.js",
+    "css": "./global.css",
+    "baseColor": "neutral"
+  },
+  "aliases": {
+    "components": "@/components",
+    "utils": "@/lib/utils",
+    "ui": "@/components/ui"
+  },
+  "components": []
+}
+```
+
+Adjust the config properties according to your setup (e.g. set `styleEngine` to `uniwind` and omit `tailwind.config` if you use Uniwind).
+
+### All set!
+
+You can now start adding components to your project. Use the CLI to pull components into your workspace:
+
+<PackageManagerTabs>
+<PMTabContent value="npm">
+
+```bash
+npx lovdacn@latest add button card
+```
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+```bash
+yarn dlx lovdacn@latest add button card
+```
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+```bash
+pnpm dlx lovdacn@latest add button card
+```
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+```bash
+bunx lovdacn@latest add button card
+```
+
+</PMTabContent>
+</PackageManagerTabs>
+
+*(Note: You can also use the shortened `lvcn` alias, e.g., `npx lvcn@latest add button card`.)*
+
+</Steps>

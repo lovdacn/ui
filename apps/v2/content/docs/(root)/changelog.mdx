@@ -1,0 +1,57 @@
+---
+title: Changelog
+description: Latest updates and announcements for lvcn.
+---
+
+All notable changes to lvcn and the lovda CLI are documented on this page.
+
+## July 2025
+
+### New style packs
+
+Added **10 visual styles** to the registry: `default`, `new-york`, `luma`, `lyra`, `maia`, `mira`, `nova`, `rhea`, `sera`, and `vega`. Each style controls border radius, default base color, and font treatment.
+
+### Uniwind support
+
+lvcn now supports **Uniwind** as an alternative style engine alongside NativeWind. Choose your engine at `init` time — the CLI generates the correct CSS variables, theme tokens, and component source for each engine.
+
+### 32 components
+
+The registry now ships **32 production-ready components**:
+
+accordion, alert, alert-dialog, aspect-ratio, avatar, badge, button, card, checkbox, collapsible, context-menu, dialog, dropdown-menu, hover-card, icon, input, label, menubar, native-only-animated-view, popover, progress, radio-group, select, separator, skeleton, switch, tabs, text, textarea, toggle, toggle-group, tooltip.
+
+### lovda CLI
+
+The `lovda` CLI (`npx lovda`) handles project initialization and component installation:
+
+- **`init`** — scaffold a new Expo project or configure an existing one with style, style engine, and base color.
+- **`add`** — install one or more components from the registry. The CLI resolves dependencies, writes source files, and installs npm packages automatically.
+
+### Nine base color palettes
+
+Added `zinc`, `slate`, `stone`, `gray`, `neutral`, `taupe`, `mauve`, `olive`, and `mist` as base color options, each with full light and dark token sets in both HSL and oklch.
+
+### Documentation site
+
+Launched the docs site powered by Fumadocs with:
+
+- Full component reference with installation, usage, and variant docs
+- Get Started guides: Introduction, Installation, Theming, CLI, Dark Mode
+- Configuration reference (`lvcn.json`)
+- Typography guide
+
+---
+
+## Roadmap
+
+Upcoming work:
+
+- **Form components** — form field wrappers with validation (React Hook Form and Zod)
+- **Data Table** — sortable, filterable table component
+- **Sheet** — bottom sheet / slide-over panel
+- **Toast / Sonner** — toast notification system
+- **Navigation Menu** — responsive navigation with nested menus
+- **Command** — command palette (⌘K style)
+- **Calendar / Date Picker** — date selection
+- **Carousel** — swipeable carousel for images and content

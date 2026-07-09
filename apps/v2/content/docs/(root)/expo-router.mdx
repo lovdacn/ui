@@ -1,0 +1,287 @@
+---
+title: Expo Router
+description: Using lvcn with Expo Router for file-based navigation.
+---
+
+lvcn is designed to work seamlessly with **Expo Router**, the file-based routing system for Expo apps. This guide covers setup and best practices.
+
+## New project
+
+When you scaffold a new project with the CLI, Expo Router is included and configured automatically:
+
+<PackageManagerTabs>
+<PMTabContent value="npm">
+
+```bash
+npx lovdacn@latest init -n my-app
+# or
+npx lvcn@latest init -n my-app
+```
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+```bash
+yarn dlx lovdacn@latest init -n my-app
+# or
+yarn dlx lvcn@latest init -n my-app
+```
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+```bash
+pnpm dlx lovdacn@latest init -n my-app
+# or
+pnpm dlx lvcn@latest init -n my-app
+```
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+```bash
+bunx lovdacn@latest init -n my-app
+# or
+bunx lvcn@latest init -n my-app
+```
+
+</PMTabContent>
+</PackageManagerTabs>
+
+The generated template includes:
+
+- `app/` directory with file-based routing
+- `app/_layout.tsx` — root layout with theme provider and font loading
+- `app/(tabs)/` — tab navigation group
+- `app/(tabs)/_layout.tsx` — tab bar configuration
+
+## Existing project
+
+If you already have an Expo Router project, run `init` to add lvcn:
+
+<PackageManagerTabs>
+<PMTabContent value="npm">
+
+```bash
+npx lovdacn@latest init
+# or
+npx lvcn@latest init
+```
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+```bash
+yarn dlx lovdacn@latest init
+# or
+yarn dlx lvcn@latest init
+```
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+```bash
+pnpm dlx lovdacn@latest init
+# or
+pnpm dlx lvcn@latest init
+```
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+```bash
+bunx lovdacn@latest init
+# or
+bunx lvcn@latest init
+```
+
+</PMTabContent>
+</PackageManagerTabs>
+
+Then add your first component:
+
+<PackageManagerTabs>
+<PMTabContent value="npm">
+
+```bash
+npx lovdacn@latest add button text
+# or
+npx lvcn@latest add button text
+```
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+```bash
+yarn dlx lovdacn@latest add button text
+# or
+yarn dlx lvcn@latest add button text
+```
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+```bash
+pnpm dlx lovdacn@latest add button text
+# or
+pnpm dlx lvcn@latest add button text
+```
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+```bash
+bunx lovdacn@latest add button text
+# or
+bunx lvcn@latest add button text
+```
+
+</PMTabContent>
+</PackageManagerTabs>
+
+## Root layout setup
+
+Your root layout needs to:
+
+1. Load fonts (if using custom fonts)
+2. Import global CSS
+3. Wrap the app in any required providers
+
+```tsx
+// app/_layout.tsx
+import "../global.css"
+
+import { Stack } from "expo-router"
+import { useFonts } from "expo-font"
+import { StatusBar } from "expo-status-bar"
+
+export default function RootLayout() {
+  const [loaded] = useFonts({
+    Inter: require("../assets/fonts/Inter.ttf"),
+  })
+
+  if (!loaded) return null
+
+  return (
+    <>
+      <StatusBar style="auto" />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+        }}
+      />
+    </>
+  )
+}
+```
+
+## Tab navigation with lvcn
+
+Use lvcn components inside your tab screens:
+
+```tsx
+// app/(tabs)/index.tsx
+import { View } from "react-native"
+import { Text } from "@/components/ui/text"
+import { Button } from "@/components/ui/button"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+
+export default function HomeScreen() {
+  return (
+    <View className="flex-1 items-center justify-center gap-4 p-6">
+      <Text variant="h1">Welcome</Text>
+      <Card className="w-full max-w-sm">
+        <CardHeader>
+          <CardTitle>
+            <Text>Get Started</Text>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Button>
+            <Text>Press me</Text>
+          </Button>
+        </CardContent>
+      </Card>
+    </View>
+  )
+}
+```
+
+## Modal screens
+
+Use `Dialog` or `AlertDialog` components within Expo Router modal routes:
+
+```tsx
+// app/modal.tsx
+import { View } from "react-native"
+import { router } from "expo-router"
+import { Text } from "@/components/ui/text"
+import { Button } from "@/components/ui/button"
+
+export default function ModalScreen() {
+  return (
+    <View className="flex-1 items-center justify-center gap-4 p-6">
+      <Text variant="h2">Modal</Text>
+      <Button onPress={() => router.back()}>
+        <Text>Close</Text>
+      </Button>
+    </View>
+  )
+}
+```
+
+Configure the modal in your layout:
+
+```tsx
+// app/_layout.tsx
+<Stack>
+  <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+  <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+</Stack>
+```
+
+## NativeWind configuration
+
+Ensure your `metro.config.js` includes NativeWind support:
+
+```js
+const { getDefaultConfig } = require("expo/metro-config")
+const { withNativeWind } = require("nativewind/metro")
+
+const config = getDefaultConfig(__dirname)
+
+module.exports = withNativeWind(config, {
+  input: "./src/global.css",
+})
+```
+
+## Uniwind configuration
+
+For Uniwind projects, the metro plugin is configured automatically:
+
+```js
+const { getDefaultConfig } = require("expo/metro-config")
+const { withUniwwind } = require("uniwind/metro")
+
+const config = getDefaultConfig(__dirname)
+
+module.exports = withUniwwind(config, {
+  input: "./src/global.css",
+})
+```
+
+## Platform-specific behavior
+
+lvcn components use `Platform.select` internally where native and web behavior differs. When using Expo Router's web support, components automatically adapt:
+
+- **Dialogs** use native modal presentations on iOS/Android, DOM portals on web
+- **Select** uses native picker on mobile, HTML select on web
+- **Popovers** use measured positioning on native, CSS positioning on web
+
+You don't need to write platform checks for these — the components handle it.
+
+## Related
+
+- [Installation](/docs/installation) — full setup guide
+- [Dark Mode](/docs/dark-mode) — theme toggling with Expo
+- [Components](/docs/components) — browse all components

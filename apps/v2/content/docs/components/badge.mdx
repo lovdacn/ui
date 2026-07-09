@@ -1,0 +1,87 @@
+---
+title: Badge
+description: Displays a badge or a component that looks like a badge.
+component: true
+---
+
+<ComponentPreviewCard title="Badge" />
+
+## Installation
+
+<PackageManagerTabs>
+<PMTabContent value="npm">
+
+```bash
+npx lovdacn@latest add badge
+```
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+```bash
+yarn dlx lovdacn@latest add badge
+```
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+```bash
+pnpm dlx lovdacn@latest add badge
+```
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+```bash
+bunx lovdacn@latest add badge
+```
+
+</PMTabContent>
+</PackageManagerTabs>
+
+*(You can also use the shortened `lvcn` alias, e.g., `npx lvcn@latest add badge`)*
+
+This copies the component source into your project (typically `components/ui/badge.tsx`) and installs any required dependencies.
+
+**Registry dependencies:** `utils`, `text`
+
+## Usage
+
+```tsx
+import { Badge } from "@/components/ui/badge"
+import { Text } from "@/components/ui/text"
+
+export function Example() {
+  return (
+    <Badge>
+      <Text>Badge</Text>
+    </Badge>
+  )
+}
+```
+
+## Variants
+
+```tsx
+<Badge><Text>Default</Text></Badge>
+<Badge variant="secondary"><Text>Secondary</Text></Badge>
+<Badge variant="outline"><Text>Outline</Text></Badge>
+<Badge variant="destructive"><Text>Destructive</Text></Badge>
+```
+## Styles
+
+lvcn components are available across all style packs:
+
+| Style | Notes |
+| --- | --- |
+| `default` | Classic rounded system |
+| `new-york` | Compact, refined |
+| `nova` | Sharp corners (default in many setups) |
+| `luma` / `lyra` / `maia` / `mira` | Radius & font variants |
+| `rhea` / `sera` / `vega` | Pill, zero-radius, balanced |
+
+Style is set at project init via `lvcn.json` (`style` + `styleEngine`).
+
+## Platform
+
+These components target **Expo / React Native** with **NativeWind** or **Uniwind**. They use `Platform.select` where web and native need different behavior.

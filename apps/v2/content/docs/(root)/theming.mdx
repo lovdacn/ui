@@ -1,0 +1,92 @@
+---
+title: Theming
+description: Using CSS variables and style packs for theming lvcn components.
+---
+
+lvcn uses CSS variables for theming, similar to shadcn/ui. Tokens live in your global CSS and map to Tailwind utilities via `@theme`.
+
+## Style packs
+
+Each style controls **radius**, **default font**, and a **default base color**:
+
+| Style | Radius | Default base |
+| --- | --- | --- |
+| `default` | `0.5rem` | slate |
+| `new-york` | `0.5rem` | zinc |
+| `luma` | `0.75rem` | neutral |
+| `lyra` | `0.125rem` | stone |
+| `maia` | `1rem` | neutral |
+| `mira` | pill (`9999px`) | zinc |
+| `nova` | `0.125rem` | neutral |
+| `rhea` | pill | neutral |
+| `sera` | `0` | taupe |
+| `vega` | `0.625rem` | neutral |
+
+## Base colors
+
+Nine base palettes are available: `zinc`, `slate`, `stone`, `gray`, `neutral`, `taupe`, `mauve`, `olive`, `mist`.
+
+Each palette includes light and dark tokens for:
+
+```
+background, foreground
+card, card-foreground
+popover, popover-foreground
+primary, primary-foreground
+secondary, secondary-foreground
+muted, muted-foreground
+accent, accent-foreground
+destructive, destructive-foreground
+border, input, ring
+```
+
+NativeWind projects use **HSL** CSS variables. Uniwind projects use **oklch** via `@theme`.
+
+## CSS variables
+
+Example light theme tokens (oklch, Uniwind / docs site style):
+
+```css
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0% 0 0);
+  --primary: oklch(0% 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --border: oklch(0.922 0 0);
+  --radius: 0.625rem;
+}
+```
+
+Dark mode uses the `.dark` class (or your color scheme hook on native):
+
+```css
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+}
+```
+
+## Changing theme
+
+1. Re-run `npx lovda init` with a different style/base color, or
+2. Edit `global.css` tokens directly, or
+3. Update `lvcn.json` and re-add components if you need style-specific component source.
+
+## Utility helper
+
+Components use the shared `cn` helper:
+
+```ts
+import { clsx, type ClassValue } from "clsx"
+import { twMerge } from "tailwind-merge"
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
+```
+
+See [Dark Mode](/docs/dark-mode) for enabling light/dark on Expo.

@@ -1,0 +1,79 @@
+---
+title: Toggle
+description: A two-state button that can be either on or off.
+component: true
+---
+
+<ComponentPreviewCard title="Toggle" />
+
+## Installation
+
+<PackageManagerTabs>
+<PMTabContent value="npm">
+
+```bash
+npx lovdacn@latest add toggle
+```
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+```bash
+yarn dlx lovdacn@latest add toggle
+```
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+```bash
+pnpm dlx lovdacn@latest add toggle
+```
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+```bash
+bunx lovdacn@latest add toggle
+```
+
+</PMTabContent>
+</PackageManagerTabs>
+
+*(You can also use the shortened `lvcn` alias, e.g., `npx lvcn@latest add toggle`)*
+
+This copies the component source into your project (typically `components/ui/toggle.tsx`) and installs any required dependencies.
+
+**Registry dependencies:** `utils`, `text`
+
+## Usage
+
+```tsx
+import { Toggle } from "@/components/ui/toggle"
+import { Text } from "@/components/ui/text"
+
+export function Example() {
+  return (
+    <Toggle aria-label="Toggle italic">
+      <Text>Italic</Text>
+    </Toggle>
+  )
+}
+```
+
+## Styles
+
+lvcn components are available across all style packs:
+
+| Style | Notes |
+| --- | --- |
+| `default` | Classic rounded system |
+| `new-york` | Compact, refined |
+| `nova` | Sharp corners (default in many setups) |
+| `luma` / `lyra` / `maia` / `mira` | Radius & font variants |
+| `rhea` / `sera` / `vega` | Pill, zero-radius, balanced |
+
+Style is set at project init via `lvcn.json` (`style` + `styleEngine`).
+
+## Platform
+
+These components target **Expo / React Native** with **NativeWind** or **Uniwind**. They use `Platform.select` where web and native need different behavior.
