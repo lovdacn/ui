@@ -3,7 +3,8 @@
   "name": "select",
   "dependencies": [
     "@rn-primitives/select",
-    "lucide-react-native"
+    "lucide-react-native",
+    "@rn-primitives/portal@^1.5.2"
   ],
   "registryDependencies": [
     "icon",

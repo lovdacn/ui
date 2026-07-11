@@ -12,6 +12,20 @@ import { REGISTRY_URL } from "../config.js"
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
+const PORTAL_COMPONENTS = new Set([
+  "alert-dialog",
+  "context-menu",
+  "dialog",
+  "dropdown-menu",
+  "hover-card",
+  "popover",
+  "select",
+  "tooltip",
+])
+
+const PORTAL_DEPENDENCY = "@rn-primitives/portal@^1.5.2"
+const GESTURE_HANDLER_DEPENDENCY = "react-native-gesture-handler"
+
 export const addOptionsSchema = z.object({
   components: z.array(z.string()).optional(),
   yes: z.boolean().default(false),
@@ -161,6 +175,12 @@ export async function runAdd(options: z.infer<typeof addOptionsSchema>) {
     }
   }
 
+  if (Array.from(resolvedComponents).some((componentName) => PORTAL_COMPONENTS.has(componentName))) {
+    npmDependencies.add(PORTAL_DEPENDENCY)
+    npmDependencies.add(GESTURE_HANDLER_DEPENDENCY)
+    configurePortalHost(cwd)
+  }
+
   // Install npm dependencies in one run
   if (npmDependencies.size > 0) {
     const deps = Array.from(npmDependencies)
@@ -236,6 +256,81 @@ export async function runAdd(options: z.infer<typeof addOptionsSchema>) {
   console.log(pc.green("\nComponent(s) added successfully! 🎉"))
 }
 
+function configurePortalHost(projectPath: string) {
+  const possibleRootFiles = [
+    "src/app/_layout.tsx",
+    "app/_layout.tsx",
+    "src/app/_layout.jsx",
+    "app/_layout.jsx",
+    "src/app/_layout.js",
+    "app/_layout.js",
+    "App.tsx",
+    "App.jsx",
+    "App.js",
+    "src/App.tsx",
+    "src/App.js",
+  ]
+
+  let foundFile: string | null = null
+  for (const file of possibleRootFiles) {
+    if (fs.existsSync(path.join(projectPath, file))) {
+      foundFile = file
+      break
+    }
+  }
+
+  if (!foundFile) return
+
+  const targetPath = path.join(projectPath, foundFile)
+  const content = fs.readFileSync(targetPath, "utf8")
+
+  let next = content
+  const changes: string[] = []
+
+  // 1. Mount the PortalHost so native portal content has a host to render into.
+  if (!next.includes("PortalHost")) {
+    if (next.includes("</ThemeProvider>")) {
+      next = next.replace(/(\s*)<\/ThemeProvider>/, "$1  <PortalHost />\n$1</ThemeProvider>")
+      changes.push("PortalHost")
+    } else if (next.includes("</>")) {
+      next = next.replace(/(\s*)<\/>/, "$1  <PortalHost />\n$1</>")
+      changes.push("PortalHost")
+    }
+
+    if (changes.includes("PortalHost")) {
+      next = `import { PortalHost } from "@rn-primitives/portal";\n${next}`
+    }
+  }
+
+  // 2. Wrap the app root in GestureHandlerRootView. rn-primitives overlay
+  //    triggers rely on react-native-gesture-handler; without this wrapper
+  //    their presses silently fail on native, so popover/dialog/dropdown/etc.
+  //    never open.
+  if (!next.includes("GestureHandlerRootView")) {
+    const openIdx = next.indexOf("<ThemeProvider")
+    const closeToken = "</ThemeProvider>"
+    const closeIdx = next.lastIndexOf(closeToken)
+
+    if (openIdx !== -1 && closeIdx !== -1 && closeIdx > openIdx) {
+      const before = next.slice(0, openIdx)
+      const middle = next.slice(openIdx, closeIdx + closeToken.length)
+      const after = next.slice(closeIdx + closeToken.length)
+      next =
+        before +
+        "<GestureHandlerRootView style={{ flex: 1 }}>\n      " +
+        middle +
+        "\n    </GestureHandlerRootView>" +
+        after
+      next = `import { GestureHandlerRootView } from "react-native-gesture-handler";\n${next}`
+      changes.push("GestureHandlerRootView")
+    }
+  }
+
+  if (changes.length === 0) return
+
+  fs.writeFileSync(targetPath, next, "utf8")
+  console.log(pc.green(`Updated ${pc.cyan(foundFile)} with ${changes.join(" + ")}`))
+}
 function resolveAliasPath(cwd: string, alias: string): string {
   const cleanAlias = alias.replace(/^([@~]\/)/, "")
 

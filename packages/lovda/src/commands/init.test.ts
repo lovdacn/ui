@@ -323,10 +323,45 @@ describe("runInit", () => {
     expect(appContent).toContain('import "./global.css";')
 
     // Verify it installed the correct style engine packages
-    expect(execa).toHaveBeenCalledWith("npm", ["install", "nativewind", "tailwindcss", "class-variance-authority"], {
+    expect(execa).toHaveBeenCalledWith("npm", ["install", "nativewind", "tailwindcss", "class-variance-authority", "@rn-primitives/portal", "react-native-gesture-handler"], {
       cwd: tempCwd,
       stdio: "inherit",
     })
+  })
+
+  it("should add PortalHost to existing expo-router layouts for native overlays", async () => {
+    await writeFile(
+      path.join(tempCwd, "package.json"),
+      JSON.stringify({ name: "existing-expo-app", dependencies: {} }, null, 2),
+      "utf8"
+    )
+
+    await fs.ensureDir(path.join(tempCwd, "src/app"))
+    await writeFile(
+      path.join(tempCwd, "src/app/_layout.tsx"),
+      `import { ThemeProvider } from "expo-router";
+
+export default function Layout() {
+  return (
+    <ThemeProvider value={{} as any}>
+      <Slot />
+    </ThemeProvider>
+  )
+}
+`,
+      "utf8"
+    )
+
+    await runInit({ cwd: tempCwd, yes: true, force: false })
+
+    const layoutContent = await readFile(path.join(tempCwd, "src/app/_layout.tsx"), "utf8")
+    expect(layoutContent).toContain('import { PortalHost } from "@rn-primitives/portal";')
+    expect(layoutContent).toContain("<PortalHost />")
+    expect(layoutContent.indexOf("<PortalHost />")).toBeLessThan(layoutContent.indexOf("</ThemeProvider>"))
+    expect(layoutContent).toContain('import { GestureHandlerRootView } from "react-native-gesture-handler";')
+    expect(layoutContent).toContain("<GestureHandlerRootView style={{ flex: 1 }}>")
+    expect(layoutContent.indexOf("<GestureHandlerRootView")).toBeLessThan(layoutContent.indexOf("<ThemeProvider"))
+    expect(layoutContent.indexOf("</ThemeProvider>")).toBeLessThan(layoutContent.indexOf("</GestureHandlerRootView>"))
   })
 
   it("should initialize inside existing projects with uniwind if uniwind is in package.json", async () => {
@@ -376,7 +411,7 @@ describe("runInit", () => {
     expect(layoutContent).toContain('import "../global.css";')
 
     // Verify it installed uniwind packages
-    expect(execa).toHaveBeenCalledWith("npm", ["install", "uniwind", "tailwindcss", "class-variance-authority"], {
+    expect(execa).toHaveBeenCalledWith("npm", ["install", "uniwind", "tailwindcss", "class-variance-authority", "@rn-primitives/portal", "react-native-gesture-handler"], {
       cwd: tempCwd,
       stdio: "inherit",
     })

@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "dependencies": {
     "@expo/ui": "~57.0.3",
+    "@rn-primitives/portal": "^1.5.2",
     "expo": "~57.0.2",
     "expo-constants": "~57.0.3",
     "expo-device": "~57.0.0",

@@ -151,6 +151,61 @@ describe("runAdd", () => {
     expect(updatedConfig.components).toContain("utils")
   })
 
+  it("should patch PortalHost and install portal dependency for overlay components", async () => {
+    const lvcnConfig = {
+      $schema: "https://lvcn.dev/schema.json",
+      style: "maia",
+      styleEngine: "nativewind",
+      tsx: true,
+      tailwind: { config: "tailwind.config.js", css: "src/global.css" },
+      aliases: {
+        components: "@/components",
+        utils: "@/lib/utils",
+        ui: "@/components/ui",
+      },
+      components: [],
+    }
+    await writeFile(path.join(tempCwd, "lvcn.json"), JSON.stringify(lvcnConfig, null, 2), "utf8")
+    await fs.ensureDir(path.join(tempCwd, "src/app"))
+    await writeFile(
+      path.join(tempCwd, "src/app/_layout.tsx"),
+      `import { ThemeProvider } from "expo-router";
+
+export default function Layout() {
+  return (
+    <ThemeProvider value={{} as any}>
+      <Slot />
+    </ThemeProvider>
+  )
+}
+`,
+      "utf8"
+    )
+
+    await runAdd({ components: ["popover"], cwd: tempCwd, yes: true, overwrite: false })
+
+    const layoutContent = await readFile(path.join(tempCwd, "src/app/_layout.tsx"), "utf8")
+    expect(layoutContent).toContain('import { PortalHost } from "@rn-primitives/portal";')
+    expect(layoutContent).toContain("<PortalHost />")
+
+    expect(execa).toHaveBeenCalledWith(
+      expect.any(String),
+      [
+        "install",
+        "@rn-primitives/popover@^1.5.2",
+        "@rn-primitives/portal@^1.5.2",
+        "@rn-primitives/slot",
+        "class-variance-authority",
+        "clsx",
+        "tailwind-merge",
+        "react-native-gesture-handler",
+      ],
+      {
+        cwd: tempCwd,
+        stdio: "inherit",
+      }
+    )
+  })
   it("should install component using default @ aliases", async () => {
     const lvcnConfig = {
       $schema: "https://lvcn.dev/schema.json",
@@ -183,7 +238,7 @@ describe("runAdd", () => {
     expect(buttonContent).not.toContain("~/components")
     expect(buttonContent).not.toContain("~/lib")
   })
-  it("should install component in mira style, using rounded-full", async () => {
+  it("should install component in mira style with per-style overrides", async () => {
     // Pre-create lvcn.json with style: mira
     const lvcnConfig = {
       $schema: "https://lvcn.dev/schema.json",
@@ -212,9 +267,12 @@ describe("runAdd", () => {
     const buttonPath = path.join(tempCwd, "components/ui/button.tsx")
     expect(fs.existsSync(buttonPath)).toBe(true)
 
-    // Verify rewritten aliases and distinct mira content (rounded-full)
+    // Verify rewritten aliases and distinct mira per-style overrides.
+    // Mira applies its per-style CSS (e.g. text-xs/relaxed typography) and its
+    // pill shape comes from the --radius variable (9999px) applied to rounded-md,
+    // NOT a hardcoded rounded-full class (that was the old STYLE_TRANSFORMS hack).
     const buttonContent = await readFile(buttonPath, "utf8")
-    expect(buttonContent).toContain("rounded-full")
-    expect(buttonContent).not.toContain("rounded-md")
+    expect(buttonContent).toContain("text-xs/relaxed")
+    expect(buttonContent).not.toContain("rounded-full")
   })
 })

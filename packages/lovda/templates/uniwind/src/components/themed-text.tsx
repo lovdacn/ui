@@ -14,7 +14,6 @@ export function ThemedText({ style, type = 'default', themeColor, ...rest }: The
   return (
     <Text
       style={[
-        styles.base,
         { color: theme[themeColor ?? 'text'] },
         type === 'default' && styles.default,
         type === 'title' && styles.title,
@@ -32,52 +31,43 @@ export function ThemedText({ style, type = 'default', themeColor, ...rest }: The
 }
 
 const styles = StyleSheet.create({
-  base: {
-    fontFamily: Fonts.sans,
-    ...Platform.select({
-      android: { includeFontPadding: false, textAlignVertical: 'center' as const },
-      default: {},
-    }),
-  },
   small: {
     fontSize: 14,
     lineHeight: 20,
-    fontWeight: '500',
+    fontWeight: 500,
   },
   smallBold: {
     fontSize: 14,
     lineHeight: 20,
-    fontWeight: '700',
+    fontWeight: 700,
   },
   default: {
     fontSize: 16,
     lineHeight: 24,
-    fontWeight: '500',
+    fontWeight: 500,
   },
   title: {
     fontSize: 48,
-    fontWeight: '600',
+    fontWeight: 600,
     lineHeight: 52,
   },
   subtitle: {
     fontSize: 32,
     lineHeight: 44,
-    fontWeight: '600',
+    fontWeight: 600,
   },
   link: {
-    lineHeight: 20,
+    lineHeight: 30,
     fontSize: 14,
-    fontWeight: '500',
   },
   linkPrimary: {
-    lineHeight: 20,
+    lineHeight: 30,
     fontSize: 14,
-    fontWeight: '500',
     color: '#3c87f7',
   },
   code: {
     fontFamily: Fonts.mono,
-    fontWeight: Platform.select({ android: '700' }) ?? '500',
+    fontWeight: Platform.select({ android: 700 }) ?? 500,
     fontSize: 12,
   },
 });
