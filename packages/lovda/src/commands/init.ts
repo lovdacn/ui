@@ -164,7 +164,7 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
           type: "text",
           name: "projectName",
           message: "What is your project named?",
-          initial: (prev: string) => prev === "uniwind" ? "uniwind-app" : "nativewind-app",
+          initial: (prev: any, values: any) => values.styleEngine === "uniwind" ? "uniwind-app" : "nativewind-app",
           validate: (value: string) =>
             value.trim().length === 0 ? "Project name cannot be empty." : true,
         })
@@ -396,8 +396,9 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
       configureBabelConfig(projectPath)
     }
 
-    // 6. Configure root file import for global.css
+    // 6. Configure root file import for global.css and native portal host
     configureRootImport(projectPath, cssRelativePath)
+    configurePortalHost(projectPath)
   } else {
     console.log(pc.blue(`Initializing project in ${pc.cyan(projectPath)}...`))
 
@@ -466,8 +467,8 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
   if (hasPackageJson) {
     const deps =
       styleEngine === "uniwind"
-        ? ["uniwind", "tailwindcss", "class-variance-authority"]
-        : ["nativewind", "tailwindcss", "class-variance-authority"]
+        ? ["uniwind", "tailwindcss", "class-variance-authority", "@rn-primitives/portal", "react-native-gesture-handler"]
+        : ["nativewind", "tailwindcss", "class-variance-authority", "@rn-primitives/portal", "react-native-gesture-handler"]
     await execa(packageManager!, ["install", ...deps], {
       cwd: projectPath,
       stdio: "inherit",
@@ -1447,6 +1448,8 @@ function getStyleVars(style: string, styleEngine: "nativewind" | "uniwind", base
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 16px);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -1778,6 +1781,8 @@ function buildTailwindExtendBlock(opts: {
   }
   if (opts.includeBorderRadius) {
     parts.push(`      borderRadius: {
+        "3xl": "calc(var(--radius) + 16px)",
+        "2xl": "calc(var(--radius) + 8px)",
         xl: "calc(var(--radius) + 4px)",
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
@@ -1877,6 +1882,82 @@ function configureRootImport(projectPath: string, cssRelativePath: string) {
   }
 }
 
+function configurePortalHost(projectPath: string) {
+  const possibleRootFiles = [
+    "src/app/_layout.tsx",
+    "app/_layout.tsx",
+    "src/app/_layout.jsx",
+    "app/_layout.jsx",
+    "src/app/_layout.js",
+    "app/_layout.js",
+    "App.tsx",
+    "App.jsx",
+    "App.js",
+    "src/App.tsx",
+    "src/App.js",
+  ]
+
+  let foundFile: string | null = null
+  for (const file of possibleRootFiles) {
+    if (fs.existsSync(path.join(projectPath, file))) {
+      foundFile = file
+      break
+    }
+  }
+
+  if (!foundFile) return
+
+  const targetPath = path.join(projectPath, foundFile)
+  const content = fs.readFileSync(targetPath, "utf8")
+
+  let next = content
+  const changes: string[] = []
+
+  // 1. Mount the PortalHost as the last child of the providers so native
+  //    portal content (dialog, popover, dropdown, tooltip, ...) has a host.
+  if (!next.includes("PortalHost")) {
+    if (next.includes("</ThemeProvider>")) {
+      next = next.replace(/(\s*)<\/ThemeProvider>/, "$1  <PortalHost />\n$1</ThemeProvider>")
+      changes.push("PortalHost")
+    } else if (next.includes("</>")) {
+      next = next.replace(/(\s*)<\/>/, "$1  <PortalHost />\n$1</>")
+      changes.push("PortalHost")
+    }
+
+    if (changes.includes("PortalHost")) {
+      next = `import { PortalHost } from "@rn-primitives/portal";\n${next}`
+    }
+  }
+
+  // 2. Wrap the app root in GestureHandlerRootView. rn-primitives overlay
+  //    triggers rely on react-native-gesture-handler, and without this
+  //    wrapper their presses silently fail on native, so overlays like
+  //    popover/dialog/dropdown never open.
+  if (!next.includes("GestureHandlerRootView")) {
+    const openIdx = next.indexOf("<ThemeProvider")
+    const closeToken = "</ThemeProvider>"
+    const closeIdx = next.lastIndexOf(closeToken)
+
+    if (openIdx !== -1 && closeIdx !== -1 && closeIdx > openIdx) {
+      const before = next.slice(0, openIdx)
+      const middle = next.slice(openIdx, closeIdx + closeToken.length)
+      const after = next.slice(closeIdx + closeToken.length)
+      next =
+        before +
+        "<GestureHandlerRootView style={{ flex: 1 }}>\n      " +
+        middle +
+        "\n    </GestureHandlerRootView>" +
+        after
+      next = `import { GestureHandlerRootView } from "react-native-gesture-handler";\n${next}`
+      changes.push("GestureHandlerRootView")
+    }
+  }
+
+  if (changes.length === 0) return
+
+  fs.writeFileSync(targetPath, next, "utf8")
+  console.log(pc.green(`Updated ${pc.cyan(foundFile)} with ${changes.join(" + ")}`))
+}
 function adaptScaffoldedProject(projectPath: string, packageManager: string) {
   // 1. Delete lockfiles that do NOT match the selected package manager
   const lockfiles: Record<string, string[]> = {
