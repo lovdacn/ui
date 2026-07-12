@@ -502,6 +502,15 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
       style: style,
       styleEngine: styleEngine,
       ...(existingLvcnConfig || {}),
+      // Preset fields
+      baseColor: baseColor,
+      ...(presetConfig ? {
+        theme: presetConfig.theme,
+        chartColor: presetConfig.chartColor,
+        font: presetConfig.font,
+        iconLibrary: presetConfig.iconLibrary,
+        radius: presetConfig.radius,
+      } : {}),
       aliases: {
         ...templateLvcn.aliases,
         ...((existingLvcnConfig && existingLvcnConfig.aliases) || {}),
@@ -538,6 +547,38 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
       cwd: projectPath,
       stdio: "inherit",
     })
+  }
+
+  // Install preset-specific packages (font + icons)
+  if (presetConfig) {
+    const presetDeps: string[] = []
+
+    // Font package
+    const fontPkg = FONT_PACKAGES[presetConfig.font]
+    if (fontPkg) {
+      presetDeps.push(fontPkg)
+    }
+
+    // Icon library package (skip @expo/vector-icons as it's built-in)
+    if (presetConfig.iconLibrary !== "expo") {
+      const iconPkg = ICON_PACKAGES[presetConfig.iconLibrary]
+      if (iconPkg) {
+        presetDeps.push(iconPkg)
+        presetDeps.push("react-native-svg")
+      }
+    }
+
+    if (presetDeps.length > 0) {
+      console.log(pc.blue(`Installing preset packages: ${pc.cyan(presetDeps.join(", "))}...`))
+      try {
+        await execa(packageManager!, ["install", ...presetDeps], {
+          cwd: projectPath,
+          stdio: "inherit",
+        })
+      } catch {
+        console.log(pc.yellow(`⚠ Could not install some preset packages. Install manually: ${presetDeps.join(" ")}`))
+      }
+    }
   }
 
   console.log(pc.green("\nProject initialized successfully! 🎉"))
@@ -1466,7 +1507,7 @@ const STYLE_CONFIGS: Record<string, StyleConfig> = {
   },
 };
 
-function getStyleVars(style: string, styleEngine: "nativewind" | "uniwind", baseColor: string): string {
+function getStyleVars(style: string, styleEngine: "nativewind" | "uniwind", baseColor: string, theme?: string, chartColor?: string): string {
   const styleConfig: StyleConfig = STYLE_CONFIGS[style] ?? STYLE_CONFIGS["new-york"]!;
 
   let resolvedColor: "zinc" | "slate" | "stone" | "gray" | "neutral" | "taupe" | "mauve" | "olive" | "mist" = "zinc";
@@ -1478,6 +1519,11 @@ function getStyleVars(style: string, styleEngine: "nativewind" | "uniwind", base
 
   const colorConfig = THEME_COLORS[resolvedColor];
   const radius = styleConfig.radius;
+
+  // Resolve theme (accent primary override) and chart color ramp.
+  const cssFormat: "oklch" | "hsl" = styleEngine === "uniwind" ? "oklch" : "hsl";
+  const themePrimary = theme ? getThemePrimary(theme, cssFormat) : null;
+  const chartRamp = getChartRamp(chartColor ?? theme ?? "blue", cssFormat);
 
   const fontVariables = `:root {
   --font-sans: ${styleConfig.fontSans}, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji,
@@ -1495,12 +1541,21 @@ function getStyleVars(style: string, styleEngine: "nativewind" | "uniwind", base
   if (styleEngine === "uniwind") {
     let lightVars = "";
     for (const [key, val] of Object.entries(colorConfig.oklch.light)) {
+      // Apply theme primary override
+      if (themePrimary && key === "primary") { lightVars += `  --primary: ${themePrimary.light.primary};\n`; continue; }
+      if (themePrimary && key === "primary-foreground") { lightVars += `  --primary-foreground: ${themePrimary.light.foreground};\n`; continue; }
       lightVars += `  --${key}: ${val};\n`;
     }
+    // Chart colors (light)
+    chartRamp.light.forEach((c, i) => { lightVars += `  --chart-${i + 1}: ${c};\n`; });
+
     let darkVars = "";
     for (const [key, val] of Object.entries(colorConfig.oklch.dark)) {
+      if (themePrimary && key === "primary") { darkVars += `  --primary: ${themePrimary.dark.primary};\n`; continue; }
+      if (themePrimary && key === "primary-foreground") { darkVars += `  --primary-foreground: ${themePrimary.dark.foreground};\n`; continue; }
       darkVars += `  --${key}: ${val};\n`;
     }
+    chartRamp.dark.forEach((c, i) => { darkVars += `  --chart-${i + 1}: ${c};\n`; });
 
     return `@theme inline {
   --radius: ${radius};
@@ -1530,6 +1585,11 @@ function getStyleVars(style: string, styleEngine: "nativewind" | "uniwind", base
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
 }
 
 :root {
@@ -1542,12 +1602,19 @@ ${fontVariables}`;
   } else {
     let lightVars = "";
     for (const [key, val] of Object.entries(colorConfig.hsl.light)) {
+      if (themePrimary && key === "primary") { lightVars += `    --primary: ${themePrimary.light.primary};\n`; continue; }
+      if (themePrimary && key === "primary-foreground") { lightVars += `    --primary-foreground: ${themePrimary.light.foreground};\n`; continue; }
       lightVars += `    --${key}: ${val};\n`;
     }
+    chartRamp.light.forEach((c, i) => { lightVars += `    --chart-${i + 1}: ${c};\n`; });
+
     let darkVars = "";
     for (const [key, val] of Object.entries(colorConfig.hsl.dark)) {
+      if (themePrimary && key === "primary") { darkVars += `    --primary: ${themePrimary.dark.primary};\n`; continue; }
+      if (themePrimary && key === "primary-foreground") { darkVars += `    --primary-foreground: ${themePrimary.dark.foreground};\n`; continue; }
       darkVars += `    --${key}: ${val};\n`;
     }
+    chartRamp.dark.forEach((c, i) => { darkVars += `    --chart-${i + 1}: ${c};\n`; });
 
     return `@layer base {
   :root {
@@ -1562,7 +1629,7 @@ ${fontVariables}`;
   }
 }
 
-async function configureGlobalCss(projectPath: string, styleEngine: "nativewind" | "uniwind", cssRelativePath: string, style: string, baseColor: string) {
+async function configureGlobalCss(projectPath: string, styleEngine: "nativewind" | "uniwind", cssRelativePath: string, style: string, baseColor: string, theme?: string, chartColor?: string) {
   const cssPath = path.join(projectPath, cssRelativePath)
   fs.ensureDirSync(path.dirname(cssPath))
 
@@ -1576,10 +1643,32 @@ async function configureGlobalCss(projectPath: string, styleEngine: "nativewind"
     content += '@tailwind utilities;\n'
   }
 
-  content += "\n" + getStyleVars(style, styleEngine, baseColor) + "\n"
+  content += "\n" + getStyleVars(style, styleEngine, baseColor, theme, chartColor) + "\n"
 
   fs.writeFileSync(cssPath, content, "utf8")
   console.log(pc.green(`✔ Configured global CSS for style ${pc.cyan(style)}`))
+}
+
+// Exported for the `preset apply` command to regenerate global.css with full
+// color + theme + chart generation (reuses the same pipeline as init).
+export async function regenerateProjectCss(opts: {
+  projectPath: string
+  styleEngine: "nativewind" | "uniwind"
+  cssRelativePath: string
+  style: string
+  baseColor: string
+  theme?: string
+  chartColor?: string
+}) {
+  await configureGlobalCss(
+    opts.projectPath,
+    opts.styleEngine,
+    opts.cssRelativePath,
+    opts.style,
+    opts.baseColor,
+    opts.theme,
+    opts.chartColor
+  )
 }
 
 function getRegistryUrl(): string {
@@ -1766,6 +1855,24 @@ function configureTailwindConfig(projectPath: string, templateTailwindPath: stri
     patches.push("theme.extend (colors/borderRadius/keyframes)")
   }
 
+  // Ensure chart colors exist in the colors block (for configs that already
+  // had a colors block but predate chart-color support).
+  if (!/["']?chart-1["']?\s*:/.test(content)) {
+    // Inject the 5 chart entries right after the card color mapping.
+    const chartLines = `        "chart-1": "hsl(var(--chart-1))",
+        "chart-2": "hsl(var(--chart-2))",
+        "chart-3": "hsl(var(--chart-3))",
+        "chart-4": "hsl(var(--chart-4))",
+        "chart-5": "hsl(var(--chart-5))",`
+    if (/card:\s*\{[^}]*hsl\(var\(--card-foreground\)\)[^}]*\},/s.test(content)) {
+      content = content.replace(
+        /(card:\s*\{[^}]*hsl\(var\(--card-foreground\)\)[^}]*\},)/s,
+        `$1\n${chartLines}`
+      )
+      patches.push("chart colors")
+    }
+  }
+
   // Ensure tailwindcss-animate is in plugins
   if (!/tailwindcss-animate/.test(content)) {
     if (/plugins\s*:\s*\[\s*\]/.test(content)) {
@@ -1837,6 +1944,11 @@ function buildTailwindExtendBlock(opts: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        "chart-1": "hsl(var(--chart-1))",
+        "chart-2": "hsl(var(--chart-2))",
+        "chart-3": "hsl(var(--chart-3))",
+        "chart-4": "hsl(var(--chart-4))",
+        "chart-5": "hsl(var(--chart-5))",
       }`)
   }
   if (opts.includeBorderRadius) {
