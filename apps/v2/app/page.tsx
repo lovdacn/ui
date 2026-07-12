@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowRightIcon } from "lucide-react"
+import { ArrowRightIcon, SparklesIcon } from "lucide-react"
 
 import { COMPONENTS } from "@/lib/components"
 import {
@@ -124,6 +124,33 @@ export default function IndexPage() {
               </p>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Create CTA */}
+      <div className="container-wrapper border-t border-border">
+        <div className="container py-16 md:py-20">
+          <Link
+            href="/create"
+            className="group relative flex flex-col items-center gap-4 overflow-hidden rounded-2xl border border-border bg-card p-10 text-center transition-colors hover:bg-muted/40 md:p-14"
+          >
+            <div className="flex size-14 items-center justify-center rounded-2xl border border-border bg-background transition-transform group-hover:scale-110">
+              <SparklesIcon className="size-6" />
+            </div>
+            <div className="space-y-2">
+              <h2 className="text-2xl font-semibold tracking-tight">
+                Create your own design system
+              </h2>
+              <p className="mx-auto max-w-lg text-sm text-muted-foreground">
+                Pick your style, base color, font, icons, and radius. Shuffle for
+                inspiration, then copy a single command to scaffold your project.
+              </p>
+            </div>
+            <span className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
+              Open Create
+              <ArrowRightIcon className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+            </span>
+          </Link>
         </div>
       </div>
     </div>
