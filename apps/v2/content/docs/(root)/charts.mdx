@@ -1,0 +1,132 @@
+---
+title: Charts
+description: How chart colors work in lvcn and how to render charts in React Native.
+---
+
+lvcn ships a **chart color** token set that mirrors shadcn/ui. When you pick a
+chart color in the [Create](/create) page or via a preset, the CLI writes five
+CSS variables — `--chart-1` through `--chart-5` — into your `global.css`. Any
+React Native chart library can then read those resolved colors.
+
+## The chart tokens
+
+Every preset generates a 5-stop ramp derived from a single Tailwind color family:
+
+```css
+:root {
+  --chart-1: oklch(0.637 0.237 25.331); /* red-500 */
+  --chart-2: oklch(0.704 0.191 22.216); /* red-400 */
+  --chart-3: oklch(0.577 0.245 27.325); /* red-600 */
+  --chart-4: oklch(0.808 0.114 19.571); /* red-300 */
+  --chart-5: oklch(0.505 0.213 27.518); /* red-700 */
+}
+
+.dark {
+  /* lighter stops read better on dark surfaces */
+  --chart-1: oklch(0.704 0.191 22.216);
+  --chart-2: oklch(0.808 0.114 19.571);
+  --chart-3: oklch(0.637 0.237 25.331);
+  --chart-4: oklch(0.808 0.114 19.571);
+  --chart-5: oklch(0.577 0.245 27.325);
+}
+```
+
+NativeWind projects get the same ramp as **HSL** triplets; Uniwind projects get
+**oklch**. You never edit these by hand — they come from your preset.
+
+## Theme vs Base Color vs Chart Color
+
+lvcn separates three color concerns, exactly like shadcn/ui:
+
+| Token group | Controls | Example |
+| --- | --- | --- |
+| **Base Color** | Neutral surfaces — `background`, `card`, `muted`, `border` | Zinc |
+| **Theme** | The accent/`primary` — buttons, links, active states | Emerald |
+| **Chart Color** | `--chart-1` … `--chart-5` for data visualization | Red |
+
+This is why the [Create](/create) page has three separate color pickers. Your
+buttons can be emerald while your charts are red.
+
+## Using the tokens
+
+The chart vars are registered as Tailwind colors, so you can reference them as
+utilities:
+
+```tsx
+import { View } from "react-native"
+
+export function Legend() {
+  return (
+    <View className="flex-row gap-2">
+      <View className="size-3 rounded-full bg-chart-1" />
+      <View className="size-3 rounded-full bg-chart-2" />
+      <View className="size-3 rounded-full bg-chart-3" />
+      <View className="size-3 rounded-full bg-chart-4" />
+      <View className="size-3 rounded-full bg-chart-5" />
+    </View>
+  )
+}
+```
+
+## Rendering charts in React Native
+
+Unlike shadcn/ui (which uses `recharts` on the web), React Native needs a
+native chart library. lvcn's chart tokens work with any of them — you just pass
+the resolved color values.
+
+Recommended libraries:
+
+- [`react-native-gifted-charts`](https://github.com/Abhinandan-Kushwaha/react-native-gifted-charts) — bar, line, pie, area
+- [`victory-native`](https://commerce.nearform.com/open-source/victory-native/) — flexible, Skia-powered
+- [`react-native-svg-charts`](https://github.com/JesperLekland/react-native-svg-charts) — lightweight SVG charts
+
+### Reading a CSS var as a color
+
+Use a small hook to resolve a token to a usable color string. On Uniwind/NativeWind
+you can read the computed variable, or map the token in a JS constant:
+
+```tsx
+// lib/chart-colors.ts
+// Mirror your global.css chart tokens for use in JS chart libs.
+export const chartColors = {
+  chart1: "oklch(0.637 0.237 25.331)",
+  chart2: "oklch(0.704 0.191 22.216)",
+  chart3: "oklch(0.577 0.245 27.325)",
+  chart4: "oklch(0.808 0.114 19.571)",
+  chart5: "oklch(0.505 0.213 27.518)",
+}
+```
+
+### Example — bar chart
+
+```tsx
+import { BarChart } from "react-native-gifted-charts"
+import { chartColors } from "@/lib/chart-colors"
+
+const data = [
+  { value: 40, frontColor: chartColors.chart1 },
+  { value: 68, frontColor: chartColors.chart2 },
+  { value: 52, frontColor: chartColors.chart3 },
+  { value: 81, frontColor: chartColors.chart4 },
+  { value: 34, frontColor: chartColors.chart5 },
+]
+
+export function MonthlyChart() {
+  return <BarChart data={data} barWidth={22} spacing={18} roundedTop />
+}
+```
+
+## Swapping chart colors later
+
+Change just the chart color on an existing project without touching anything else:
+
+```bash
+# Apply a full preset (updates theme + chart + everything)
+npx lovda preset apply mira
+
+# Or generate a code from the Create page and apply it
+npx lovda preset apply aNHI3R
+```
+
+The CLI regenerates `global.css` with the new `--chart-*` ramp and re-installs
+your components. See [Theming](/docs/theming) for the full token reference.
