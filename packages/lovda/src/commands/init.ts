@@ -8,6 +8,18 @@ import pc from "picocolors"
 import { z } from "zod"
 
 import { REGISTRY_URL } from "../config.js"
+import {
+  decodePreset,
+  isPresetCode,
+  FONT_FAMILIES,
+  FONT_PACKAGES,
+  ICON_PACKAGES,
+  RADIUS_VALUES,
+  getFontCategory,
+  type PresetConfig,
+} from "../preset/index.js"
+import { DEFAULT_PRESETS } from "../preset/defaults.js"
+import { getThemePrimary, getChartRamp } from "../preset/colors.js"
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -18,6 +30,8 @@ export const initOptionsSchema = z.object({
   yes: z.boolean().default(false),
   force: z.boolean().default(false),
   packageManager: z.enum(["npm", "yarn", "pnpm", "bun"]).optional(),
+  preset: z.string().optional(),
+  engine: z.enum(["nativewind", "uniwind"]).optional(),
 })
 
 export const init = new Command()
@@ -34,6 +48,14 @@ export const init = new Command()
   .option(
     "-p, --package-manager <package-manager>",
     "the package manager to use. (npm, yarn, pnpm, bun)"
+  )
+  .option(
+    "--preset <preset>",
+    "use a preset configuration (code, named preset, or style name)"
+  )
+  .option(
+    "--engine <engine>",
+    "the style engine to use (nativewind, uniwind)"
   )
   .action(async (opts) => {
     try {
@@ -59,6 +81,32 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
   let styleEngine: "nativewind" | "uniwind" = "nativewind"
   let style: string = "new-york"
   let baseColor: string = "zinc"
+  let presetConfig: PresetConfig | null = null
+
+  // Resolve --preset if provided
+  if (options.preset) {
+    const namedPreset = DEFAULT_PRESETS[options.preset]
+    if (namedPreset) {
+      const { title, description, ...config } = namedPreset
+      presetConfig = config
+    } else if (isPresetCode(options.preset)) {
+      presetConfig = decodePreset(options.preset)
+      if (!presetConfig) {
+        console.error(pc.red(`Invalid preset code: ${options.preset}`))
+        process.exit(1)
+      }
+    } else {
+      console.error(pc.red(`Unknown preset: ${options.preset}`))
+      console.error(pc.dim(`Available: ${Object.keys(DEFAULT_PRESETS).join(", ")}, or a preset code.`))
+      process.exit(1)
+    }
+
+    // Apply preset values
+    style = presetConfig.style
+    baseColor = presetConfig.baseColor
+    console.log(pc.blue(`Using preset: ${pc.cyan(options.preset)}`))
+    console.log(pc.dim(`  style: ${style}, base: ${baseColor}, theme: ${presetConfig.theme}, chart: ${presetConfig.chartColor}, font: ${FONT_FAMILIES[presetConfig.font]}, icons: ${presetConfig.iconLibrary}, radius: ${RADIUS_VALUES[presetConfig.radius]}`))
+  }
 
   if (hasPackageJson) {
     // Existing project mode
@@ -79,6 +127,8 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
       styleEngine = "uniwind"
     } else if (deps["nativewind"]) {
       styleEngine = "nativewind"
+    } else if (options.engine) {
+      styleEngine = options.engine
     } else {
       if (options.yes) {
         styleEngine = "nativewind"
@@ -104,60 +154,64 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
     if (options.yes) {
       projectName = projectName || "nativewind-app"
       packageManager = packageManager || getPackageManager(cwd)
-      styleEngine = "nativewind"
-      style = "new-york"
-      baseColor = "zinc"
+      styleEngine = options.engine || "nativewind"
+      style = presetConfig ? presetConfig.style : "new-york"
+      baseColor = presetConfig ? presetConfig.baseColor : "zinc"
     } else {
       const detectedPM = getPackageManager(cwd)
       const questions: prompts.PromptObject[] = []
 
-      questions.push({
-        type: "select",
-        name: "styleEngine",
-        message: "Which style engine would you like to use?",
-        choices: [
-          { title: "NativeWind (default/reusables compatible)", value: "nativewind" },
-          { title: "Uniwind", value: "uniwind" }
-        ],
-        initial: 0
-      })
+      if (!options.engine) {
+        questions.push({
+          type: "select",
+          name: "styleEngine",
+          message: "Which style engine would you like to use?",
+          choices: [
+            { title: "NativeWind (default/reusables compatible)", value: "nativewind" },
+            { title: "Uniwind", value: "uniwind" }
+          ],
+          initial: 0
+        })
+      }
 
-      questions.push({
-        type: "select",
-        name: "style",
-        message: "Which style would you like to use?",
-        choices: [
-          { title: "Default", value: "default" },
-          { title: "New York", value: "new-york" },
-          { title: "Luma", value: "luma" },
-          { title: "Lyra", value: "lyra" },
-          { title: "Maia", value: "maia" },
-          { title: "Mira", value: "mira" },
-          { title: "Nova", value: "nova" },
-          { title: "Rhea", value: "rhea" },
-          { title: "Sera", value: "sera" },
-          { title: "Vega", value: "vega" }
-        ],
-        initial: 1
-      })
+      if (!presetConfig) {
+        questions.push({
+          type: "select",
+          name: "style",
+          message: "Which style would you like to use?",
+          choices: [
+            { title: "Default", value: "default" },
+            { title: "New York", value: "new-york" },
+            { title: "Luma", value: "luma" },
+            { title: "Lyra", value: "lyra" },
+            { title: "Maia", value: "maia" },
+            { title: "Mira", value: "mira" },
+            { title: "Nova", value: "nova" },
+            { title: "Rhea", value: "rhea" },
+            { title: "Sera", value: "sera" },
+            { title: "Vega", value: "vega" }
+          ],
+          initial: 1
+        })
 
-      questions.push({
-        type: "select",
-        name: "baseColor",
-        message: "Which color would you like to use as the base color?",
-        choices: [
-          { title: "Zinc", value: "zinc" },
-          { title: "Slate", value: "slate" },
-          { title: "Stone", value: "stone" },
-          { title: "Gray", value: "gray" },
-          { title: "Neutral", value: "neutral" },
-          { title: "Mauve", value: "mauve" },
-          { title: "Olive", value: "olive" },
-          { title: "Mist", value: "mist" },
-          { title: "Taupe", value: "taupe" }
-        ],
-        initial: 0
-      })
+        questions.push({
+          type: "select",
+          name: "baseColor",
+          message: "Which color would you like to use as the base color?",
+          choices: [
+            { title: "Zinc", value: "zinc" },
+            { title: "Slate", value: "slate" },
+            { title: "Stone", value: "stone" },
+            { title: "Gray", value: "gray" },
+            { title: "Neutral", value: "neutral" },
+            { title: "Mauve", value: "mauve" },
+            { title: "Olive", value: "olive" },
+            { title: "Mist", value: "mist" },
+            { title: "Taupe", value: "taupe" }
+          ],
+          initial: 0
+        })
+      }
 
       if (!projectName) {
         questions.push({
@@ -207,17 +261,17 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
       if (
         (!projectName && !response.projectName) ||
         (!packageManager && !response.packageManager) ||
-        !response.styleEngine ||
-        !response.style ||
-        !response.baseColor
+        (!options.engine && !response.styleEngine) ||
+        (!presetConfig && (!response.style || !response.baseColor))
       ) {
         process.exit(0)
       }
       projectName = projectName || response.projectName.trim()
       packageManager = packageManager || (response.packageManager as "npm" | "yarn" | "pnpm" | "bun")
-      styleEngine = response.styleEngine
-      style = response.style
-      baseColor = response.baseColor
+      styleEngine = options.engine || response.styleEngine
+      // style/baseColor come from preset if provided, else from prompt
+      style = presetConfig ? presetConfig.style : response.style
+      baseColor = presetConfig ? presetConfig.baseColor : response.baseColor
     }
 
     if (!packageManager) {
@@ -272,6 +326,9 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
   // Prompt/set style
   if (existingLvcnConfig && existingLvcnConfig.style) {
     style = existingLvcnConfig.style
+  } else if (presetConfig) {
+    // style already set from preset
+    style = presetConfig.style
   } else if (options.yes) {
     style = "new-york"
   } else if (!hasPackageJson) {
@@ -304,6 +361,9 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
   // Prompt/set baseColor
   if (existingLvcnConfig && existingLvcnConfig.tailwind?.baseColor) {
     baseColor = existingLvcnConfig.tailwind.baseColor
+  } else if (presetConfig) {
+    // baseColor already set from preset
+    baseColor = presetConfig.baseColor
   } else if (options.yes) {
     baseColor = "zinc"
   } else if (!hasPackageJson) {
@@ -379,7 +439,7 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
     )
 
     // 2. Setup global.css file
-    await configureGlobalCss(projectPath, styleEngine, cssRelativePath, style, baseColor)
+    await configureGlobalCss(projectPath, styleEngine, cssRelativePath, style, baseColor, presetConfig?.theme, presetConfig?.chartColor)
     configureThemeTs(projectPath, baseColor)
 
     // 3. Configure tailwind.config.js (only for nativewind - uniwind uses @theme in CSS)
@@ -430,7 +490,7 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
     adaptScaffoldedProject(projectPath, packageManager!)
 
     // Setup global.css file with style-specific styles
-    await configureGlobalCss(projectPath, styleEngine, cssRelativePath, style, baseColor)
+    await configureGlobalCss(projectPath, styleEngine, cssRelativePath, style, baseColor, presetConfig?.theme, presetConfig?.chartColor)
     configureThemeTs(projectPath, baseColor)
   }
 
