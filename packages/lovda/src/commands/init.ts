@@ -582,6 +582,29 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
   }
 
   console.log(pc.green("\nProject initialized successfully! 🎉"))
+
+  // Next steps: show how to add components using the runner for the package
+  // manager the user chose (npx / pnpm dlx / yarn dlx / bunx).
+  const runner = getDlxRunner(packageManager!)
+  console.log(pc.dim("\nNow add components with:"))
+  if (!hasPackageJson && projectName) {
+    console.log(`  ${pc.cyan(`cd ${projectName}`)}`)
+  }
+  console.log(`  ${pc.cyan(`${runner} lovda add`)} ${pc.dim("[...components]")}`)
+}
+
+// Map a package manager to its one-off package runner (dlx-style).
+function getDlxRunner(packageManager: "npm" | "yarn" | "pnpm" | "bun"): string {
+  switch (packageManager) {
+    case "pnpm":
+      return "pnpm dlx"
+    case "bun":
+      return "bunx"
+    case "yarn":
+      return "yarn dlx"
+    default:
+      return "npx"
+  }
 }
 
 function getPackageManager(cwd: string): "npm" | "yarn" | "pnpm" | "bun" {
@@ -1481,7 +1504,11 @@ const STYLE_CONFIGS: Record<string, StyleConfig> = {
     defaultBaseColor: "neutral",
   },
   mira: {
-    radius: "9999px",
+    // Bounded "full" radius. Short controls (buttons, inputs ~36px) still clamp
+    // to a full pill via CSS, while containers (card/alert/dialog) stay rounded
+    // rectangles instead of exploding into ovals. Mirrors shadcn's approach of a
+    // bounded --radius + per-component rounded-full for genuinely pill elements.
+    radius: "1.5rem",
     fontSans: "Inter",
     defaultBaseColor: "zinc",
   },
@@ -1491,7 +1518,8 @@ const STYLE_CONFIGS: Record<string, StyleConfig> = {
     defaultBaseColor: "neutral",
   },
   rhea: {
-    radius: "9999px",
+    // Bounded "full" radius — see mira note above.
+    radius: "1.5rem",
     fontSans: "Inter",
     defaultBaseColor: "neutral",
   },
@@ -1558,13 +1586,18 @@ function getStyleVars(style: string, styleEngine: "nativewind" | "uniwind", base
     chartRamp.dark.forEach((c, i) => { darkVars += `  --chart-${i + 1}: ${c};\n`; });
 
     return `@theme inline {
+  /* shadcn-style multiplicative radius scale. Small control tokens (sm/md)
+     scale freely so short controls can still clamp to pills; container tokens
+     (lg..4xl) are px-capped via min() so cards/dialogs/alerts can never grow
+     into ovals regardless of how large --radius is. */
   --radius: ${radius};
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-lg: var(--radius);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-2xl: calc(var(--radius) + 8px);
-  --radius-3xl: calc(var(--radius) + 16px);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: min(var(--radius), 20px);
+  --radius-xl: min(calc(var(--radius) * 1.4), 24px);
+  --radius-2xl: min(calc(var(--radius) * 1.8), 28px);
+  --radius-3xl: min(calc(var(--radius) * 2.2), 32px);
+  --radius-4xl: min(calc(var(--radius) * 2.6), 32px);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -1953,12 +1986,13 @@ function buildTailwindExtendBlock(opts: {
   }
   if (opts.includeBorderRadius) {
     parts.push(`      borderRadius: {
-        "3xl": "calc(var(--radius) + 16px)",
-        "2xl": "calc(var(--radius) + 8px)",
-        xl: "calc(var(--radius) + 4px)",
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        "4xl": "min(calc(var(--radius) * 2.6), 32px)",
+        "3xl": "min(calc(var(--radius) * 2.2), 32px)",
+        "2xl": "min(calc(var(--radius) * 1.8), 28px)",
+        xl: "min(calc(var(--radius) * 1.4), 24px)",
+        lg: "min(var(--radius), 20px)",
+        md: "calc(var(--radius) * 0.8)",
+        sm: "calc(var(--radius) * 0.6)",
       }`)
   }
   if (opts.includeBorderWidth) {

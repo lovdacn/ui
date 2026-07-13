@@ -151,6 +151,51 @@ describe("runAdd", () => {
     expect(updatedConfig.components).toContain("utils")
   })
 
+  it("should install native deps via `expo install` for Expo projects (SDK-pinned versions)", async () => {
+    // Pre-create lvcn.json
+    const lvcnConfig = {
+      $schema: "https://lvcn.dev/schema.json",
+      style: "new-york",
+      tsx: true,
+      tailwind: { config: "tailwind.config.js", css: "global.css" },
+      aliases: {
+        components: "@/components",
+        utils: "@/lib/utils",
+        ui: "@/components/ui",
+      },
+      components: [],
+    }
+    await writeFile(path.join(tempCwd, "lvcn.json"), JSON.stringify(lvcnConfig, null, 2), "utf8")
+
+    // Mark the project as an Expo project so installs defer to `expo install`.
+    await writeFile(
+      path.join(tempCwd, "package.json"),
+      JSON.stringify({ name: "app", dependencies: { expo: "~57.0.2" } }, null, 2),
+      "utf8"
+    )
+
+    const options = {
+      components: ["button"],
+      cwd: tempCwd,
+      yes: true,
+      overwrite: false,
+      packageManager: "npm" as const,
+    }
+
+    await runAdd(options)
+
+    // Native/JS deps must be installed through `npx expo install`, not a raw
+    // `npm install`, so native modules resolve to the SDK-compatible versions.
+    expect(execa).toHaveBeenCalledWith(
+      "npx",
+      ["expo", "install", "class-variance-authority", "@rn-primitives/slot", "clsx", "tailwind-merge"],
+      {
+        cwd: tempCwd,
+        stdio: "inherit",
+      }
+    )
+  })
+
   it("should patch PortalHost and install portal dependency for overlay components", async () => {
     const lvcnConfig = {
       $schema: "https://lvcn.dev/schema.json",
@@ -269,8 +314,10 @@ export default function Layout() {
 
     // Verify rewritten aliases and distinct mira per-style overrides.
     // Mira applies its per-style CSS (e.g. text-xs/relaxed typography) and its
-    // pill shape comes from the --radius variable (9999px) applied to rounded-md,
-    // NOT a hardcoded rounded-full class (that was the old STYLE_TRANSFORMS hack).
+    // pill shape comes from the bounded --radius variable (1.5rem). On short
+    // controls like buttons/inputs this clamps to a full pill, while containers
+    // stay rounded rectangles — NOT a hardcoded rounded-full class (that was the
+    // old STYLE_TRANSFORMS hack).
     const buttonContent = await readFile(buttonPath, "utf8")
     expect(buttonContent).toContain("text-xs/relaxed")
     expect(buttonContent).not.toContain("rounded-full")

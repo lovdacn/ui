@@ -193,7 +193,7 @@ describe("runInit", () => {
 
     const cssPath = path.join(projectPath, "global.css")
     const cssContent = await readFile(cssPath, "utf8")
-    expect(cssContent).toContain("--radius: 9999px")
+    expect(cssContent).toContain("--radius: 1.5rem")
   })
 
   it("should respect packageManager option if provided", async () => {
@@ -416,10 +416,13 @@ export default function Layout() {
       stdio: "inherit",
     })
 
-    // Uniwind @theme block must include the radius scale so rounded-lg/md/sm respect --radius
-    expect(cssContent).toContain("--radius-lg: var(--radius)")
-    expect(cssContent).toContain("--radius-md: calc(var(--radius) - 2px)")
-    expect(cssContent).toContain("--radius-sm: calc(var(--radius) - 4px)")
+    // Uniwind @theme block must include the shadcn multiplicative radius scale
+    // with px-capped container tokens so rounded-lg/xl can never oval out.
+    expect(cssContent).toContain("--radius-md: calc(var(--radius) * 0.8)")
+    expect(cssContent).toContain("--radius-sm: calc(var(--radius) * 0.6)")
+    expect(cssContent).toContain("--radius-lg: min(var(--radius), 20px)")
+    expect(cssContent).toContain("--radius-xl: min(calc(var(--radius) * 1.4), 24px)")
+    expect(cssContent).toContain("--radius-4xl: min(calc(var(--radius) * 2.6), 32px)")
     // And the color mapping
     expect(cssContent).toContain("--color-primary: var(--primary)")
     expect(cssContent).toContain("--color-background: var(--background)")
@@ -457,9 +460,10 @@ module.exports = {
     expect(tw).toContain('primary: {')
     expect(tw).toContain('DEFAULT: "hsl(var(--primary))"')
     expect(tw).toContain('background: "hsl(var(--background))"')
-    // Border radius wired to theme --radius so nova (0.125rem), sera (0.75rem), etc. take effect
-    expect(tw).toContain('lg: "var(--radius)"')
-    expect(tw).toContain('md: "calc(var(--radius) - 2px)"')
+    // Border radius wired to theme --radius with shadcn multiplicative scale +
+    // px-capped container tokens so large-radius styles (mira/rhea) can't oval out.
+    expect(tw).toContain('lg: "min(var(--radius), 20px)"')
+    expect(tw).toContain('md: "calc(var(--radius) * 0.8)"')
     // Animations for accordion, dialog, etc.
     expect(tw).toContain('tailwindcss-animate')
     expect(tw).toContain('accordion-down')

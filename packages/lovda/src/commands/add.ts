@@ -26,6 +26,41 @@ const PORTAL_COMPONENTS = new Set([
 const PORTAL_DEPENDENCY = "@rn-primitives/portal@^1.5.2"
 const GESTURE_HANDLER_DEPENDENCY = "react-native-gesture-handler"
 
+// Detect whether the target project is an Expo project (so we can defer to
+// `expo install` for SDK-compatible native module versions).
+function isExpoProject(cwd: string): boolean {
+  try {
+    const pkg = fs.readJsonSync(path.join(cwd, "package.json"))
+    return Boolean(pkg?.dependencies?.expo || pkg?.devDependencies?.expo)
+  } catch {
+    return false
+  }
+}
+
+// Build the dependency-install command. For Expo projects we invoke the local
+// `expo install` via the chosen package manager's runner; `expo install` pins
+// native modules to the SDK's bundled versions and installs everything else
+// normally. Non-Expo projects fall back to a plain package-manager install.
+function getInstallCommand(
+  packageManager: "npm" | "yarn" | "pnpm" | "bun",
+  deps: string[],
+  useExpo: boolean
+): { cmd: string; args: string[] } {
+  if (!useExpo) {
+    return { cmd: packageManager, args: ["install", ...deps] }
+  }
+  switch (packageManager) {
+    case "pnpm":
+      return { cmd: "pnpm", args: ["exec", "expo", "install", ...deps] }
+    case "yarn":
+      return { cmd: "yarn", args: ["expo", "install", ...deps] }
+    case "bun":
+      return { cmd: "bunx", args: ["expo", "install", ...deps] }
+    default:
+      return { cmd: "npx", args: ["expo", "install", ...deps] }
+  }
+}
+
 export const addOptionsSchema = z.object({
   components: z.array(z.string()).optional(),
   yes: z.boolean().default(false),
@@ -187,7 +222,13 @@ export async function runAdd(options: z.infer<typeof addOptionsSchema>) {
     console.log(
       pc.blue(`Installing npm dependencies: ${pc.cyan(deps.join(", "))}...`)
     )
-    await execa(packageManager, ["install", ...deps], {
+    // For Expo projects, install through `expo install` so native modules
+    // (react-native-gesture-handler, react-native-svg, etc.) are pinned to the
+    // versions bundled with the project's Expo SDK. Installing them unpinned
+    // pulls the latest major (e.g. gesture-handler 3.x) which crashes in Expo Go
+    // with "installUIRuntimeBindings"/NativeProxy resolution errors.
+    const { cmd, args } = getInstallCommand(packageManager, deps, isExpoProject(cwd))
+    await execa(cmd, args, {
       cwd,
       stdio: "inherit",
     })
