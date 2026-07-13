@@ -90,7 +90,7 @@ export function Picker<T extends string>({
       )}
 
       {open && (
-        <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-64 overflow-y-auto rounded-lg border border-border bg-popover p-1 shadow-lg">
+        <div className="absolute z-50 max-h-80 overflow-y-auto rounded-lg border border-border bg-popover p-1 shadow-lg animate-in fade-in duration-150 md:left-[calc(100%+8px)] md:top-0 md:w-60 left-0 right-0 top-full mt-1 w-full">
           {options.map((option) => (
             <button
               key={option.value}

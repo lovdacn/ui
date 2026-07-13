@@ -245,7 +245,7 @@ export const RADIUS_VALUES: Record<PresetConfig["radius"], string> = {
   "small": "0.125rem",
   "medium": "0.625rem",
   "large": "0.75rem",
-  "full": "9999px",
+  "full": "1.5rem",
 }
 
 export const STYLE_LABELS: Record<PresetConfig["style"], string> = {

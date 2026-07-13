@@ -2,8 +2,10 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { MenuIcon, XIcon } from "lucide-react"
+import { MenuIcon, XIcon, Plus } from "lucide-react"
 import * as React from "react"
+
+import Image from "next/image"
 
 import { siteConfig } from "@/lib/config"
 import { cn } from "@/lib/utils"
@@ -19,9 +21,13 @@ export function SiteHeader() {
       <div className="container-wrapper px-4 md:px-6">
         <div className="flex h-(--header-height) items-center gap-4">
           <Link href="/" className="mr-2 flex items-center gap-2 font-semibold">
-            <span className="flex size-6 items-center justify-center rounded-md bg-primary text-primary-foreground text-xs font-bold">
-              lo
-            </span>
+            <Image
+              src="/logo.png"
+              alt={`${siteConfig.name} logo`}
+              width={24}
+              height={24}
+              className="rounded-md"
+            />
             <span className="hidden sm:inline-block">{siteConfig.name}</span>
           </Link>
 
@@ -49,6 +55,16 @@ export function SiteHeader() {
           </nav>
 
           <div className="ml-auto flex items-center gap-1.5">
+            <Link
+              href="/create"
+              className={cn(
+                buttonVariants({ variant: "outline", size: "sm" }),
+                "gap-1.5 font-medium"
+              )}
+            >
+              <Plus className="size-3.5" />
+              <span>Create</span>
+            </Link>
             <Link
               href={siteConfig.links.github}
               target="_blank"
