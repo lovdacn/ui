@@ -24,6 +24,10 @@ export const metadata: Metadata = {
   },
   description: siteConfig.description,
   metadataBase: new URL(siteConfig.url),
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
 }
 
 export const viewport: Viewport = {
@@ -40,11 +44,6 @@ export default function RootLayout({
       lang="en"
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-      style={
-        {
-          "--font-heading": "var(--font-sans)",
-        } as React.CSSProperties
-      }
     >
       <body className="min-h-full flex flex-col font-sans">
         <ThemeProvider

@@ -16,14 +16,14 @@
   "bin": "./dist/index.js",
   "scripts": {
     "test": "vitest run",
-    "build": "tsup && node -e \"const fs=require('fs-extra'); fs.removeSync('./templates'); fs.copySync('../templates', './templates', {filter: (src) => !src.includes('node_modules') && !src.includes('.expo') && !src.includes('.git') && !src.includes('package-lock.json') && !src.includes('bun.lock') && !src.includes('styles')})\"",
+    "build": "tsup && node -e \"const fs=require('fs-extra'); fs.removeSync('./templates'); fs.copySync('../templates', './templates', {filter: (src) => !src.includes('node_modules') && !src.includes('.expo') && !src.includes('.git') && !src.includes('package-lock.json') && !src.includes('bun.lock') && !src.includes('bun.lockb') && !src.includes('styles')})\"",
     "dev": "tsup --watch",
     "start": "node dist/index.js",
     "clean": "rimraf dist templates"
   },
   "devDependencies": {
-    "@types/bun": "latest",
     "@types/fs-extra": "^11.0.4",
+    "@types/node": "^22",
     "@types/prompts": "^2.4.9",
     "rimraf": "^6.0.1",
     "tailwind-merge": "^3.6.0",

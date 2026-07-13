@@ -4,6 +4,13 @@
 node_modules
 .pnp
 .pnp.js
+.pnpm-store
+
+# The repository uses pnpm. Do not commit alternate package-manager locks.
+bun.lock
+bun.lockb
+package-lock.json
+yarn.lock
 
 # Local env files
 .env
@@ -26,6 +33,9 @@ coverage
 out/
 build
 dist
+web-build/
+.expo/
+.expo-shared/
 
 
 # Debug
