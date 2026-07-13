@@ -1,0 +1,52 @@
+{
+  "$schema": "https://lvcn.dev/schema.json",
+  "style": "rhea",
+  "styleEngine": "nativewind",
+  "tsx": true,
+  "tailwind": {
+    "config": "tailwind.config.js",
+    "css": "src/global.css",
+    "baseColor": "olive"
+  },
+  "aliases": {
+    "components": "@/components",
+    "utils": "@/lib/utils",
+    "ui": "@/components/ui"
+  },
+  "components": [
+    "accordion",
+    "alert",
+    "alert-dialog",
+    "aspect-ratio",
+    "avatar",
+    "badge",
+    "button",
+    "card",
+    "checkbox",
+    "collapsible",
+    "context-menu",
+    "dialog",
+    "dropdown-menu",
+    "hover-card",
+    "icon",
+    "input",
+    "label",
+    "menubar",
+    "native-only-animated-view",
+    "popover",
+    "progress",
+    "radio-group",
+    "select",
+    "separator",
+    "skeleton",
+    "switch",
+    "tabs",
+    "text",
+    "textarea",
+    "toggle",
+    "toggle-group",
+    "tooltip",
+    "utils"
+  ],
+  "baseColor": "olive"
+}

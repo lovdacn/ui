@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --radius: 1.5rem;
+    --background: 0 0% 100%;
+    --foreground: 107 3% 5%;
+    --card: 0 0% 100%;
+    --card-foreground: 107 3% 5%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 107 3% 5%;
+    --primary: 107 6% 13%;
+    --primary-foreground: 107 4% 98%;
+    --secondary: 107 4% 95%;
+    --secondary-foreground: 107 6% 13%;
+    --muted: 107 4% 95%;
+    --muted-foreground: 107 9% 45%;
+    --accent: 107 4% 95%;
+    --accent-foreground: 107 6% 13%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 107 4% 98%;
+    --border: 107 5% 91%;
+    --input: 107 5% 91%;
+    --ring: 107 6% 13%;
+    --chart-1: 216.3 100.0% 58.5%;
+    --chart-2: 212.0 100.0% 65.8%;
+    --chart-3: 221.3 97.1% 53.5%;
+    --chart-4: 210.7 100.0% 77.8%;
+    --chart-5: 225.3 84.1% 49.0%;
+  }
+
+  .dark:root {
+    --background: 107 3% 5%;
+    --foreground: 107 4% 98%;
+    --card: 107 6% 13%;
+    --card-foreground: 107 4% 98%;
+    --popover: 107 6% 13%;
+    --popover-foreground: 107 4% 98%;
+    --primary: 107 5% 91%;
+    --primary-foreground: 107 6% 13%;
+    --secondary: 107 4% 17%;
+    --secondary-foreground: 107 4% 98%;
+    --muted: 107 4% 17%;
+    --muted-foreground: 107 6% 65%;
+    --accent: 107 4% 17%;
+    --accent-foreground: 107 4% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 107 4% 98%;
+    --border: 107 4% 17%;
+    --input: 107 4% 17%;
+    --ring: 107 9% 45%;
+    --chart-1: 212.0 100.0% 65.8%;
+    --chart-2: 210.7 100.0% 77.8%;
+    --chart-3: 216.3 100.0% 58.5%;
+    --chart-4: 210.7 100.0% 77.8%;
+    --chart-5: 221.3 97.1% 53.5%;
+  }
+}
+
+:root {
+  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji,
+    Segoe UI Symbol, Noto Color Emoji;
+  --font-display:
+    Spline Sans, Inter, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji,
+    Segoe UI Symbol, Noto Color Emoji;
+  --font-mono:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
+  --font-rounded: 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif;
+  --font-serif: Georgia, 'Times New Roman', serif;
+}
+

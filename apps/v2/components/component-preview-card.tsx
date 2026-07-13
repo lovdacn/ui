@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils"
+import { getExpoPreviewUrl } from "@/lib/preview"
 
-/** Static preview frame for docs — mirrors shadcn preview chrome. */
+/** Live preview frame for docs — embeds Expo Web components. */
 export function ComponentPreviewCard({
   children,
   className,
@@ -10,10 +11,12 @@ export function ComponentPreviewCard({
   className?: string
   title?: string
 }) {
+  const componentName = title?.toLowerCase().replace(/ /g, "-")
+
   return (
     <div
       className={cn(
-        "my-6 overflow-hidden rounded-xl border border-border bg-background",
+        "my-6 overflow-hidden rounded-xl border border-border bg-background shadow-sm",
         className
       )}
     >
@@ -22,13 +25,21 @@ export function ComponentPreviewCard({
           {title}
         </div>
       )}
-      <div className="flex min-h-[140px] items-center justify-center p-8">
-        {children ?? (
-          <div className="flex flex-col items-center gap-2 text-center">
-            <div className="rounded-lg border border-dashed border-border bg-muted/40 px-6 py-4 text-sm text-muted-foreground">
-              Preview available in your Expo app after install
+      <div className="relative w-full aspect-video min-h-[450px] flex items-center justify-center bg-muted/5">
+        {componentName ? (
+          <iframe
+            src={getExpoPreviewUrl({ component: componentName })}
+            className="w-full h-[450px] border-0"
+            title={`${title} Live Preview`}
+          />
+        ) : (
+          children ?? (
+            <div className="flex flex-col items-center gap-2 text-center p-8">
+              <div className="rounded-lg border border-dashed border-border bg-muted/40 px-6 py-4 text-sm text-muted-foreground">
+                No preview available
+              </div>
             </div>
-          </div>
+          )
         )}
       </div>
     </div>
