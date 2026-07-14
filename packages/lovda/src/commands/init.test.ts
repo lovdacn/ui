@@ -33,7 +33,7 @@ describe("runInit", () => {
     // Set environment variable to use mock template dir
     process.env.LOVDA_TEMPLATE_DIR = mockTemplateDir
     delete process.env.npm_config_user_agent
-    process.env.LOVDA_REGISTRY_URL = path.resolve(__dirname, "../../test/fixtures/registry")
+    process.env.LOVDA_REGISTRY_URL = path.resolve(__dirname, "../../../../apps/v2/public/r")
 
     // Write a dummy file and package.json to the template directory
     await writeFile(
