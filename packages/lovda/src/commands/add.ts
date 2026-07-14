@@ -432,13 +432,13 @@ function getRegistryUrl(): string {
     return process.env.LOVDA_REGISTRY_URL
   }
 
-  // Try to find local registry in workspace
+  // Try to find the locally served registry (apps/v2/public/r) in the workspace
   const possibleLocalPaths = [
-    path.resolve(__dirname, "../test/fixtures/registry"),
-    path.resolve(__dirname, "../../test/fixtures/registry"),
-    path.resolve(__dirname, "../../../test/fixtures/registry"),
-    path.resolve(__dirname, "../../../../test/fixtures/registry"),
-    path.resolve(__dirname, "../../../../../test/fixtures/registry"),
+    path.resolve(__dirname, "../../../apps/v2/public/r"),
+    path.resolve(__dirname, "../../../../apps/v2/public/r"),
+    path.resolve(__dirname, "../../apps/v2/public/r"),
+    path.resolve(__dirname, "../../../../../apps/v2/public/r"),
+    path.resolve(__dirname, "../../../../../../apps/v2/public/r"),
   ]
 
   for (const localPath of possibleLocalPaths) {
