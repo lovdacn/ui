@@ -26,8 +26,8 @@ describe("runAdd", () => {
     // Create temporary workspace directory
     tempCwd = await mkdtemp(path.join(os.tmpdir(), "lovda-test-add-cwd-"))
 
-    // Point LOVDA_REGISTRY_URL to our local test fixtures directory
-    process.env.LOVDA_REGISTRY_URL = path.resolve(__dirname, "../../test/fixtures/registry")
+    // Point LOVDA_REGISTRY_URL to the locally served registry (apps/v2/public/r)
+    process.env.LOVDA_REGISTRY_URL = path.resolve(__dirname, "../../../../apps/v2/public/r")
 
     vi.mocked(execa).mockResolvedValue({} as any)
   })
