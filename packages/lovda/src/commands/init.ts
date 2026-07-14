@@ -590,7 +590,7 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
   if (!hasPackageJson && projectName) {
     console.log(`  ${pc.cyan(`cd ${projectName}`)}`)
   }
-  console.log(`  ${pc.cyan(`${runner} lovda add`)} ${pc.dim("[...components]")}`)
+  console.log(`  ${pc.cyan(`${runner} lovdacn add`)} ${pc.dim("[...components]")}`)
 }
 
 // Map a package manager to its one-off package runner (dlx-style).
@@ -1709,13 +1709,13 @@ function getRegistryUrl(): string {
     return process.env.LOVDA_REGISTRY_URL
   }
 
-  // Try to find local registry in workspace
+  // Try to find the locally served registry (apps/v2/public/r) in the workspace
   const possibleLocalPaths = [
-    path.resolve(__dirname, "../test/fixtures/registry"),
-    path.resolve(__dirname, "../../test/fixtures/registry"),
-    path.resolve(__dirname, "../../../test/fixtures/registry"),
-    path.resolve(__dirname, "../../../../test/fixtures/registry"),
-    path.resolve(__dirname, "../../../../../test/fixtures/registry"),
+    path.resolve(__dirname, "../../../apps/v2/public/r"),
+    path.resolve(__dirname, "../../../../apps/v2/public/r"),
+    path.resolve(__dirname, "../../apps/v2/public/r"),
+    path.resolve(__dirname, "../../../../../apps/v2/public/r"),
+    path.resolve(__dirname, "../../../../../../apps/v2/public/r"),
   ]
 
   for (const localPath of possibleLocalPaths) {
