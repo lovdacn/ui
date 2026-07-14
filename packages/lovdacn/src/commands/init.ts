@@ -675,7 +675,7 @@ function getDlxRunner(packageManager: "npm" | "yarn" | "pnpm" | "bun"): string {
     case "pnpm":
       return "pnpm dlx"
     case "bun":
-      return "bunx"
+      return "bunx --bun"
     case "yarn":
       return "yarn dlx"
     default:

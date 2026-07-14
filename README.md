@@ -31,7 +31,7 @@ npx lovda init
 pnpm dlx lovda init
 
 # Using bun
-bunx lovda init
+bunx --bun lovda init
 ```
 
 This will create a `lovda.json` configuration file and bootstrap the necessary folders and theme configurations.

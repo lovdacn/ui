@@ -884,7 +884,7 @@ pnpm dlx lovdacn@latest add ${component.name}
 <PMTabContent value="bun">
 
 \`\`\`bash
-bunx lovdacn@latest add ${component.name}
+bunx --bun lovdacn@latest add ${component.name}
 \`\`\`
 
 </PMTabContent>

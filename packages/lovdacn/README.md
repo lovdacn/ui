@@ -21,7 +21,7 @@ npx lovdacn@latest init
 # pnpm
 pnpm dlx lovdacn@latest init
 # bun
-bunx lovdacn@latest init
+bunx --bun lovdacn@latest init
 ```
 
 During beta you can also pin the beta tag explicitly:

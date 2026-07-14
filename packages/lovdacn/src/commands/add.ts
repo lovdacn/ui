@@ -55,7 +55,7 @@ function getInstallCommand(
     case "yarn":
       return { cmd: "yarn", args: ["expo", "install", ...deps] }
     case "bun":
-      return { cmd: "bunx", args: ["expo", "install", ...deps] }
+      return { cmd: "bunx", args: ["--bun", "expo", "install", ...deps] }
     default:
       return { cmd: "npx", args: ["expo", "install", ...deps] }
   }
