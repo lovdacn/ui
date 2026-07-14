@@ -3,11 +3,12 @@ import { Command } from "commander"
 import { init } from "./commands/init"
 import { add } from "./commands/add"
 import { preset } from "./commands/preset"
+import { version } from "../package.json"
 
 const program = new Command()
-  .name("lovda")
+  .name("lovdacn")
   .description("A CLI to initialize and manage Expo/NativeWind projects")
-  .version("0.1.0")
+  .version(version)
 
 program.addCommand(init)
 program.addCommand(add)
