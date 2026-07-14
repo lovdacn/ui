@@ -1,0 +1,42 @@
+[
+  {
+    "name": "default",
+    "label": "Default"
+  },
+  {
+    "name": "new-york",
+    "label": "New York"
+  },
+  {
+    "name": "luma",
+    "label": "Luma"
+  },
+  {
+    "name": "lyra",
+    "label": "Lyra"
+  },
+  {
+    "name": "maia",
+    "label": "Maia"
+  },
+  {
+    "name": "mira",
+    "label": "Mira"
+  },
+  {
+    "name": "nova",
+    "label": "Nova"
+  },
+  {
+    "name": "rhea",
+    "label": "Rhea"
+  },
+  {
+    "name": "sera",
+    "label": "Sera"
+  },
+  {
+    "name": "vega",
+    "label": "Vega"
+  }
+]

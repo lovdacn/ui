@@ -1,0 +1,20 @@
+{
+  "$schema": "https://lvcn.dev/schema/registry-item.json",
+  "name": "collapsible",
+  "dependencies": [
+    "@rn-primitives/collapsible"
+  ],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "components/ui/collapsible.tsx",
+      "content": "import * as CollapsiblePrimitive from '@rn-primitives/collapsible';\n\nconst Collapsible = CollapsiblePrimitive.Root;\n\nconst CollapsibleTrigger = CollapsiblePrimitive.Trigger;\n\nconst CollapsibleContent = CollapsiblePrimitive.Content;\n\nexport { Collapsible, CollapsibleTrigger, CollapsibleContent };\n",
+      "type": "registry:ui"
+    }
+  ],
+  "meta": {
+    "engine": "uniwind",
+    "style": "maia"
+  },
+  "type": "registry:ui"
+}

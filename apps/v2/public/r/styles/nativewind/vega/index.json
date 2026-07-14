@@ -1,0 +1,13 @@
+{
+  "$schema": "https://lvcn.dev/schema/registry-item.json",
+  "name": "index",
+  "dependencies": [
+    "class-variance-authority",
+    "nativewind"
+  ],
+  "registryDependencies": [
+    "utils"
+  ],
+  "files": [],
+  "type": "registry:style"
+}
