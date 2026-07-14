@@ -14,7 +14,12 @@ This document outlines the guidelines and workflow for contributing to lovdaCN.
 - [Development Setup](#development-setup)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
+  - [Workspace Layout](#workspace-layout)
   - [Running Locally](#running-locally)
+  - [Working on the CLI (`lovdacn`)](#working-on-the-cli-lovdacn)
+  - [The Component Registry](#the-component-registry)
+  - [Running Tests](#running-tests)
+  - [Publishing (Beta)](#publishing-beta)
 - [Style Guide & Best Practices](#style-guide--best-practices)
 - [License](#license)
 
@@ -78,6 +83,14 @@ cd ui
 pnpm install
 ```
 
+### Workspace Layout
+
+This repo is a **pnpm + Turborepo monorepo**:
+
+- **`apps/v2`** – Next.js (Fumadocs) documentation site. It also **hosts the component registry** as static files under `apps/v2/public/r`, served in production at `https://lvcn.dev/r`.
+- **`packages/lovda`** – source for the `lovdacn` CLI (`init`, `add`, `preset`).
+- **`packages/templates`** – Expo/React Native starter templates for `nativewind` and `uniwind`.
+
 ### Running Locally
 
 To start the development server for all apps in the workspace using Turborepo:
@@ -98,6 +111,91 @@ pnpm --filter v2 lint
 # Run TypeScript type check on v2
 pnpm --filter v2 exec tsc --noEmit
 ```
+
+### Working on the CLI (`lovdacn`)
+
+The CLI package is named **`lovdacn`** and lives in `packages/lovda`.
+
+```sh
+# Build the CLI (bundles src -> dist and copies templates)
+pnpm --filter lovdacn build
+
+# Rebuild on change while developing
+pnpm --filter lovdacn dev
+
+# Run the built CLI directly
+node packages/lovda/dist/index.js --help
+node packages/lovda/dist/index.js --version   # prints the version from package.json
+```
+
+To try the CLI against a throwaway project, build it and run the command from any scratch directory:
+
+```sh
+pnpm --filter lovdacn build
+mkdir /tmp/lovdacn-scratch && cd /tmp/lovdacn-scratch
+node <path-to-repo>/packages/lovda/dist/index.js init
+node <path-to-repo>/packages/lovda/dist/index.js add button
+```
+
+> The CLI reads its version from `packages/lovda/package.json`, so `--version` always matches the published version. When adding a command, keep the program name (`lovdacn`) and any printed command hints consistent.
+
+### The Component Registry
+
+Component definitions are compiled into JSON and **served from the docs site** (shadcn-style). The single source of truth is `apps/v2/public/r`:
+
+```
+apps/v2/public/r/styles/<engine>/<style>/<component>.json
+```
+
+- `engine` is `nativewind` or `uniwind`; `style` is `default`, `new-york`, `mira`, etc.
+- In production the CLI fetches from `https://lvcn.dev/r` (configurable via the `LOVDA_REGISTRY_URL` env var).
+- **Locally there is no server involved.** The CLI resolves the registry directly from the `apps/v2/public/r` folder on disk, so any component you add or edit there is immediately available to a local `lovdacn add` — no publish, no `next dev` required.
+
+To (re)generate the registry from the component sources:
+
+```sh
+pnpm --filter lovdacn exec node scripts/build-registry.cjs
+```
+
+This writes the compiled JSON into `apps/v2/public/r/styles`. Commit the regenerated files together with your component changes.
+
+To point the CLI at a different registry (e.g. a local copy or a preview deployment):
+
+```sh
+# a filesystem path (read directly, no HTTP)
+LOVDA_REGISTRY_URL=/abs/path/to/apps/v2/public/r node packages/lovda/dist/index.js add button
+
+# or a URL
+LOVDA_REGISTRY_URL=https://<preview-domain>/r node packages/lovda/dist/index.js add button
+```
+
+### Running Tests
+
+Unit tests for the CLI use Vitest and read the registry straight from `apps/v2/public/r`:
+
+```sh
+pnpm --filter lovdacn test
+```
+
+Add or update tests when you change CLI behavior or add components.
+
+### Publishing (Beta)
+
+The project is currently in **beta**, so releases are published as prerelease versions and bare `lovdacn` points at the beta build.
+
+```sh
+cd packages/lovda
+
+# bump the prerelease version (1.0.0-beta.0 -> .1 -> .2 ...)
+npm version prerelease --preid=beta
+
+pnpm build
+npm publish                                   # sets the `latest` tag to the beta version
+npm dist-tag add lovdacn@<version> beta       # also expose it as @beta
+npm dist-tag ls lovdacn                        # verify latest + beta
+```
+
+End users can then run `npx lovdacn@latest init` or `npx lovdacn@beta init`. Only maintainers with npm publish access should run these commands.
 
 ---
 
