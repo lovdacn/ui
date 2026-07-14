@@ -1,12 +1,11 @@
 {
   "name": "lovdacn",
   "type": "module",
-  "version": "1.0.0-beta.5",
+  "version": "0.0.3",
   "private": false,
   "license": "MIT",
   "files": [
-    "dist",
-    "templates"
+    "dist"
   ],
   "publishConfig": {
     "access": "public"
@@ -23,10 +22,10 @@
   },
   "scripts": {
     "test": "vitest run",
-    "build": "tsup && node -e \"const fs=require('fs-extra'); fs.removeSync('./templates'); fs.copySync('../templates', './templates', {filter: (src) => !src.includes('node_modules') && !src.includes('.expo') && !src.includes('.git') && !src.includes('package-lock.json') && !src.includes('bun.lock') && !src.includes('bun.lockb') && !src.includes('styles')})\"",
+    "build": "tsup",
     "dev": "tsup --watch",
     "start": "node dist/index.js",
-    "clean": "rimraf dist templates"
+    "clean": "rimraf dist"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",

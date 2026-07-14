@@ -1,4 +1,5 @@
 import { Command } from "commander"
+import os from "os"
 import path from "path"
 import { fileURLToPath } from "url"
 import fs from "fs-extra"
@@ -23,6 +24,13 @@ import { getThemePrimary, getChartRamp } from "../preset/colors.js"
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
+
+// The GitHub repository that hosts the starter templates. Templates live
+// under `packages/templates/<styleEngine>` in this repo and are fetched at
+// runtime via a sparse checkout (shadcn-style), so they are not bundled with
+// the published CLI. Override with LOVDA_GITHUB_URL for forks/testing.
+const GITHUB_REPO_URL =
+  process.env.LOVDA_GITHUB_URL ?? "https://github.com/lovdacn-ui/ui.git"
 
 export const initOptionsSchema = z.object({
   cwd: z.string(),
@@ -70,6 +78,71 @@ export const init = new Command()
       process.exit(1)
     }
   })
+
+// Materialize the starter template into a local directory.
+//
+// - LOVDA_TEMPLATE_DIR (local dev/testing): use a local template directory.
+//   The engine-scoped subdir (`<dir>/<styleEngine>`) is preferred, falling
+//   back to the directory itself.
+// - Otherwise: sparse-clone only `packages/templates/<styleEngine>` from
+//   GITHUB_REPO_URL into a temp dir (shallow, blobless), mirroring shadcn.
+//
+// Returns the resolved template directory and a cleanup function that removes
+// any temporary clone (a no-op for the local-override path).
+async function materializeTemplate(
+  styleEngine: "nativewind" | "uniwind"
+): Promise<{ dir: string; cleanup: () => void }> {
+  const localTemplateDir = process.env.LOVDA_TEMPLATE_DIR
+  if (localTemplateDir) {
+    const scoped = path.resolve(localTemplateDir, styleEngine)
+    const dir = fs.existsSync(scoped) ? scoped : localTemplateDir
+    if (!fs.existsSync(dir)) {
+      throw new Error(`Template directory not found at ${dir}`)
+    }
+    return { dir, cleanup: () => {} }
+  }
+
+  // Clone only the template directory from GitHub using sparse checkout.
+  const templatePath = path.join(os.tmpdir(), `lovda-template-${Date.now()}`)
+  await execa("git", [
+    "clone",
+    "--depth",
+    "1",
+    "--filter=blob:none",
+    "--sparse",
+    GITHUB_REPO_URL,
+    templatePath,
+  ])
+  await execa("git", [
+    "-C",
+    templatePath,
+    "sparse-checkout",
+    "set",
+    `packages/templates/${styleEngine}`,
+  ])
+
+  const dir = path.resolve(templatePath, "packages", "templates", styleEngine)
+  if (!fs.existsSync(dir)) {
+    fs.removeSync(templatePath)
+    throw new Error(
+      `Template "${styleEngine}" not found in ${GITHUB_REPO_URL}`
+    )
+  }
+
+  return { dir, cleanup: () => fs.removeSync(templatePath) }
+}
+
+// Initialize a git repository and create an initial commit.
+// Silently ignores failures (e.g. git not installed).
+async function initializeGitRepo(projectPath: string) {
+  try {
+    await execa("git", ["init"], { cwd: projectPath })
+    await execa("git", ["add", "-A"], { cwd: projectPath })
+    await execa("git", ["commit", "-m", "feat: initial commit"], {
+      cwd: projectPath,
+    })
+  } catch {}
+}
 
 export async function runInit(options: z.infer<typeof initOptionsSchema>) {
   const cwd = options.cwd
@@ -392,17 +465,10 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
     baseColor = baseColorResponse.baseColor
   }
 
-  // Locate template directory based on styleEngine
-  let templateDir = process.env.LOVDA_TEMPLATE_DIR
-  if (!templateDir) {
-    const distPath = path.resolve(__dirname, `../../templates/${styleEngine}`)
-    const srcPath = path.resolve(__dirname, `../../../templates/${styleEngine}`)
-    templateDir = fs.existsSync(distPath) ? distPath : srcPath
-  }
-
-  if (!fs.existsSync(templateDir)) {
-    throw new Error(`Template directory not found at ${templateDir}`)
-  }
+  // Materialize the template locally: use LOVDA_TEMPLATE_DIR for local
+  // development, otherwise sparse-clone it from GitHub (shadcn-style).
+  const { dir: templateDir, cleanup: cleanupTemplate } =
+    await materializeTemplate(styleEngine)
 
   // For existing projects, detect src dir from the project we're initializing into.
   // For new projects, we assume the template has a `src` layout (both nativewind and
@@ -494,6 +560,10 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
     configureThemeTs(projectPath, baseColor)
   }
 
+  // Template files are no longer needed once scaffolding/config is done.
+  // Remove any temporary sparse clone (no-op for the local-override path).
+  cleanupTemplate()
+
   // Update/merge lvcn.json
   if (fs.existsSync(lvcnJsonPath)) {
     const templateLvcn = fs.readJsonSync(lvcnJsonPath)
@@ -579,6 +649,12 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
         console.log(pc.yellow(`⚠ Could not install some preset packages. Install manually: ${presetDeps.join(" ")}`))
       }
     }
+  }
+
+  // Initialize a git repository with an initial commit for newly
+  // scaffolded projects (skip when initializing inside an existing project).
+  if (!hasPackageJson) {
+    await initializeGitRepo(projectPath)
   }
 
   console.log(pc.green("\nProject initialized successfully! 🎉"))
