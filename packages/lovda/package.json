@@ -1,20 +1,26 @@
 {
-  "name": "lovda",
+  "name": "lovdacn",
   "type": "module",
-  "version": "1.0.0",
+  "version": "1.0.0-beta.0",
   "private": false,
   "license": "MIT",
   "files": [
     "dist",
     "templates"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     }
   },
-  "bin": "./dist/index.js",
+  "bin": {
+    "lovdacn": "./dist/index.js",
+    "lvcn": "./dist/index.js"
+  },
   "scripts": {
     "test": "vitest run",
     "build": "tsup && node -e \"const fs=require('fs-extra'); fs.removeSync('./templates'); fs.copySync('../templates', './templates', {filter: (src) => !src.includes('node_modules') && !src.includes('.expo') && !src.includes('.git') && !src.includes('package-lock.json') && !src.includes('bun.lock') && !src.includes('bun.lockb') && !src.includes('styles')})\"",
