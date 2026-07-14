@@ -110,7 +110,7 @@ export const resolve = new Command()
     console.log(`  ${pc.dim("iconLibrary:")} ${decoded.iconLibrary} (${ICON_PACKAGES[decoded.iconLibrary]})`)
     console.log(`  ${pc.dim("radius:")}       ${decoded.radius} (${RADIUS_VALUES[decoded.radius]})`)
     console.log()
-    console.log(`  ${pc.dim("Run with:")} ${pc.green(`npx lovda init --preset ${code}`)}`)
+    console.log(`  ${pc.dim("Run with:")} ${pc.green(`npx lovdacn init --preset ${code}`)}`)
     console.log()
   })
 
