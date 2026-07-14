@@ -1,1 +1,1 @@
-export const REGISTRY_URL = process.env.LOVDA_REGISTRY_URL || 'https://lvcn-registry.vercel.app/r';
+export const REGISTRY_URL = process.env.LOVDA_REGISTRY_URL || 'https://lvcn.dev/r';
