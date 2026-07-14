@@ -419,7 +419,7 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
     fs.writeJsonSync(
       lvcnJsonPath,
       {
-        $schema: "https://lvcn.dev/schema.json",
+        $schema: "https://lovdacn.vercel.app/schema.json",
         style: style,
         styleEngine: styleEngine,
         tsx: true,

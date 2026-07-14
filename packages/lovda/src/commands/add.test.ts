@@ -60,7 +60,7 @@ describe("runAdd", () => {
   it("should prompt for components if not provided in options", async () => {
     // Pre-create lvcn.json
     const lvcnConfig = {
-      $schema: "https://lvcn.dev/schema.json",
+      $schema: "https://lovdacn.vercel.app/schema.json",
       style: "new-york",
       tsx: true,
       tailwind: { config: "tailwind.config.js", css: "global.css" },
@@ -94,7 +94,7 @@ describe("runAdd", () => {
   it("should install component, rewrite aliases, and install dependencies", async () => {
     // Pre-create lvcn.json
     const lvcnConfig = {
-      $schema: "https://lvcn.dev/schema.json",
+      $schema: "https://lovdacn.vercel.app/schema.json",
       style: "new-york",
       tsx: true,
       tailwind: { config: "tailwind.config.js", css: "global.css" },
@@ -154,7 +154,7 @@ describe("runAdd", () => {
   it("should install native deps via `expo install` for Expo projects (SDK-pinned versions)", async () => {
     // Pre-create lvcn.json
     const lvcnConfig = {
-      $schema: "https://lvcn.dev/schema.json",
+      $schema: "https://lovdacn.vercel.app/schema.json",
       style: "new-york",
       tsx: true,
       tailwind: { config: "tailwind.config.js", css: "global.css" },
@@ -198,7 +198,7 @@ describe("runAdd", () => {
 
   it("should patch PortalHost and install portal dependency for overlay components", async () => {
     const lvcnConfig = {
-      $schema: "https://lvcn.dev/schema.json",
+      $schema: "https://lovdacn.vercel.app/schema.json",
       style: "maia",
       styleEngine: "nativewind",
       tsx: true,
@@ -253,7 +253,7 @@ export default function Layout() {
   })
   it("should install component using default @ aliases", async () => {
     const lvcnConfig = {
-      $schema: "https://lvcn.dev/schema.json",
+      $schema: "https://lovdacn.vercel.app/schema.json",
       style: "new-york",
       tsx: true,
       tailwind: { config: "tailwind.config.js", css: "global.css" },
@@ -286,7 +286,7 @@ export default function Layout() {
   it("should install component in mira style with per-style overrides", async () => {
     // Pre-create lvcn.json with style: mira
     const lvcnConfig = {
-      $schema: "https://lvcn.dev/schema.json",
+      $schema: "https://lovdacn.vercel.app/schema.json",
       style: "mira",
       tsx: true,
       tailwind: { config: "tailwind.config.js", css: "global.css" },

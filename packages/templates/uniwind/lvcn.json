@@ -1,5 +1,5 @@
 {
-  "$schema": "https://lvcn.dev/schema.json",
+  "$schema": "https://lovdacn.vercel.app/schema.json",
   "style": "new-york",
   "styleEngine": "uniwind",
   "tsx": true,

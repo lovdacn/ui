@@ -1,5 +1,5 @@
 {
-  "$schema": "https://lvcn.dev/schema/registry-item.json",
+  "$schema": "https://lovdacn.vercel.app/schema/registry-item.json",
   "name": "alert-dialog",
   "dependencies": [
     "@rn-primitives/alert-dialog@^1.5.2",

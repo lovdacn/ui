@@ -1,7 +1,7 @@
 export const siteConfig = {
   name: "lovdaCN",
-  url: "https://lvcn.dev",
-  ogImage: "https://lvcn.dev/og.jpg",
+  url: "https://lovdacn.vercel.app",
+  ogImage: "https://lovdacn.vercel.app/og.jpg",
   description:
     "Beautifully designed React Native components you can copy, customize, and build on. Open Source. Open Code. Powered by NativeWind and Uniwind.",
   links: {

@@ -49,7 +49,7 @@ describe("runInit", () => {
     await writeFile(
       path.join(mockTemplateDir, "lvcn.json"),
       JSON.stringify({
-        $schema: "https://lvcn.dev/schema.json",
+        $schema: "https://lovdacn.vercel.app/schema.json",
         style: "new-york",
         styleEngine: "nativewind",
         tsx: true,
@@ -226,7 +226,7 @@ describe("runInit", () => {
     await writeFile(
       path.join(projectPath, "lvcn.json"),
       JSON.stringify({
-        $schema: "https://lvcn.dev/schema.json",
+        $schema: "https://lovdacn.vercel.app/schema.json",
         style: "new-york",
         tsx: true,
         tailwind: { config: "tailwind.config.js", css: "global.css" },

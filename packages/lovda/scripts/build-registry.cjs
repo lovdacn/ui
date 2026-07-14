@@ -780,7 +780,7 @@ function buildEngine(engine) {
     if (fs.existsSync(utilsPath)) {
       const raw = fs.readFileSync(utilsPath, 'utf8');
       utilsItem = {
-        $schema: 'https://lvcn.dev/schema/registry-item.json',
+        $schema: 'https://lovdacn.vercel.app/schema/registry-item.json',
         name: 'utils',
         dependencies: ['clsx', 'tailwind-merge'],
         files: [
@@ -837,7 +837,7 @@ function buildEngine(engine) {
 
       if (name === 'utils') {
         utilsItem = {
-          $schema: 'https://lvcn.dev/schema/registry-item.json',
+          $schema: 'https://lovdacn.vercel.app/schema/registry-item.json',
           name: 'utils',
           dependencies: item.dependencies || ['clsx', 'tailwind-merge'],
           files: [{ path: file.path, content: file.content, type: file.type || 'registry:lib' }],
@@ -878,7 +878,7 @@ function buildEngine(engine) {
 
     // -- index.json (style metadata, like shadcn style.json) --
     const indexItem = {
-      $schema: 'https://lvcn.dev/schema/registry-item.json',
+      $schema: 'https://lovdacn.vercel.app/schema/registry-item.json',
       name: 'index',
       dependencies: [
         'class-variance-authority',
@@ -902,7 +902,7 @@ function buildEngine(engine) {
       const styledContent = sanitizeUnsupportedCalcClasses(inlined);
 
       const item = {
-        $schema: 'https://lvcn.dev/schema/registry-item.json',
+        $schema: 'https://lovdacn.vercel.app/schema/registry-item.json',
         name: comp.name,
         dependencies: comp.dependencies,
         registryDependencies: comp.registryDependencies,

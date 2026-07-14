@@ -87,7 +87,7 @@ pnpm install
 
 This repo is a **pnpm + Turborepo monorepo**:
 
-- **`apps/v2`** – Next.js (Fumadocs) documentation site. It also **hosts the component registry** as static files under `apps/v2/public/r`, served in production at `https://lvcn.dev/r`.
+- **`apps/v2`** – Next.js (Fumadocs) documentation site. It also **hosts the component registry** as static files under `apps/v2/public/r`, served in production at `https://lovdacn.vercel.app/r`.
 - **`packages/lovda`** – source for the `lovdacn` CLI (`init`, `add`, `preset`).
 - **`packages/templates`** – Expo/React Native starter templates for `nativewind` and `uniwind`.
 
@@ -148,7 +148,7 @@ apps/v2/public/r/styles/<engine>/<style>/<component>.json
 ```
 
 - `engine` is `nativewind` or `uniwind`; `style` is `default`, `new-york`, `mira`, etc.
-- In production the CLI fetches from `https://lvcn.dev/r` (configurable via the `LOVDA_REGISTRY_URL` env var).
+- In production the CLI fetches from `https://lovdacn.vercel.app/r` (configurable via the `LOVDA_REGISTRY_URL` env var).
 - **Locally there is no server involved.** The CLI resolves the registry directly from the `apps/v2/public/r` folder on disk, so any component you add or edit there is immediately available to a local `lovdacn add` — no publish, no `next dev` required.
 
 To (re)generate the registry from the component sources:

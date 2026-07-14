@@ -1,5 +1,5 @@
 {
-  "$schema": "https://lvcn.dev/schema/registry-item.json",
+  "$schema": "https://lovdacn.vercel.app/schema/registry-item.json",
   "name": "dropdown-menu",
   "dependencies": [
     "@rn-primitives/dropdown-menu@^1.5.2",
