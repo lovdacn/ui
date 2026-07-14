@@ -42,7 +42,7 @@ const ENGINES = ['nativewind', 'uniwind'];
 
 const WORKSPACE_ROOT = path.resolve(__dirname, '../../../../');
 const REUSABLES_SRC = path.join(WORKSPACE_ROOT, 'react-native-reusables/packages/registry/src');
-const DEST_REGISTRY = path.join(WORKSPACE_ROOT, 'lvcn/packages/lovda/test/fixtures/registry/styles');
+const DEST_REGISTRY = path.join(WORKSPACE_ROOT, 'lvcn/apps/v2/public/r/styles');
 
 // Packages that are always present in Expo projects and should not be
 // listed as component dependencies.
