@@ -10,9 +10,9 @@ const description =
 
 export default function IndexPage() {
   return (
-    <div className="flex flex-1 flex-col selection:bg-zinc-800 selection:text-white">
+    <div className="flex flex-1 flex-col">
       {/* Hero Section */}
-      <section className="relative overflow-hidden border-b border-zinc-800/80 bg-zinc-950/20 backdrop-blur-md">
+      <section className="relative overflow-hidden border-b border-border/80 bg-muted/10 backdrop-blur-md">
         <div className="container-wrapper">
           <div className="container flex flex-col items-center gap-2 px-6 pt-4 pb-12 text-center md:pt-8 md:pb-16 lg:pt-10 lg:pb-20 xl:gap-4">
             {/* Decorative background grid and gradient */}
@@ -25,13 +25,13 @@ export default function IndexPage() {
               className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(to_right,var(--color-border)_1px,transparent_1px),linear-gradient(to_bottom,var(--color-border)_1px,transparent_1px)] bg-[size:56px_56px] opacity-10 [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]"
             />
 
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-zinc-800 bg-zinc-900/60 text-xs font-medium text-zinc-400 mb-8 backdrop-blur-sm">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-border bg-muted/60 text-xs font-medium text-muted-foreground mb-8 backdrop-blur-sm">
               <span>Expo</span>
-              <span className="text-zinc-600">•</span>
+              <span className="text-muted-foreground/40">•</span>
               <span>NativeWind</span>
-              <span className="text-zinc-600">•</span>
+              <span className="text-muted-foreground/40">•</span>
               <span>Uniwind</span>
-              <span className="text-zinc-600">•</span>
+              <span className="text-muted-foreground/40">•</span>
               <span>shadcn-style</span>
             </div>
 
@@ -42,21 +42,21 @@ export default function IndexPage() {
               </span>
             </h1>
 
-            <p className="text-lg md:text-xl text-zinc-400 font-normal max-w-2xl mb-10 leading-relaxed">
+            <p className="text-lg md:text-xl text-muted-foreground font-normal max-w-2xl mb-10 leading-relaxed">
               {description}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto justify-center">
               <Link
                 href="/docs/installation"
-                className="inline-flex items-center justify-center gap-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-950 font-semibold px-6 py-3 rounded-full text-base transition-all group shadow-lg"
+                className="inline-flex items-center justify-center gap-2 bg-foreground hover:opacity-90 text-background font-semibold px-6 py-3 rounded-full text-base transition-all group shadow-lg"
               >
                 Get Started
                 <ArrowRightIcon className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
                 href="/docs/components"
-                className="inline-flex items-center justify-center border border-zinc-800 hover:bg-zinc-900/60 hover:border-zinc-700 text-zinc-300 font-medium px-6 py-3 rounded-full text-base transition-all"
+                className="inline-flex items-center justify-center border border-border bg-background hover:bg-muted text-foreground font-medium px-6 py-3 rounded-full text-base transition-all"
               >
                 Browse Components
               </Link>
@@ -90,14 +90,14 @@ export default function IndexPage() {
               <Link
                 key={component.name}
                 href={`/docs/components/${component.name}`}
-                className="group border border-zinc-800/80 hover:border-zinc-700/80 bg-zinc-900/20 hover:bg-zinc-900/40 p-6 rounded-xl transition-all duration-200 flex flex-col justify-between min-h-[140px]"
+                className="group border border-border/60 hover:border-border bg-card hover:bg-muted/40 p-6 rounded-xl transition-all duration-200 flex flex-col justify-between min-h-[140px]"
               >
                 <div>
                   <div className="flex items-center justify-between gap-4 mb-2">
                     <h3 className="font-bold text-base text-foreground group-hover:text-foreground">
                       {component.title}
                     </h3>
-                    <span className="text-[10px] font-mono bg-zinc-900 border border-zinc-800 text-zinc-400 px-2 py-0.5 rounded">
+                    <span className="text-[10px] font-mono bg-muted border border-border text-muted-foreground px-2 py-0.5 rounded">
                       {component.name}
                     </span>
                   </div>
@@ -112,7 +112,7 @@ export default function IndexPage() {
           <div className="flex justify-center mt-12">
             <Link
               href="/docs/components"
-              className="border border-zinc-800 hover:border-zinc-700 bg-zinc-950 text-zinc-300 hover:text-white font-medium text-sm px-6 py-2.5 rounded-lg transition-all"
+              className="border border-border hover:bg-muted bg-background text-foreground font-medium text-sm px-6 py-2.5 rounded-lg transition-all shadow-sm"
             >
               See all {COMPONENTS.length} components
             </Link>
@@ -140,11 +140,11 @@ export default function IndexPage() {
               <h4 className="font-bold text-foreground mb-3 text-base">CLI First</h4>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 Scaffold projects and add components with{" "}
-                <code className="text-zinc-200 font-mono text-xs bg-zinc-900 px-1.5 py-0.5 rounded border border-zinc-800">
+                <code className="text-foreground font-mono text-xs bg-muted px-1.5 py-0.5 rounded border border-border">
                   npx lovda init
                 </code>{" "}
                 and{" "}
-                <code className="text-zinc-200 font-mono text-xs bg-zinc-900 px-1.5 py-0.5 rounded border border-zinc-800">
+                <code className="text-foreground font-mono text-xs bg-muted px-1.5 py-0.5 rounded border border-border">
                   npx lovda add
                 </code>
                 .
