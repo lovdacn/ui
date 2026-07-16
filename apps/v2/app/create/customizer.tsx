@@ -10,6 +10,9 @@ import {
   XIcon,
   MonitorIcon,
   SmartphoneIcon,
+  TerminalIcon,
+  SparklesIcon,
+  FolderIcon,
 } from "lucide-react"
 
 import { useTheme } from "next-themes"
@@ -84,6 +87,7 @@ export function CreateCustomizer() {
   const [copied, setCopied] = React.useState(false)
   const [openDialog, setOpenDialog] = React.useState(false)
   const [viewMode, setViewMode] = React.useState<"web" | "native">("web")
+  const [target, setTarget] = React.useState<"new" | "existing">("new")
 
   const presetCode = React.useMemo(() => encodePreset(config), [config])
   const webPreviewUrl = React.useMemo(
@@ -99,14 +103,16 @@ export function CreateCustomizer() {
   )
 
   const command = React.useMemo(() => {
-    const prefix = {
-      npm: "npx lovda@latest init",
-      pnpm: "pnpm dlx lovda@latest init",
-      yarn: "yarn dlx lovda@latest init",
-      bun: "bunx --bun lovda@latest init",
+    const runner = {
+      npm: "npx lovdacn@latest",
+      pnpm: "pnpm dlx lovdacn@latest",
+      yarn: "yarn dlx lovdacn@latest",
+      bun: "bunx --bun lovdacn@latest",
     }[packageManager]
-    return `${prefix} --preset ${presetCode} --engine ${selectedEngine}`
-  }, [packageManager, selectedEngine, presetCode])
+    return target === "new"
+      ? `${runner} init --preset ${presetCode} --engine ${selectedEngine}`
+      : `${runner} apply ${presetCode}`
+  }, [packageManager, selectedEngine, presetCode, target])
 
   // Read preset from URL on mount
   React.useEffect(() => {
@@ -348,67 +354,104 @@ export function CreateCustomizer() {
       {/* Get Code Dialog/Modal */}
       {openDialog && typeof document !== "undefined"
         ? createPortal(
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          {/* Background dismiss */}
-          <div className="absolute inset-0" onClick={() => setOpenDialog(false)} />
-          
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="get-code-title"
-            className="relative w-full max-w-lg rounded-2xl border border-border bg-card p-6 shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col gap-5 text-card-foreground"
-          >
-            {/* Close button */}
-            <button
-              onClick={() => setOpenDialog(false)}
-              className="absolute top-4 right-4 text-muted-foreground hover:text-foreground p-1 rounded-md transition-colors"
-              aria-label="Close dialog"
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+            {/* Background dismiss */}
+            <div className="absolute inset-0" onClick={() => setOpenDialog(false)} />
+
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="get-code-title"
+              className="relative w-full max-w-[540px] rounded-2xl border border-border bg-card p-6 shadow-2xl animate-in zoom-in-95 duration-200 text-card-foreground"
             >
-              <XIcon className="size-4" />
-            </button>
-
-            {/* Header */}
-            <div>
-              <h2 id="get-code-title" className="text-lg font-semibold tracking-tight">Get Code</h2>
-              <p className="text-sm text-muted-foreground">
-                Configure your project's engine and package manager to initialize the design system.
-              </p>
-            </div>
-
-            {/* Selection Options */}
-            <div className="flex flex-col gap-4">
-              {/* Style Engine options */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Engine</label>
-                <div className="grid grid-cols-2 gap-2">
-                  {(["nativewind", "uniwind"] as const).map((eng) => {
-                    const isSelected = selectedEngine === eng
-                    return (
-                      <button
-                        key={eng}
-                        type="button"
-                        onClick={() => setSelectedEngine(eng)}
-                        className={cn(
-                          "flex flex-col items-start p-3 rounded-lg border text-left transition-all hover:bg-muted/30",
-                          isSelected
-                            ? "border-primary bg-primary/5 text-foreground ring-1 ring-primary"
-                            : "border-border bg-transparent text-muted-foreground"
-                        )}
-                      >
-                        <span className="text-sm font-semibold capitalize text-foreground">{eng === "nativewind" ? "NativeWind" : "Uniwind"}</span>
-                        <span className="text-xs text-muted-foreground mt-0.5 leading-4">
-                          {eng === "nativewind" ? "Standard React Native Tailwind utility-based theme styling." : "Dynamic, high-performance runtime style processor engine."}
-                        </span>
-                      </button>
-                    )
-                  })}
+              {/* Header */}
+              <div className="flex items-start justify-between pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex size-10 items-center justify-center rounded-lg border border-border bg-muted/40">
+                    <TerminalIcon className="size-5 text-muted-foreground" />
+                  </div>
+                  <div>
+                    <h2 id="get-code-title" className="text-base font-semibold text-foreground">
+                      Get your code
+                    </h2>
+                    <p className="text-xs text-muted-foreground">
+                      Preset <span className="font-semibold text-foreground">{presetCode}</span> · run this in your terminal.
+                    </p>
+                  </div>
                 </div>
+                <button
+                  onClick={() => setOpenDialog(false)}
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label="Close dialog"
+                >
+                  <XIcon className="size-5" />
+                </button>
               </div>
 
-              {/* Package Manager selection */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Package Manager</label>
-                <div className="grid grid-cols-4 gap-1.5 rounded-lg border border-border p-1 bg-muted/10">
+              {/* Target: new vs existing project */}
+              <div className="grid grid-cols-2 gap-3 py-4">
+                {([
+                  { key: "new", icon: SparklesIcon, title: "New project", desc: "Scaffold from scratch" },
+                  { key: "existing", icon: FolderIcon, title: "Existing project", desc: "Apply to your app" },
+                ] as const).map(({ key, icon: Icon, title, desc }) => {
+                  const isSelected = target === key
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => setTarget(key)}
+                      className={cn(
+                        "flex flex-col items-start gap-2 rounded-xl border p-4 text-left transition-all",
+                        isSelected
+                          ? "border-primary bg-primary/5 ring-1 ring-primary"
+                          : "border-border bg-transparent hover:bg-muted/30"
+                      )}
+                    >
+                      <Icon className={cn("size-5", isSelected ? "text-primary" : "text-muted-foreground")} />
+                      <div>
+                        <span className="block text-sm font-medium text-foreground">{title}</span>
+                        <span className="text-xs text-muted-foreground">{desc}</span>
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
+
+              {/* Engine — only relevant when scaffolding a new project */}
+              {target === "new" && (
+                <div className="py-3">
+                  <span className="mb-2 block text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    Engine
+                  </span>
+                  <div className="grid grid-cols-2 gap-1 rounded-xl border border-border bg-background p-1">
+                    {(["nativewind", "uniwind"] as const).map((eng) => {
+                      const isSelected = selectedEngine === eng
+                      return (
+                        <button
+                          key={eng}
+                          type="button"
+                          onClick={() => setSelectedEngine(eng)}
+                          className={cn(
+                            "rounded-lg py-1.5 text-xs font-medium transition-colors",
+                            isSelected
+                              ? "border border-border bg-muted text-foreground shadow-sm"
+                              : "text-muted-foreground hover:text-foreground"
+                          )}
+                        >
+                          {eng === "nativewind" ? "NativeWind" : "Uniwind"}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Package Manager */}
+              <div className="py-3">
+                <span className="mb-2 block text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Package Manager
+                </span>
+                <div className="grid grid-cols-4 gap-1 rounded-xl border border-border bg-background p-1">
                   {(["npm", "pnpm", "yarn", "bun"] as const).map((pkg) => {
                     const isSelected = packageManager === pkg
                     return (
@@ -417,9 +460,9 @@ export function CreateCustomizer() {
                         type="button"
                         onClick={() => setPackageManager(pkg)}
                         className={cn(
-                          "rounded-md py-1.5 text-xs font-semibold transition-all capitalize",
+                          "rounded-lg py-1.5 text-xs font-medium capitalize transition-colors",
                           isSelected
-                            ? "bg-card text-foreground shadow-sm border border-border"
+                            ? "border border-border bg-muted text-foreground shadow-sm"
                             : "text-muted-foreground hover:text-foreground"
                         )}
                       >
@@ -429,35 +472,41 @@ export function CreateCustomizer() {
                   })}
                 </div>
               </div>
-            </div>
 
-            {/* Command execution block */}
-            <div className="flex flex-col gap-2">
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Initialization Command</label>
-              <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/30 p-3 font-mono text-xs text-foreground relative group overflow-hidden">
-                <code className="flex-1 select-all break-all pr-8 leading-5">{command}</code>
+              {/* Command block */}
+              <div className="my-4 flex items-center justify-between rounded-xl border border-border bg-muted/30 p-4 font-mono text-xs">
+                <div className="select-all overflow-x-auto whitespace-nowrap pr-2 text-foreground">
+                  <span className="mr-1 text-muted-foreground">$</span>
+                  {command}
+                </div>
                 <button
                   onClick={copy}
-                  className="absolute right-2.5 top-2.5 p-1.5 rounded-md border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted transition-all opacity-80 hover:opacity-100 shadow-sm"
+                  className="shrink-0 text-muted-foreground hover:text-foreground transition-colors"
                   title="Copy command"
                 >
-                  {copied ? <CheckIcon className="size-3.5 text-green-600" /> : <CopyIcon className="size-3.5" />}
+                  {copied ? <CheckIcon className="size-4 text-green-600" /> : <CopyIcon className="size-4" />}
                 </button>
               </div>
-            </div>
 
-            {/* Main Copy Button */}
-            <button
-              onClick={copy}
-              className="w-full flex items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity mt-2 shadow-sm"
-            >
-              {copied ? <CheckIcon className="size-4" /> : <CopyIcon className="size-4" />}
-              {copied ? "Copied!" : "Copy Command"}
-            </button>
-          </div>
-        </div>,
-        document.body
-      )
+              {target === "existing" && (
+                <p className="-mt-1 mb-3 text-[11px] leading-4 text-muted-foreground">
+                  Run inside a project already set up with{" "}
+                  <span className="font-mono text-foreground">lovdacn init</span>. It restyles all your installed components. Icons are switched manually.
+                </p>
+              )}
+
+              {/* Main Copy Button */}
+              <button
+                onClick={copy}
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground transition-all hover:brightness-105 active:scale-[0.99]"
+              >
+                {copied ? <CheckIcon className="size-4" /> : <CopyIcon className="size-4" />}
+                {copied ? "Copied!" : "Copy command"}
+              </button>
+            </div>
+          </div>,
+          document.body
+        )
         : null}
     </div>
   )
