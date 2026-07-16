@@ -1,97 +1,118 @@
 import Link from "next/link"
-import { ArrowRightIcon, SparklesIcon } from "lucide-react"
+import { ArrowRightIcon } from "lucide-react"
 
 import { COMPONENTS } from "@/lib/components"
-import {
-  PageActions,
-  PageHeader,
-  PageHeaderDescription,
-  PageHeaderHeading,
-} from "@/components/page-header"
-import { buttonVariants } from "@/components/ui/button"
+import { PageHeader } from "@/components/page-header"
 import { cn } from "@/lib/utils"
 
-const title = "The Foundation for your React Native Design System"
 const description =
   "A set of beautifully designed Expo components you can customize, extend, and build on. NativeWind & Uniwind. Open Source. Open Code."
 
 export default function IndexPage() {
-  const featured = COMPONENTS.filter((c) => c.featured)
-  const preview = featured.length > 0 ? featured : COMPONENTS.slice(0, 6)
-
   return (
-    <div className="flex flex-1 flex-col">
-      <PageHeader>
-        <div className="mb-2 inline-flex items-center rounded-full border border-border bg-muted/50 px-3 py-1 text-xs font-medium text-muted-foreground">
-          Expo · NativeWind · Uniwind · shadcn-style
-        </div>
-        <PageHeaderHeading className="max-w-4xl">{title}</PageHeaderHeading>
-        <PageHeaderDescription>{description}</PageHeaderDescription>
-        <PageActions>
-          <Link
-            href="/docs/installation"
-            className={cn(buttonVariants({ size: "sm" }), "h-[31px] rounded-lg")}
-          >
-            Get Started
-            <ArrowRightIcon data-icon="inline-end" className="size-3.5" />
-          </Link>
-          <Link
-            href="/docs/components"
-            className={cn(
-              buttonVariants({ variant: "outline", size: "sm" }),
-              "h-[31px] rounded-lg"
-            )}
-          >
-            Browse Components
-          </Link>
-        </PageActions>
-      </PageHeader>
+    <div className="flex flex-1 flex-col selection:bg-zinc-800 selection:text-white">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden border-b border-zinc-800/80 bg-zinc-950/20 backdrop-blur-md">
+        <div className="container-wrapper">
+          <div className="container flex flex-col items-center gap-2 px-6 pt-4 pb-12 text-center md:pt-8 md:pb-16 lg:pt-10 lg:pb-20 xl:gap-4">
+            {/* Decorative background grid and gradient */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_-20%,var(--color-muted),transparent_70%)] opacity-30"
+            />
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(to_right,var(--color-border)_1px,transparent_1px),linear-gradient(to_bottom,var(--color-border)_1px,transparent_1px)] bg-[size:56px_56px] opacity-10 [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]"
+            />
 
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-zinc-800 bg-zinc-900/60 text-xs font-medium text-zinc-400 mb-8 backdrop-blur-sm">
+              <span>Expo</span>
+              <span className="text-zinc-600">•</span>
+              <span>NativeWind</span>
+              <span className="text-zinc-600">•</span>
+              <span>Uniwind</span>
+              <span className="text-zinc-600">•</span>
+              <span>shadcn-style</span>
+            </div>
+
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground mb-6 max-w-3xl leading-tight">
+              The UI Toolkit for <br className="hidden sm:block" />
+              <span className="bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/70 dark:from-white dark:to-zinc-500">
+                React Native
+              </span>
+            </h1>
+
+            <p className="text-lg md:text-xl text-zinc-400 font-normal max-w-2xl mb-10 leading-relaxed">
+              {description}
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto justify-center">
+              <Link
+                href="/docs/installation"
+                className="inline-flex items-center justify-center gap-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-950 font-semibold px-6 py-3 rounded-full text-base transition-all group shadow-lg"
+              >
+                Get Started
+                <ArrowRightIcon className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
+              </Link>
+              <Link
+                href="/docs/components"
+                className="inline-flex items-center justify-center border border-zinc-800 hover:bg-zinc-900/60 hover:border-zinc-700 text-zinc-300 font-medium px-6 py-3 rounded-full text-base transition-all"
+              >
+                Browse Components
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Components Grid Section */}
       <div className="container-wrapper flex-1 border-b border-border">
-        <div className="container py-10 md:py-14">
-          <div className="mb-8 flex items-end justify-between gap-4">
+        <div className="container py-16">
+          <div className="flex items-end justify-between mb-10">
             <div>
-              <h2 className="text-2xl font-semibold tracking-tight">
+              <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground mb-2">
                 Components
               </h2>
-              <p className="mt-1 text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 {COMPONENTS.length} production-ready components for Expo.
               </p>
             </div>
             <Link
               href="/docs/components"
-              className="text-sm font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+              className="text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
             >
               View all
             </Link>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {COMPONENTS.slice(0, 12).map((component) => (
               <Link
                 key={component.name}
                 href={`/docs/components/${component.name}`}
-                className="group rounded-xl border border-border bg-card p-5 transition-colors hover:bg-muted/40"
+                className="group border border-zinc-800/80 hover:border-zinc-700/80 bg-zinc-900/20 hover:bg-zinc-900/40 p-6 rounded-xl transition-all duration-200 flex flex-col justify-between min-h-[140px]"
               >
-                <div className="flex items-center justify-between gap-2">
-                  <h3 className="font-medium tracking-tight group-hover:underline underline-offset-4">
-                    {component.title}
-                  </h3>
-                  <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[11px] text-muted-foreground">
-                    {component.name}
-                  </code>
+                <div>
+                  <div className="flex items-center justify-between gap-4 mb-2">
+                    <h3 className="font-bold text-base text-foreground group-hover:text-foreground">
+                      {component.title}
+                    </h3>
+                    <span className="text-[10px] font-mono bg-zinc-900 border border-zinc-800 text-zinc-400 px-2 py-0.5 rounded">
+                      {component.name}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {component.description}
+                  </p>
                 </div>
-                <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
-                  {component.description}
-                </p>
               </Link>
             ))}
           </div>
 
-          <div className="mt-8 flex justify-center">
+          <div className="flex justify-center mt-12">
             <Link
               href="/docs/components"
-              className={cn(buttonVariants({ variant: "outline" }))}
+              className="border border-zinc-800 hover:border-zinc-700 bg-zinc-950 text-zinc-300 hover:text-white font-medium text-sm px-6 py-2.5 rounded-lg transition-all"
             >
               See all {COMPONENTS.length} components
             </Link>
@@ -99,58 +120,37 @@ export default function IndexPage() {
         </div>
       </div>
 
+      {/* Footer Features Section */}
       <div className="container-wrapper">
-        <div className="container grid gap-8 py-12 md:grid-cols-3 md:py-16">
-          {[
-            {
-              title: "Open Code",
-              body: "Components live in your repo. Edit, extend, and own every line — just like shadcn/ui.",
-            },
-            {
-              title: "Style Engines",
-              body: "Choose NativeWind or Uniwind. Ten visual styles and nine base colors out of the box.",
-            },
-            {
-              title: "CLI First",
-              body: "Scaffold projects and add components with `npx lovda init` and `npx lovda add`.",
-            },
-          ].map((item) => (
-            <div key={item.title} className="space-y-2">
-              <h3 className="text-lg font-semibold tracking-tight">
-                {item.title}
-              </h3>
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                {item.body}
+        <div className="container py-16">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
+            <div>
+              <h4 className="font-bold text-foreground mb-3 text-base">Open Code</h4>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Components live in your repo. Edit, extend, and own every line — just like shadcn/ui.
               </p>
             </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Create CTA */}
-      <div className="container-wrapper border-t border-border">
-        <div className="container py-16 md:py-20">
-          <Link
-            href="/create"
-            className="group relative flex flex-col items-center gap-4 overflow-hidden rounded-2xl border border-border bg-card p-10 text-center transition-colors hover:bg-muted/40 md:p-14"
-          >
-            <div className="flex size-14 items-center justify-center rounded-2xl border border-border bg-background transition-transform group-hover:scale-110">
-              <SparklesIcon className="size-6" />
-            </div>
-            <div className="space-y-2">
-              <h2 className="text-2xl font-semibold tracking-tight">
-                Create your own design system
-              </h2>
-              <p className="mx-auto max-w-lg text-sm text-muted-foreground">
-                Pick your style, base color, font, icons, and radius. Shuffle for
-                inspiration, then copy a single command to scaffold your project.
+            <div>
+              <h4 className="font-bold text-foreground mb-3 text-base">Style Engines</h4>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Choose NativeWind or Uniwind. Ten visual styles and nine base colors out of the box.
               </p>
             </div>
-            <span className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
-              Open Create
-              <ArrowRightIcon className="size-3.5 transition-transform group-hover:translate-x-0.5" />
-            </span>
-          </Link>
+            <div>
+              <h4 className="font-bold text-foreground mb-3 text-base">CLI First</h4>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Scaffold projects and add components with{" "}
+                <code className="text-zinc-200 font-mono text-xs bg-zinc-900 px-1.5 py-0.5 rounded border border-zinc-800">
+                  npx lovda init
+                </code>{" "}
+                and{" "}
+                <code className="text-zinc-200 font-mono text-xs bg-zinc-900 px-1.5 py-0.5 rounded border border-zinc-800">
+                  npx lovda add
+                </code>
+                .
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
