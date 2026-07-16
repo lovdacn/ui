@@ -608,14 +608,39 @@ const COMPONENT_RENDERERS: Record<string, () => React.ReactNode> = {
     </Avatar>
   ),
   badge: () => (
-    <Badge>
-      <Text>Badge</Text>
-    </Badge>
+    <View className="flex-row flex-wrap items-center justify-center gap-2">
+      <Badge>
+        <Text>Badge</Text>
+      </Badge>
+      <Badge variant="secondary">
+        <Text>Secondary</Text>
+      </Badge>
+      <Badge variant="outline">
+        <Text>Outline</Text>
+      </Badge>
+      <Badge variant="destructive">
+        <Text>Destructive</Text>
+      </Badge>
+    </View>
   ),
   button: () => (
-    <Button>
-      <Text>Button</Text>
-    </Button>
+    <View className="flex-row flex-wrap items-center justify-center gap-3">
+      <Button>
+        <Text>Default</Text>
+      </Button>
+      <Button variant="secondary">
+        <Text>Secondary</Text>
+      </Button>
+      <Button variant="outline">
+        <Text>Outline</Text>
+      </Button>
+      <Button variant="ghost">
+        <Text>Ghost</Text>
+      </Button>
+      <Button variant="destructive">
+        <Text>Destructive</Text>
+      </Button>
+    </View>
   ),
   card: () => (
     <Card className="w-full max-w-sm">
@@ -1089,8 +1114,27 @@ export default function PresentPage() {
   }
 
   return (
-    <View className="flex-1 items-center justify-center p-6 bg-background w-full">
-      <Renderer />
+    <View
+      className="flex-1 items-center justify-center bg-background w-full"
+      style={
+        Platform.OS === 'web'
+          ? ({
+              minHeight: '100vh',
+              padding: 40,
+              // Subtle dotted grid backdrop (shadcn block-preview vibe).
+              backgroundImage:
+                'radial-gradient(circle at 1px 1px, var(--border) 1px, transparent 0)',
+              backgroundSize: '24px 24px',
+            } as any)
+          : { flex: 1, padding: 24 }
+      }
+    >
+      <View
+        className="w-full items-center justify-center"
+        style={{ maxWidth: 420 }}
+      >
+        <Renderer />
+      </View>
     </View>
   );
 }
