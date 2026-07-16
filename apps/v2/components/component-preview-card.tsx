@@ -1,3 +1,7 @@
+"use client"
+
+import * as React from "react"
+import { useTheme } from "next-themes"
 import { cn } from "@/lib/utils"
 import { getExpoPreviewUrl } from "@/lib/preview"
 
@@ -12,6 +16,14 @@ export function ComponentPreviewCard({
   title?: string
 }) {
   const componentName = title?.toLowerCase().replace(/ /g, "-")
+  const { resolvedTheme } = useTheme()
+  const [mounted, setMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  const themeParam = mounted ? (resolvedTheme || "light") : "light"
 
   return (
     <div
@@ -28,7 +40,10 @@ export function ComponentPreviewCard({
       <div className="relative w-full aspect-video min-h-[450px] flex items-center justify-center bg-muted/5">
         {componentName ? (
           <iframe
-            src={getExpoPreviewUrl({ component: componentName })}
+            src={getExpoPreviewUrl({
+              component: componentName,
+              colorScheme: themeParam,
+            })}
             className="w-full h-[450px] border-0"
             title={`${title} Live Preview`}
           />

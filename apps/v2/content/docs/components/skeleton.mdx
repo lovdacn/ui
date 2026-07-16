@@ -8,6 +8,13 @@ component: true
 
 ## Installation
 
+<Tabs defaultValue="cli" className="my-6 w-full">
+<TabsList>
+<TabsTrigger value="cli">CLI</TabsTrigger>
+<TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+<TabsContent value="cli">
+
 <PackageManagerTabs>
 <PMTabContent value="npm">
 
@@ -40,6 +47,36 @@ bunx --bun lovdacn@latest add skeleton
 </PackageManagerTabs>
 
 *(You can also use the shortened `lvcn` alias, e.g., `npx lvcn@latest add skeleton`)*
+
+</TabsContent>
+<TabsContent value="manual">
+
+<Steps>
+
+<Step>Add the registry components this component depends on: `utils`.</Step>
+
+<Step>Copy and paste the following code into your project.</Step>
+
+```tsx title="components/ui/skeleton.tsx"
+import { cn } from '@/lib/utils';
+import { View } from 'react-native';
+
+function Skeleton({
+  className,
+  ...props
+}: React.ComponentProps<typeof View> & React.RefAttributes<View>) {
+  return <View className={cn('bg-accent animate-pulse rounded-md', className)} {...props} />;
+}
+
+export { Skeleton };
+```
+
+<Step>Update the import paths to match your project setup.</Step>
+
+</Steps>
+
+</TabsContent>
+</Tabs>
 
 This copies the component source into your project (typically `components/ui/skeleton.tsx`) and installs any required dependencies.
 

@@ -12,6 +12,7 @@ import {
   SmartphoneIcon,
 } from "lucide-react"
 
+import { useTheme } from "next-themes"
 import { cn } from "@/lib/utils"
 import { getExpoPreviewUrl } from "@/lib/preview"
 import { Picker } from "./picker"
@@ -69,6 +70,13 @@ const RADIUS_OPTIONS = PRESET_RADII.map((r) => ({
 }))
 
 export function CreateCustomizer() {
+  const { resolvedTheme } = useTheme()
+  const [mounted, setMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
+
   const [config, setConfig] = React.useState<PresetConfig>(DEFAULT_CONFIG)
   const [selectedEngine, setSelectedEngine] = React.useState<"nativewind" | "uniwind">("nativewind")
   const [packageManager, setPackageManager] = React.useState<PackageManager>("npm")
@@ -85,8 +93,9 @@ export function CreateCustomizer() {
         chrome: "web",
         preset: presetCode,
         engine: selectedEngine,
+        colorScheme: mounted ? (resolvedTheme || "light") : "light",
       }),
-    [presetCode, selectedEngine]
+    [presetCode, selectedEngine, resolvedTheme, mounted]
   )
 
   const command = React.useMemo(() => {

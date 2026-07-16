@@ -55,16 +55,7 @@ export function SiteHeader() {
           </nav>
 
           <div className="ml-auto flex items-center gap-1.5">
-            <Link
-              href="/create"
-              className={cn(
-                buttonVariants({ variant: "outline", size: "sm" }),
-                "gap-1.5 font-medium"
-              )}
-            >
-              <Plus className="size-3.5" />
-              <span>Create</span>
-            </Link>
+
             <Link
               href={siteConfig.links.github}
               target="_blank"
@@ -88,6 +79,16 @@ export function SiteHeader() {
             >
               {open ? <XIcon className="size-4" /> : <MenuIcon className="size-4" />}
             </button>
+            <Link
+              href="/create"
+              className={cn(
+                buttonVariants({ variant: "outline", size: "sm" }),
+                "gap-1.5 font-medium dark:bg-white dark:text-black  "
+              )}
+            >
+              <Plus className="size-3.5" />
+              <span>Create</span>
+            </Link>
           </div>
         </div>
 

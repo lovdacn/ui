@@ -11,7 +11,14 @@ import "../global.css";
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  let colorScheme = useColorScheme();
+  if (typeof window !== 'undefined') {
+    const params = new URLSearchParams(window.location.search);
+    const themeParam = params.get('colorScheme');
+    if (themeParam === 'dark' || themeParam === 'light') {
+      colorScheme = themeParam as 'light' | 'dark';
+    }
+  }
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>

@@ -940,11 +940,28 @@ const StatusBar = () => {
 };
 
 export default function PresentPage() {
-  const { component, preset, chrome } = useLocalSearchParams<{ component: string; preset?: string; chrome?: string }>();
-  const colorScheme = useColorScheme();
+  const { component, preset, chrome, colorScheme: urlColorScheme } = useLocalSearchParams<{
+    component: string;
+    preset?: string;
+    chrome?: string;
+    colorScheme?: 'light' | 'dark';
+  }>();
+  const systemColorScheme = useColorScheme();
+  const activeColorScheme = urlColorScheme || systemColorScheme || 'light';
 
   React.useEffect(() => {
-    if (!preset || typeof window === 'undefined') return;
+    if (typeof window === 'undefined') return;
+
+    const root = document.documentElement;
+    const isDark = activeColorScheme === 'dark';
+
+    if (isDark) {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+
+    if (!preset) return;
 
     const config = decodePreset(preset);
     if (!config) return;
@@ -957,10 +974,7 @@ export default function PresentPage() {
 
     // 1. Get base color variables
     const baseColorSet = BASE_COLORS_HSL[baseColor] || BASE_COLORS_HSL.zinc;
-    const isDark = colorScheme === 'dark';
     const activeColors = isDark ? baseColorSet.dark : baseColorSet.light;
-
-    const root = document.documentElement;
 
     // Apply base colors
     for (const [key, val] of Object.entries(activeColors)) {
@@ -1033,7 +1047,7 @@ export default function PresentPage() {
     fontLink.href = `https://fonts.googleapis.com/css2?family=${fontName.replace(/ /g, '+')}:wght@400;500;700&display=swap`;
     
     root.style.setProperty('--font-sans', `'${fontName}', sans-serif`);
-  }, [preset, colorScheme]);
+  }, [preset, activeColorScheme]);
 
   if (!component || !COMPONENT_RENDERERS[component]) {
     return (

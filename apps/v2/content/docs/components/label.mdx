@@ -8,6 +8,13 @@ component: true
 
 ## Installation
 
+<Tabs defaultValue="cli" className="my-6 w-full">
+<TabsList>
+<TabsTrigger value="cli">CLI</TabsTrigger>
+<TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+<TabsContent value="cli">
+
 <PackageManagerTabs>
 <PMTabContent value="npm">
 
@@ -40,6 +47,71 @@ bunx --bun lovdacn@latest add label
 </PackageManagerTabs>
 
 *(You can also use the shortened `lvcn` alias, e.g., `npx lvcn@latest add label`)*
+
+</TabsContent>
+<TabsContent value="manual">
+
+<Steps>
+
+<Step>Install the following dependencies:</Step>
+
+```bash
+npm install @rn-primitives/label
+```
+
+<Step>Add the registry components this component depends on: `utils`.</Step>
+
+<Step>Copy and paste the following code into your project.</Step>
+
+```tsx title="components/ui/label.tsx"
+import { cn } from '@/lib/utils';
+import * as LabelPrimitive from '@rn-primitives/label';
+import { Platform } from 'react-native';
+
+function Label({
+  className,
+  onPress,
+  onLongPress,
+  onPressIn,
+  onPressOut,
+  disabled,
+  ...props
+}: React.ComponentProps<typeof LabelPrimitive.Text>) {
+  return (
+    <LabelPrimitive.Root
+      className={cn(
+        'flex select-none flex-row items-center gap-2',
+        Platform.select({
+          web: 'cursor-default leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-50 group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50',
+        }),
+        disabled && 'opacity-50'
+      )}
+      onPress={onPress}
+      onLongPress={onLongPress}
+      onPressIn={onPressIn}
+      onPressOut={onPressOut}
+      disabled={disabled}>
+      <LabelPrimitive.Text
+        className={cn(
+          'text-foreground text-sm font-medium',
+          Platform.select({ web: 'leading-none' }),
+          className
+        )}
+        {...props}
+      />
+    </LabelPrimitive.Root>
+  );
+}
+
+export { Label };
+```
+
+<Step>Update the import paths to match your project setup.</Step>
+
+</Steps>
+
+</TabsContent>
+</Tabs>
 
 This copies the component source into your project (typically `components/ui/label.tsx`) and installs any required dependencies.
 

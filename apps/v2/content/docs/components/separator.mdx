@@ -8,6 +8,13 @@ component: true
 
 ## Installation
 
+<Tabs defaultValue="cli" className="my-6 w-full">
+<TabsList>
+<TabsTrigger value="cli">CLI</TabsTrigger>
+<TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+<TabsContent value="cli">
+
 <PackageManagerTabs>
 <PMTabContent value="npm">
 
@@ -40,6 +47,54 @@ bunx --bun lovdacn@latest add separator
 </PackageManagerTabs>
 
 *(You can also use the shortened `lvcn` alias, e.g., `npx lvcn@latest add separator`)*
+
+</TabsContent>
+<TabsContent value="manual">
+
+<Steps>
+
+<Step>Install the following dependencies:</Step>
+
+```bash
+npm install @rn-primitives/separator
+```
+
+<Step>Add the registry components this component depends on: `utils`.</Step>
+
+<Step>Copy and paste the following code into your project.</Step>
+
+```tsx title="components/ui/separator.tsx"
+import { cn } from '@/lib/utils';
+import * as SeparatorPrimitive from '@rn-primitives/separator';
+
+function Separator({
+  className,
+  orientation = 'horizontal',
+  decorative = true,
+  ...props
+}: React.ComponentProps<typeof SeparatorPrimitive.Root>) {
+  return (
+    <SeparatorPrimitive.Root
+      decorative={decorative}
+      orientation={orientation}
+      className={cn('bg-border shrink-0',
+        orientation === 'horizontal' ? 'h-[1px] w-full' : 'h-full w-[1px]',
+        className
+      )}
+      {...props}
+    />
+  );
+}
+
+export { Separator };
+```
+
+<Step>Update the import paths to match your project setup.</Step>
+
+</Steps>
+
+</TabsContent>
+</Tabs>
 
 This copies the component source into your project (typically `components/ui/separator.tsx`) and installs any required dependencies.
 

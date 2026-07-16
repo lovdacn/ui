@@ -8,6 +8,13 @@ component: true
 
 ## Installation
 
+<Tabs defaultValue="cli" className="my-6 w-full">
+<TabsList>
+<TabsTrigger value="cli">CLI</TabsTrigger>
+<TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+<TabsContent value="cli">
+
 <PackageManagerTabs>
 <PMTabContent value="npm">
 
@@ -40,6 +47,66 @@ bunx --bun lovdacn@latest add switch
 </PackageManagerTabs>
 
 *(You can also use the shortened `lvcn` alias, e.g., `npx lvcn@latest add switch`)*
+
+</TabsContent>
+<TabsContent value="manual">
+
+<Steps>
+
+<Step>Install the following dependencies:</Step>
+
+```bash
+npm install @rn-primitives/switch
+```
+
+<Step>Add the registry components this component depends on: `utils`.</Step>
+
+<Step>Copy and paste the following code into your project.</Step>
+
+```tsx title="components/ui/switch.tsx"
+import { cn } from '@/lib/utils';
+import * as SwitchPrimitives from '@rn-primitives/switch';
+import { Platform } from 'react-native';
+
+function Switch({
+  className,
+  ...props
+}: React.ComponentProps<typeof SwitchPrimitives.Root>) {
+  return (
+    <SwitchPrimitives.Root
+      className={cn(
+        'flex h-[1.15rem] w-8 shrink-0 flex-row items-center rounded-full border border-transparent shadow-sm shadow-black/5',
+        Platform.select({
+          web: 'focus-visible:border-ring focus-visible:ring-ring/50 peer inline-flex outline-none transition-all focus-visible:ring-[3px] disabled:cursor-not-allowed',
+        }),
+        props.checked ? 'bg-primary' : 'bg-input dark:bg-input/80',
+        props.disabled && 'opacity-50',
+        className
+      )}
+      {...props}>
+      <SwitchPrimitives.Thumb
+        className={cn('bg-background size-4 rounded-full transition-transform',
+          Platform.select({
+            web: 'pointer-events-none block ring-0',
+          }),
+          props.checked
+            ? 'dark:bg-primary-foreground translate-x-3.5'
+            : 'dark:bg-foreground translate-x-0'
+        )}
+      />
+    </SwitchPrimitives.Root>
+  );
+}
+
+export { Switch };
+```
+
+<Step>Update the import paths to match your project setup.</Step>
+
+</Steps>
+
+</TabsContent>
+</Tabs>
 
 This copies the component source into your project (typically `components/ui/switch.tsx`) and installs any required dependencies.
 

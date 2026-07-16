@@ -9,6 +9,137 @@ const componentsDir = path.join(root, "components")
 fs.mkdirSync(componentsDir, { recursive: true })
 fs.mkdirSync(path.join(root, "(root)"), { recursive: true })
 
+// Canonical registry used for the "Manual" install source (nativewind / default style).
+const REGISTRY_DIR = path.join(
+  __dirname,
+  "..",
+  "public",
+  "r",
+  "styles",
+  "nativewind",
+  "default"
+)
+
+function readRegistry(name) {
+  const file = path.join(REGISTRY_DIR, `${name}.json`)
+  if (!fs.existsSync(file)) return null
+  try {
+    return JSON.parse(fs.readFileSync(file, "utf8"))
+  } catch {
+    return null
+  }
+}
+
+/** CLI command block (npm/yarn/pnpm/bun) shared by the CLI tab. */
+function cliBlock(name) {
+  return `<PackageManagerTabs>
+<PMTabContent value="npm">
+
+\`\`\`bash
+npx lovdacn@latest add ${name}
+\`\`\`
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+\`\`\`bash
+yarn dlx lovdacn@latest add ${name}
+\`\`\`
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+\`\`\`bash
+pnpm dlx lovdacn@latest add ${name}
+\`\`\`
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+\`\`\`bash
+bunx --bun lovdacn@latest add ${name}
+\`\`\`
+
+</PMTabContent>
+</PackageManagerTabs>
+
+*(You can also use the shortened \`lvcn\` alias, e.g., \`npx lvcn@latest add ${name}\`)*`
+}
+
+/** shadcn-style "Manual" install: dependencies + copy-paste source. */
+function manualBlock(component) {
+  const reg = readRegistry(component.name)
+  const npmDeps = reg?.dependencies ?? []
+  const registryDeps = reg?.registryDependencies ?? component.deps ?? []
+  const files =
+    reg?.files && reg.files.length > 0
+      ? reg.files
+      : [
+          {
+            path: `components/ui/${component.name}.tsx`,
+            content: "// Component source unavailable in the registry.\n",
+          },
+        ]
+
+  const steps = []
+
+  if (npmDeps.length > 0) {
+    steps.push(`<Step>Install the following dependencies:</Step>
+
+\`\`\`bash
+npm install ${npmDeps.join(" ")}
+\`\`\``)
+  }
+
+  if (registryDeps.length > 0) {
+    steps.push(
+      `<Step>Add the registry components this component depends on: ${registryDeps
+        .map((d) => `\`${d}\``)
+        .join(", ")}.</Step>`
+    )
+  }
+
+  const sourceBlocks = files
+    .map(
+      (f) => `\`\`\`tsx title="${f.path}"
+${String(f.content).replace(/\n+$/, "")}
+\`\`\``
+    )
+    .join("\n\n")
+
+  steps.push(`<Step>Copy and paste the following code into your project.</Step>
+
+${sourceBlocks}`)
+
+  steps.push(`<Step>Update the import paths to match your project setup.</Step>`)
+
+  return `<Steps>
+
+${steps.join("\n\n")}
+
+</Steps>`
+}
+
+/** Full Installation section with CLI + Manual tabs (shadcn style). */
+function installationSection(component) {
+  return `<Tabs defaultValue="cli" className="my-6 w-full">
+<TabsList>
+<TabsTrigger value="cli">CLI</TabsTrigger>
+<TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+<TabsContent value="cli">
+
+${cliBlock(component.name)}
+
+</TabsContent>
+<TabsContent value="manual">
+
+${manualBlock(component)}
+
+</TabsContent>
+</Tabs>`
+}
+
 const COMPONENTS = [
   {
     name: "accordion",
@@ -859,38 +990,7 @@ component: true
 
 ## Installation
 
-<PackageManagerTabs>
-<PMTabContent value="npm">
-
-\`\`\`bash
-npx lovdacn@latest add ${component.name}
-\`\`\`
-
-</PMTabContent>
-<PMTabContent value="yarn">
-
-\`\`\`bash
-yarn dlx lovdacn@latest add ${component.name}
-\`\`\`
-
-</PMTabContent>
-<PMTabContent value="pnpm">
-
-\`\`\`bash
-pnpm dlx lovdacn@latest add ${component.name}
-\`\`\`
-
-</PMTabContent>
-<PMTabContent value="bun">
-
-\`\`\`bash
-bunx --bun lovdacn@latest add ${component.name}
-\`\`\`
-
-</PMTabContent>
-</PackageManagerTabs>
-
-*(You can also use the shortened \`lvcn\` alias, e.g., \`npx lvcn@latest add ${component.name}\`)*
+${installationSection(component)}
 
 This copies the component source into your project (typically \`components/ui/${component.name}.tsx\`) and installs any required dependencies.
 

@@ -8,6 +8,13 @@ component: true
 
 ## Installation
 
+<Tabs defaultValue="cli" className="my-6 w-full">
+<TabsList>
+<TabsTrigger value="cli">CLI</TabsTrigger>
+<TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+<TabsContent value="cli">
+
 <PackageManagerTabs>
 <PMTabContent value="npm">
 
@@ -40,6 +47,34 @@ bunx --bun lovdacn@latest add aspect-ratio
 </PackageManagerTabs>
 
 *(You can also use the shortened `lvcn` alias, e.g., `npx lvcn@latest add aspect-ratio`)*
+
+</TabsContent>
+<TabsContent value="manual">
+
+<Steps>
+
+<Step>Install the following dependencies:</Step>
+
+```bash
+npm install @rn-primitives/aspect-ratio
+```
+
+<Step>Copy and paste the following code into your project.</Step>
+
+```tsx title="components/ui/aspect-ratio.tsx"
+import * as AspectRatioPrimitive from '@rn-primitives/aspect-ratio';
+
+const AspectRatio = AspectRatioPrimitive.Root;
+
+export { AspectRatio };
+```
+
+<Step>Update the import paths to match your project setup.</Step>
+
+</Steps>
+
+</TabsContent>
+</Tabs>
 
 This copies the component source into your project (typically `components/ui/aspect-ratio.tsx`) and installs any required dependencies.
 

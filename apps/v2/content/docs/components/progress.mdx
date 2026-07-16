@@ -8,6 +8,13 @@ component: true
 
 ## Installation
 
+<Tabs defaultValue="cli" className="my-6 w-full">
+<TabsList>
+<TabsTrigger value="cli">CLI</TabsTrigger>
+<TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+<TabsContent value="cli">
+
 <PackageManagerTabs>
 <PMTabContent value="npm">
 
@@ -40,6 +47,112 @@ bunx --bun lovdacn@latest add progress
 </PackageManagerTabs>
 
 *(You can also use the shortened `lvcn` alias, e.g., `npx lvcn@latest add progress`)*
+
+</TabsContent>
+<TabsContent value="manual">
+
+<Steps>
+
+<Step>Install the following dependencies:</Step>
+
+```bash
+npm install @rn-primitives/progress
+```
+
+<Step>Add the registry components this component depends on: `utils`.</Step>
+
+<Step>Copy and paste the following code into your project.</Step>
+
+```tsx title="components/ui/progress.tsx"
+import { cn } from '@/lib/utils';
+import * as ProgressPrimitive from '@rn-primitives/progress';
+import { Platform, View } from 'react-native';
+import Animated, {
+  Extrapolation,
+  interpolate,
+  useAnimatedStyle,
+  useDerivedValue,
+  withSpring,
+} from 'react-native-reanimated';
+
+function Progress({
+  className,
+  value,
+  indicatorClassName,
+  ...props
+}: React.ComponentProps<typeof ProgressPrimitive.Root> & {
+  indicatorClassName?: string;
+}) {
+  return (
+    <ProgressPrimitive.Root
+      className={cn('bg-primary/20 relative h-2 w-full overflow-hidden rounded-full', className)}
+      {...props}>
+      <Indicator value={value} className={indicatorClassName} />
+    </ProgressPrimitive.Root>
+  );
+}
+
+export { Progress };
+
+const Indicator = Platform.select({
+  web: WebIndicator,
+  native: NativeIndicator,
+  default: NullIndicator,
+});
+
+type IndicatorProps = {
+  value: number | undefined | null;
+  className?: string;
+};
+
+function WebIndicator({ value, className }: IndicatorProps) {
+  if (Platform.OS !== 'web') {
+    return null;
+  }
+
+  return (
+    <View
+      className={cn('bg-primary h-full w-full flex-1 transition-all', className)}
+      style={{ transform: `translateX(-${100 - (value ?? 0)}%)` }}>
+      <ProgressPrimitive.Indicator className={cn('h-full w-full', className)} />
+    </View>
+  );
+}
+
+function NativeIndicator({ value, className }: IndicatorProps) {
+  const progress = useDerivedValue(() => value ?? 0);
+
+  const indicator = useAnimatedStyle(() => {
+    return {
+      width: withSpring(
+        `${interpolate(progress.value, [0, 100], [1, 100], Extrapolation.CLAMP)}%`,
+        { overshootClamping: true }
+      ),
+    };
+  }, [value]);
+
+  if (Platform.OS === 'web') {
+    return null;
+  }
+
+  return (
+    <ProgressPrimitive.Indicator asChild>
+      <Animated.View style={indicator} className={cn('bg-foreground h-full', className)} />
+    </ProgressPrimitive.Indicator>
+  );
+}
+
+function NullIndicator(_props: IndicatorProps) {
+  return null;
+}
+```
+
+<Step>Update the import paths to match your project setup.</Step>
+
+</Steps>
+
+</TabsContent>
+</Tabs>
 
 This copies the component source into your project (typically `components/ui/progress.tsx`) and installs any required dependencies.
 

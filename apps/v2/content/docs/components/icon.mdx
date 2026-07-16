@@ -8,6 +8,13 @@ component: true
 
 ## Installation
 
+<Tabs defaultValue="cli" className="my-6 w-full">
+<TabsList>
+<TabsTrigger value="cli">CLI</TabsTrigger>
+<TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+<TabsContent value="cli">
+
 <PackageManagerTabs>
 <PMTabContent value="npm">
 
@@ -40,6 +47,88 @@ bunx --bun lovdacn@latest add icon
 </PackageManagerTabs>
 
 *(You can also use the shortened `lvcn` alias, e.g., `npx lvcn@latest add icon`)*
+
+</TabsContent>
+<TabsContent value="manual">
+
+<Steps>
+
+<Step>Install the following dependencies:</Step>
+
+```bash
+npm install lucide-react-native nativewind
+```
+
+<Step>Add the registry components this component depends on: `text`, `utils`.</Step>
+
+<Step>Copy and paste the following code into your project.</Step>
+
+```tsx title="components/ui/icon.tsx"
+import { TextClassContext } from '@/components/ui/text';
+import { cn } from '@/lib/utils';
+import type { LucideIcon, LucideProps } from 'lucide-react-native';
+import { cssInterop } from 'nativewind';
+import * as React from 'react';
+
+type IconProps = LucideProps & {
+  as: LucideIcon;
+} & React.RefAttributes<LucideIcon>;
+
+function IconImpl({ as: IconComponent, ...props }: IconProps) {
+  return <IconComponent {...props} />;
+}
+
+cssInterop(IconImpl, {
+  className: {
+    target: 'style',
+    nativeStyleToProp: {
+      height: 'size',
+      width: 'size',
+    },
+  },
+});
+
+/**
+ * A wrapper component for Lucide icons with Nativewind `className` support via `cssInterop`.
+ *
+ * This component allows you to render any Lucide icon while applying utility classes
+ * using `nativewind`. It avoids the need to wrap or configure each icon individually.
+ *
+ * @component
+ * @example
+ * ```tsx
+ * import { ArrowRight } from 'lucide-react-native';
+ * import { Icon } from '@/registry/components/ui/icon';
+ *
+ * <Icon as={ArrowRight} className="text-red-500" size={16} />
+ * ```
+ *
+ * @param {LucideIcon} as - The Lucide icon component to render.
+ * @param {string} className - Utility classes to style the icon using Nativewind.
+ * @param {number} size - Icon size (defaults to 14).
+ * @param {...LucideProps} ...props - Additional Lucide icon props passed to the "as" icon.
+ */
+function Icon({ as: IconComponent, className, size = 14, ...props }: IconProps) {
+  const textClass = React.useContext(TextClassContext);
+  return (
+    <IconImpl
+      as={IconComponent}
+      className={cn('text-foreground', textClass, className)}
+      size={size}
+      {...props}
+    />
+  );
+}
+
+export { Icon };
+```
+
+<Step>Update the import paths to match your project setup.</Step>
+
+</Steps>
+
+</TabsContent>
+</Tabs>
 
 This copies the component source into your project (typically `components/ui/icon.tsx`) and installs any required dependencies.
 

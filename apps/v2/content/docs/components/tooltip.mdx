@@ -8,6 +8,13 @@ component: true
 
 ## Installation
 
+<Tabs defaultValue="cli" className="my-6 w-full">
+<TabsList>
+<TabsTrigger value="cli">CLI</TabsTrigger>
+<TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+<TabsContent value="cli">
+
 <PackageManagerTabs>
 <PMTabContent value="npm">
 
@@ -40,6 +47,94 @@ bunx --bun lovdacn@latest add tooltip
 </PackageManagerTabs>
 
 *(You can also use the shortened `lvcn` alias, e.g., `npx lvcn@latest add tooltip`)*
+
+</TabsContent>
+<TabsContent value="manual">
+
+<Steps>
+
+<Step>Install the following dependencies:</Step>
+
+```bash
+npm install @rn-primitives/tooltip@^1.5.2 @rn-primitives/portal@^1.5.2
+```
+
+<Step>Add the registry components this component depends on: `native-only-animated-view`, `text`, `utils`.</Step>
+
+<Step>Copy and paste the following code into your project.</Step>
+
+```tsx title="components/ui/tooltip.tsx"
+import { NativeOnlyAnimatedView } from '@/components/ui/native-only-animated-view';
+import { TextClassContext } from '@/components/ui/text';
+import { cn } from '@/lib/utils';
+import * as TooltipPrimitive from '@rn-primitives/tooltip';
+import * as React from 'react';
+import { Platform, StyleSheet } from 'react-native';
+import { FadeInDown, FadeInUp, FadeOut } from 'react-native-reanimated';
+import { FullWindowOverlay as RNFullWindowOverlay } from 'react-native-screens';
+
+const Tooltip = TooltipPrimitive.Root;
+
+const TooltipTrigger = TooltipPrimitive.Trigger;
+
+const FullWindowOverlay = Platform.OS === 'ios' ? RNFullWindowOverlay : React.Fragment;
+
+function TooltipContent({
+  className,
+  sideOffset = 4,
+  portalHost,
+  side = 'top',
+  ...props
+}: React.ComponentProps<typeof TooltipPrimitive.Content> & {
+    portalHost?: string;
+  }) {
+  return (
+    <TooltipPrimitive.Portal hostName={portalHost}>
+      <FullWindowOverlay>
+        <TooltipPrimitive.Overlay style={Platform.select({ native: StyleSheet.absoluteFill })}>
+          <NativeOnlyAnimatedView
+            entering={
+              side === 'top'
+                ? FadeInDown.withInitialValues({ transform: [{ translateY: 3 }] }).duration(150)
+                : FadeInUp.withInitialValues({ transform: [{ translateY: -5 }] })
+            }
+            exiting={FadeOut}>
+            <TextClassContext.Provider value="text-xs text-primary-foreground">
+              <TooltipPrimitive.Content
+                sideOffset={sideOffset}
+                className={cn(
+                  'bg-primary z-50 rounded-md px-3 py-2 sm:py-1.5',
+                  Platform.select({
+                    web: cn(
+                      'animate-in fade-in-0 zoom-in-95 origin-(--radix-tooltip-content-transform-origin) w-fit text-balance',
+                      side === 'bottom' && 'slide-in-from-top-2',
+                      side === 'left' && 'slide-in-from-right-2',
+                      side === 'right' && 'slide-in-from-left-2',
+                      side === 'top' && 'slide-in-from-bottom-2'
+                    ),
+                  }),
+                  className
+                )}
+                side={side}
+                {...props}
+              />
+            </TextClassContext.Provider>
+          </NativeOnlyAnimatedView>
+        </TooltipPrimitive.Overlay>
+      </FullWindowOverlay>
+    </TooltipPrimitive.Portal>
+  );
+}
+
+export { Tooltip, TooltipContent, TooltipTrigger };
+```
+
+<Step>Update the import paths to match your project setup.</Step>
+
+</Steps>
+
+</TabsContent>
+</Tabs>
 
 This copies the component source into your project (typically `components/ui/tooltip.tsx`) and installs any required dependencies.
 
