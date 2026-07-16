@@ -21,106 +21,19 @@ import { runAdd, getInstalledComponents, resolveAliasPath } from "./add.js"
 import { regenerateProjectCss } from "./init.js"
 import { snapshotFiles, restoreFiles } from "../utils/file-backup.js"
 
-// ─── Decode subcommand ───────────────────────────────────────────────────────
-
-export const decode = new Command()
-  .name("decode")
-  .description("decode a preset code into its values")
-  .argument("<code>", "the preset code to decode")
-  .option("--json", "output as JSON", false)
-  .action((code, opts) => {
-    const decoded = decodePreset(code)
-    if (!decoded) {
-      console.error(pc.red(`Invalid preset code: ${code}`))
-      process.exit(1)
-    }
-
-    if (opts.json) {
-      console.log(JSON.stringify({ code, values: decoded }, null, 2))
-      return
-    }
-
-    console.log()
-    console.log(`  ${pc.bold("Preset Code:")} ${pc.cyan(code)}`)
-    console.log()
-    console.log(`  ${pc.dim("style:")}        ${decoded.style}`)
-    console.log(`  ${pc.dim("baseColor:")}    ${decoded.baseColor}`)
-    console.log(`  ${pc.dim("theme:")}        ${decoded.theme}`)
-    console.log(`  ${pc.dim("chartColor:")}   ${decoded.chartColor}`)
-    console.log(`  ${pc.dim("font:")}         ${decoded.font} (${FONT_FAMILIES[decoded.font]})`)
-    console.log(`  ${pc.dim("iconLibrary:")} ${decoded.iconLibrary} (${ICON_PACKAGES[decoded.iconLibrary]})`)
-    console.log(`  ${pc.dim("radius:")}       ${decoded.radius} (${RADIUS_VALUES[decoded.radius]})`)
-    console.log()
-  })
-
-// ─── Resolve subcommand ──────────────────────────────────────────────────────
-
-export const resolve = new Command()
-  .name("resolve")
-  .description("resolve the current preset from your project's lvcn.json")
-  .option(
-    "-c, --cwd <cwd>",
-    "the working directory. defaults to the current directory.",
-    process.cwd()
-  )
-  .option("--json", "output as JSON", false)
-  .action(async (opts) => {
-    const cwd = path.resolve(opts.cwd)
-    const lvcnPath = path.join(cwd, "lvcn.json")
-
-    if (!fs.existsSync(lvcnPath)) {
-      console.error(pc.red("No lvcn.json found. Run 'init' first."))
-      process.exit(1)
-    }
-
-    const config = fs.readJsonSync(lvcnPath)
-
-    const presetConfig: Partial<PresetConfig> = {
-      style: config.style,
-      baseColor: config.baseColor,
-      theme: config.theme,
-      chartColor: config.chartColor,
-      font: config.font,
-      iconLibrary: config.iconLibrary,
-      radius: config.radius,
-    }
-
-    // Clean undefined values
-    for (const key of Object.keys(presetConfig) as (keyof PresetConfig)[]) {
-      if (presetConfig[key] === undefined) {
-        delete presetConfig[key]
-      }
-    }
-
-    const code = encodePreset(presetConfig)
-    const decoded = decodePreset(code)!
-
-    if (opts.json) {
-      console.log(JSON.stringify({ code, values: decoded }, null, 2))
-      return
-    }
-
-    console.log()
-    console.log(`  ${pc.bold("Current Preset:")} ${pc.cyan(code)}`)
-    console.log()
-    console.log(`  ${pc.dim("style:")}        ${decoded.style}`)
-    console.log(`  ${pc.dim("baseColor:")}    ${decoded.baseColor}`)
-    console.log(`  ${pc.dim("theme:")}        ${decoded.theme}`)
-    console.log(`  ${pc.dim("chartColor:")}   ${decoded.chartColor}`)
-    console.log(`  ${pc.dim("font:")}         ${decoded.font} (${FONT_FAMILIES[decoded.font]})`)
-    console.log(`  ${pc.dim("iconLibrary:")} ${decoded.iconLibrary} (${ICON_PACKAGES[decoded.iconLibrary]})`)
-    console.log(`  ${pc.dim("radius:")}       ${decoded.radius} (${RADIUS_VALUES[decoded.radius]})`)
-    console.log()
-    console.log(`  ${pc.dim("Run with:")} ${pc.green(`npx lovdacn init --preset ${code}`)}`)
-    console.log()
-  })
-
-// ─── Apply subcommand ────────────────────────────────────────────────────────
+// ─── apply command ───────────────────────────────────────────────────────────
+// Apply a preset code (from the web /create page), a named preset, or a style
+// name to the project: update lvcn.json, regenerate global.css, install the
+// font, and re-install all installed components in the new style. Icons are
+// left untouched (switched manually).
 
 export const apply = new Command()
   .name("apply")
-  .description("apply a preset to your existing project")
-  .argument("<preset>", "preset code or named preset (e.g., nova, sera, a3Kx)")
+  .description("apply a preset code or style to your project")
+  .argument(
+    "<code>",
+    "preset code from the web, a named preset (e.g. nova, sera), or a style name"
+  )
   .option(
     "-c, --cwd <cwd>",
     "the working directory. defaults to the current directory.",
@@ -145,7 +58,7 @@ export const apply = new Command()
       process.exit(1)
     }
 
-    // Resolve preset: named preset, preset code, or style name
+    // Resolve preset: named preset, preset code, or style name.
     let presetConfig: PresetConfig
 
     const namedPreset = DEFAULT_PRESETS[presetArg]
@@ -160,7 +73,7 @@ export const apply = new Command()
       }
       presetConfig = decoded
     } else if ((PRESET_STYLES as readonly string[]).includes(presetArg)) {
-      // Just a style name — use its default preset if available, otherwise encode with defaults
+      // Just a style name — use its default preset if available, otherwise encode with defaults.
       const stylePreset = DEFAULT_PRESETS[presetArg]
       if (stylePreset) {
         const { title, description, ...config } = stylePreset
@@ -173,6 +86,18 @@ export const apply = new Command()
       console.error(pc.dim(`Use a named preset (${Object.keys(DEFAULT_PRESETS).join(", ")}), a preset code, or a style name.`))
       process.exit(1)
     }
+
+    // ── Present the decoded preset details to the user ─────────────────────────
+    console.log()
+    console.log(`  ${pc.bold("Decoded preset:")} ${pc.cyan(presetArg)}`)
+    console.log()
+    console.log(`  ${pc.dim("style:")}        ${presetConfig.style}`)
+    console.log(`  ${pc.dim("baseColor:")}    ${presetConfig.baseColor}`)
+    console.log(`  ${pc.dim("theme:")}        ${presetConfig.theme}`)
+    console.log(`  ${pc.dim("chartColor:")}   ${presetConfig.chartColor}`)
+    console.log(`  ${pc.dim("font:")}         ${presetConfig.font} (${FONT_FAMILIES[presetConfig.font]})`)
+    console.log(`  ${pc.dim("iconLibrary:")} ${presetConfig.iconLibrary} (${ICON_PACKAGES[presetConfig.iconLibrary]})`)
+    console.log(`  ${pc.dim("radius:")}       ${presetConfig.radius} (${RADIUS_VALUES[presetConfig.radius]})`)
 
     const lvcnConfig = fs.readJsonSync(lvcnPath)
     const styleEngine = lvcnConfig.styleEngine || "nativewind"
@@ -221,7 +146,7 @@ export const apply = new Command()
 
     // Show what will change
     console.log()
-    console.log(`  ${pc.bold("Applying preset:")} ${pc.cyan(presetArg)}${only ? pc.dim(`  (only: ${[...only].join(", ")})`) : ""}`)
+    console.log(`  ${pc.bold("Applying to project:")}${only ? pc.dim(`  (only: ${[...only].join(", ")})`) : ""}`)
     console.log()
     row("style", lvcnConfig.style, effective.style, "", !only)
     row("baseColor", lvcnConfig.baseColor, effective.baseColor, "", wants("colors"))
@@ -278,7 +203,7 @@ export const apply = new Command()
       lvcnConfig.components || []
     )
 
-    // Snapshot everything apply may overwrite so we can roll back on failure.
+    // Snapshot everything present may overwrite so we can roll back on failure.
     const aliases = lvcnConfig.aliases || {}
     const snapshotPaths = [lvcnPath, cssPath]
     const utilsAlias = resolveAliasPath(cwd, aliases.utils || "@/lib/utils")
@@ -364,18 +289,6 @@ export const apply = new Command()
     console.log()
     console.log(pc.green(`✔ Preset ${pc.cyan(presetArg)} applied successfully! 🎉`))
     console.log()
-  })
-
-// ─── Main preset command ─────────────────────────────────────────────────────
-
-export const preset = new Command()
-  .name("preset")
-  .description("manage design presets")
-  .addCommand(decode)
-  .addCommand(resolve)
-  .addCommand(apply)
-  .action(() => {
-    preset.outputHelp()
   })
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────

@@ -2,7 +2,8 @@
 import { Command } from "commander"
 import { init } from "./commands/init"
 import { add } from "./commands/add"
-import { preset } from "./commands/preset"
+import { apply } from "./commands/apply"
+import { present } from "./commands/present"
 import { version } from "../package.json"
 
 const program = new Command()
@@ -12,6 +13,7 @@ const program = new Command()
 
 program.addCommand(init)
 program.addCommand(add)
-program.addCommand(preset)
+program.addCommand(apply)
+program.addCommand(present)
 
 program.parse(process.argv)
