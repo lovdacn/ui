@@ -26,6 +26,43 @@ const PORTAL_COMPONENTS = new Set([
 const PORTAL_DEPENDENCY = "@rn-primitives/portal@^1.5.2"
 const GESTURE_HANDLER_DEPENDENCY = "react-native-gesture-handler"
 
+// Canonical list of registry UI components (single source of truth for the
+// interactive picker and for filesystem-based installed-component detection).
+export const AVAILABLE_COMPONENTS = [
+  "accordion",
+  "alert",
+  "alert-dialog",
+  "aspect-ratio",
+  "avatar",
+  "badge",
+  "button",
+  "card",
+  "checkbox",
+  "collapsible",
+  "context-menu",
+  "dialog",
+  "dropdown-menu",
+  "hover-card",
+  "icon",
+  "input",
+  "label",
+  "menubar",
+  "native-only-animated-view",
+  "popover",
+  "progress",
+  "radio-group",
+  "select",
+  "separator",
+  "skeleton",
+  "switch",
+  "tabs",
+  "text",
+  "textarea",
+  "toggle",
+  "toggle-group",
+  "tooltip",
+] as const
+
 // Detect whether the target project is an Expo project (so we can defer to
 // `expo install` for SDK-compatible native module versions).
 function isExpoProject(cwd: string): boolean {
@@ -113,41 +150,6 @@ export async function runAdd(options: z.infer<typeof addOptionsSchema>) {
   let componentsToAdd = options.components || []
 
   if (componentsToAdd.length === 0) {
-    const AVAILABLE_COMPONENTS = [
-      "accordion",
-      "alert",
-      "alert-dialog",
-      "aspect-ratio",
-      "avatar",
-      "badge",
-      "button",
-      "card",
-      "checkbox",
-      "collapsible",
-      "context-menu",
-      "dialog",
-      "dropdown-menu",
-      "hover-card",
-      "icon",
-      "input",
-      "label",
-      "menubar",
-      "native-only-animated-view",
-      "popover",
-      "progress",
-      "radio-group",
-      "select",
-      "separator",
-      "skeleton",
-      "switch",
-      "tabs",
-      "text",
-      "textarea",
-      "toggle",
-      "toggle-group",
-      "tooltip"
-    ]
-
     const response = await prompts({
       type: "multiselect",
       name: "components",
@@ -372,7 +374,7 @@ function configurePortalHost(projectPath: string) {
   fs.writeFileSync(targetPath, next, "utf8")
   console.log(pc.green(`Updated ${pc.cyan(foundFile)} with ${changes.join(" + ")}`))
 }
-function resolveAliasPath(cwd: string, alias: string): string {
+export function resolveAliasPath(cwd: string, alias: string): string {
   const cleanAlias = alias.replace(/^([@~]\/)/, "")
 
   // Check if a src directory exists and cleanAlias doesn't already start with 'src/'
@@ -382,6 +384,54 @@ function resolveAliasPath(cwd: string, alias: string): string {
   }
 
   return path.resolve(cwd, cleanAlias)
+}
+
+/**
+ * Detect which registry UI components are installed by scanning the configured
+ * `ui`/`components` alias folders, then reconcile with the tracked list in
+ * lvcn.json. Returns the de-duped union, restricted to known registry names so
+ * `apply` never tries to re-install arbitrary local files.
+ */
+export function getInstalledComponents(
+  cwd: string,
+  aliases: Record<string, string> | undefined,
+  tracked: string[] = []
+): string[] {
+  const known = new Set<string>(AVAILABLE_COMPONENTS)
+  const found = new Set<string>()
+
+  for (const name of tracked) {
+    if (known.has(name)) found.add(name)
+  }
+
+  const folders = [
+    aliases?.ui || "@/components/ui",
+    aliases?.components || "@/components",
+  ]
+
+  for (const alias of folders) {
+    let dir: string
+    try {
+      dir = resolveAliasPath(cwd, alias)
+    } catch {
+      continue
+    }
+    if (!fs.existsSync(dir)) continue
+
+    let entries: string[] = []
+    try {
+      entries = fs.readdirSync(dir)
+    } catch {
+      continue
+    }
+
+    for (const entry of entries) {
+      const base = entry.replace(/\.(tsx|ts|jsx|js)$/i, "")
+      if (known.has(base)) found.add(base)
+    }
+  }
+
+  return Array.from(found).sort()
 }
 
 function rewriteImports(content: string, userAliases: Record<string, string>): string {

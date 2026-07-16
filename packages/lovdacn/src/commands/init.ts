@@ -505,7 +505,7 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
     )
 
     // 2. Setup global.css file
-    await configureGlobalCss(projectPath, styleEngine, cssRelativePath, style, baseColor, presetConfig?.theme, presetConfig?.chartColor)
+    await configureGlobalCss(projectPath, styleEngine, cssRelativePath, style, baseColor, presetConfig?.theme, presetConfig?.chartColor, presetConfig?.font, presetConfig?.radius)
     configureThemeTs(projectPath, baseColor)
 
     // 3. Configure tailwind.config.js (only for nativewind - uniwind uses @theme in CSS)
@@ -556,7 +556,7 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
     adaptScaffoldedProject(projectPath, packageManager!)
 
     // Setup global.css file with style-specific styles
-    await configureGlobalCss(projectPath, styleEngine, cssRelativePath, style, baseColor, presetConfig?.theme, presetConfig?.chartColor)
+    await configureGlobalCss(projectPath, styleEngine, cssRelativePath, style, baseColor, presetConfig?.theme, presetConfig?.chartColor, presetConfig?.font, presetConfig?.radius)
     configureThemeTs(projectPath, baseColor)
   }
 
@@ -1611,7 +1611,7 @@ const STYLE_CONFIGS: Record<string, StyleConfig> = {
   },
 };
 
-function getStyleVars(style: string, styleEngine: "nativewind" | "uniwind", baseColor: string, theme?: string, chartColor?: string): string {
+function getStyleVars(style: string, styleEngine: "nativewind" | "uniwind", baseColor: string, theme?: string, chartColor?: string, fontKey?: string, radiusKey?: string): string {
   const styleConfig: StyleConfig = STYLE_CONFIGS[style] ?? STYLE_CONFIGS["new-york"]!;
 
   let resolvedColor: "zinc" | "slate" | "stone" | "gray" | "neutral" | "taupe" | "mauve" | "olive" | "mist" = "zinc";
@@ -1622,7 +1622,17 @@ function getStyleVars(style: string, styleEngine: "nativewind" | "uniwind", base
   }
 
   const colorConfig = THEME_COLORS[resolvedColor];
-  const radius = styleConfig.radius;
+
+  // Radius + font are first-class preset dimensions: resolve from the preset's
+  // own field when provided, falling back to the style's default otherwise.
+  const radius =
+    radiusKey && radiusKey in RADIUS_VALUES
+      ? RADIUS_VALUES[radiusKey as keyof typeof RADIUS_VALUES]
+      : styleConfig.radius;
+  const fontSans =
+    fontKey && fontKey in FONT_FAMILIES
+      ? FONT_FAMILIES[fontKey as keyof typeof FONT_FAMILIES]
+      : styleConfig.fontSans;
 
   // Resolve theme (accent primary override) and chart color ramp.
   const cssFormat: "oklch" | "hsl" = styleEngine === "uniwind" ? "oklch" : "hsl";
@@ -1630,7 +1640,7 @@ function getStyleVars(style: string, styleEngine: "nativewind" | "uniwind", base
   const chartRamp = getChartRamp(chartColor ?? theme ?? "blue", cssFormat);
 
   const fontVariables = `:root {
-  --font-sans: ${styleConfig.fontSans}, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji,
+  --font-sans: ${fontSans}, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji,
     Segoe UI Symbol, Noto Color Emoji;
   --font-display:
     Spline Sans, Inter, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji,
@@ -1738,7 +1748,7 @@ ${fontVariables}`;
   }
 }
 
-async function configureGlobalCss(projectPath: string, styleEngine: "nativewind" | "uniwind", cssRelativePath: string, style: string, baseColor: string, theme?: string, chartColor?: string) {
+async function configureGlobalCss(projectPath: string, styleEngine: "nativewind" | "uniwind", cssRelativePath: string, style: string, baseColor: string, theme?: string, chartColor?: string, font?: string, radius?: string) {
   const cssPath = path.join(projectPath, cssRelativePath)
   fs.ensureDirSync(path.dirname(cssPath))
 
@@ -1752,7 +1762,7 @@ async function configureGlobalCss(projectPath: string, styleEngine: "nativewind"
     content += '@tailwind utilities;\n'
   }
 
-  content += "\n" + getStyleVars(style, styleEngine, baseColor, theme, chartColor) + "\n"
+  content += "\n" + getStyleVars(style, styleEngine, baseColor, theme, chartColor, font, radius) + "\n"
 
   fs.writeFileSync(cssPath, content, "utf8")
   console.log(pc.green(`✔ Configured global CSS for style ${pc.cyan(style)}`))
@@ -1768,6 +1778,8 @@ export async function regenerateProjectCss(opts: {
   baseColor: string
   theme?: string
   chartColor?: string
+  font?: string
+  radius?: string
 }) {
   await configureGlobalCss(
     opts.projectPath,
@@ -1776,7 +1788,9 @@ export async function regenerateProjectCss(opts: {
     opts.style,
     opts.baseColor,
     opts.theme,
-    opts.chartColor
+    opts.chartColor,
+    opts.font,
+    opts.radius
   )
 }
 
