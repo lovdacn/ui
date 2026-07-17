@@ -137,6 +137,14 @@ export function CreateCustomizer() {
   const [target, setTarget] = React.useState<"new" | "existing">("new")
 
   const presetCode = React.useMemo(() => encodePreset(config), [config])
+  const colorScheme = React.useMemo(() => {
+    if (resolvedTheme) return resolvedTheme
+    if (typeof window !== "undefined") {
+      return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+    }
+    return "light"
+  }, [resolvedTheme])
+
   const webPreviewUrl = React.useMemo(
     () =>
       getExpoPreviewUrl({
@@ -144,9 +152,9 @@ export function CreateCustomizer() {
         chrome: "web",
         preset: presetCode,
         engine: selectedEngine,
-        colorScheme: mounted ? (resolvedTheme || "light") : "light",
+        colorScheme,
       }),
-    [presetCode, selectedEngine, resolvedTheme, mounted]
+    [presetCode, selectedEngine, colorScheme]
   )
 
   const command = React.useMemo(() => {
@@ -367,52 +375,49 @@ export function CreateCustomizer() {
           </div>
         </div>
       </aside>
- 
+
       {/* Right Preview area */}
       <div className="flex-1 h-full flex flex-col overflow-hidden bg-muted/5 relative">
         {/* Toggle between Expo Web and Mobile */}
-        <div className="flex items-center justify-between border-b border-border px-4 py-2.5 bg-card/40 backdrop-blur-sm shrink-0">
-          <div className="flex gap-1 rounded-lg border border-border bg-card p-0.5 shadow-sm">
-            {([
-              { mode: "web", icon: MonitorIcon, label: "Expo Web" },
-              { mode: "native", icon: SmartphoneIcon, label: "Mobile" },
-            ] as const).map(({ mode, icon: Icon, label }) => (
-              <button
-                key={mode}
-                type="button"
-                onClick={() => setViewMode(mode)}
-                className={cn(
-                  "flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-semibold transition-all",
-                  viewMode === mode
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                <Icon className="size-3.5" />
-                {label}
-              </button>
-            ))}
-          </div>
-          <span className="text-xs font-medium text-muted-foreground hidden sm:inline">
-            {viewMode === "web" ? "Expo Web Preview" : "Mobile Preview"}
-          </span>
+        <div className="absolute top-4 left-4 z-30 flex gap-1 rounded-xl border border-border bg-card/85 p-0.5 shadow-lg backdrop-blur-md">
+          {([
+            { mode: "web", icon: MonitorIcon, label: "Expo Web" },
+            { mode: "native", icon: SmartphoneIcon, label: "Mobile" },
+          ] as const).map(({ mode, icon: Icon, label }) => (
+            <button
+              key={mode}
+              type="button"
+              onClick={() => setViewMode(mode)}
+              className={cn(
+                "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all",
+                viewMode === mode
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <Icon className="size-3.5" />
+              {label}
+            </button>
+          ))}
         </div>
- 
+
         {/* Preview on a dotted grid backdrop */}
-        <div className="flex-1 min-h-0 overflow-hidden relative flex flex-col p-4 md:p-6 bg-[radial-gradient(hsl(var(--border)/0.6)_1px,transparent_1px)] [background-size:18px_18px]">
-          {/* subtle glow */}
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_60%_at_50%_0%,hsl(var(--primary)/0.06),transparent)]" />
- 
+        <div
+          className={cn(
+            "flex-1 min-h-0 overflow-hidden relative flex flex-col",
+            viewMode === "web"
+              ? "p-0 bg-background"
+              : "p-4 md:p-6 bg-[radial-gradient(hsl(var(--border)/0.6)_1px,transparent_1px)] [background-size:18px_18px]"
+          )}
+        >
           {viewMode === "web" ? (
-            /* Desktop preview - iframe pinned to fill the card (overrides UA 150px height) */
-            <div className="relative z-10 flex-1 min-h-0 overflow-hidden rounded-2xl p-[1px] bg-gradient-to-tr from-[#ec4899] via-[#8b5cf6] to-[#f97316] shadow-xl animate-in fade-in duration-300">
-              <div className="relative h-full w-full overflow-hidden rounded-[15px] bg-background">
-                <iframe
-                  src={webPreviewUrl}
-                  className="absolute inset-0 h-full w-full border-0 select-none bg-background animate-in fade-in duration-300"
-                  title="Expo Web Preview"
-                />
-              </div>
+            /* Desktop preview - iframe pinned to fill the container (overrides UA 150px height) */
+            <div className="relative z-10 flex-1 min-h-0 overflow-hidden animate-in fade-in duration-300">
+              <iframe
+                src={webPreviewUrl}
+                className="absolute inset-0 h-full w-full border-0 select-none bg-background"
+                title="Expo Web Preview"
+              />
             </div>
           ) : (
             /* Mobile preview is not available yet. */
