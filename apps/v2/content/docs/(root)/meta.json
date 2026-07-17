@@ -1,4 +1,4 @@
 {
   "title": "Get Started",
-  "pages": ["index", "installation", "manual", "lvcn-json", "theming", "charts", "typography", "cli", "dark-mode", "expo-router", "changelog"]
+  "pages": ["index", "installation", "manual", "lvcn-json", "theming", "charts", "typography", "cli", "skills", "dark-mode", "expo-router", "changelog"]
 }

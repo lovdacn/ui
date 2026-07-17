@@ -14,6 +14,7 @@ const SECTIONS = [
       { name: "Installation", href: "/docs/installation" },
       { name: "Theming", href: "/docs/theming" },
       { name: "CLI", href: "/docs/cli" },
+      { name: "Skills", href: "/docs/skills" },
       { name: "Dark Mode", href: "/docs/dark-mode" },
     ],
   },

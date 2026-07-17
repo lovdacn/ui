@@ -32,7 +32,7 @@ const __dirname = path.dirname(__filename)
 // runtime via a sparse checkout (shadcn-style), so they are not bundled with
 // the published CLI. Override with LOVDA_GITHUB_URL for forks/testing.
 const GITHUB_REPO_URL =
-  process.env.LOVDA_GITHUB_URL ?? "https://github.com/lovdacn-ui/ui.git"
+  process.env.LOVDA_GITHUB_URL ?? "https://github.com/lovdacn/ui.git"
 
 // Interactive chart-color choices — mirrors the create page's chart color
 // picker by offering every PRESET_CHART_COLORS value (all 22).

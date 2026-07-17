@@ -1,0 +1,124 @@
+---
+title: Skills
+description: Give your AI assistant deep knowledge of lovdacn components, React Native patterns, and best practices for Expo.
+---
+
+Skills give AI assistants like Claude Code and Cursor project-aware context about **lovdacn (lvcn)**. When installed, your assistant knows how to add, initialize, compose, style, and theme components using the correct APIs and React Native patterns for your Expo project — so it generates working code on the first try.
+
+For example, you can ask your AI assistant to:
+
+- _"Add a login screen with email and password fields."_
+- _"Create a settings screen with a card and switches for notifications."_
+- _"Build a dashboard screen with stats cards and tabs."_
+- _"Switch to the nova preset."_
+- _"Apply preset [CODE] to my project."_
+
+The skill reads your project's `lvcn.json` and gives the assistant your style, style engine (NativeWind or Uniwind), aliases, installed components, icon library, base color, and theme preset — so it uses the right imports and tokens instead of guessing.
+
+<Callout>
+  **These are React Native components, not web.** The skill enforces the #1 rule: all text must be wrapped in a `<Text>` component. It also uses RN primitives (`View`, `Pressable`, `TextInput`), `onPress` handlers, and flexbox layout with `gap-*` — never DOM elements or web-only APIs.
+</Callout>
+
+## Install
+
+Install the lovdacn skill into your project with [skills.sh](https://skills.sh):
+
+<PackageManagerTabs>
+<PMTabContent value="npm">
+
+```bash
+npx skills add lovdacn/ui
+```
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+```bash
+yarn dlx skills add lovdacn/ui
+```
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+```bash
+pnpm dlx skills add lovdacn/ui
+```
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+```bash
+bunx skills add lovdacn/ui
+```
+
+</PMTabContent>
+</PackageManagerTabs>
+
+Once installed, your AI assistant automatically loads the skill when it detects an `lvcn.json` file in your project.
+
+<Callout>
+  Prefer to set it up manually? Copy the [`skills/lovdacn`](https://github.com/lovdacn/ui/tree/main/skills/lovdacn) directory from the repository into your agent's skills folder (for example, `.claude/skills/lovdacn`).
+</Callout>
+
+## What's Included
+
+The skill provides your AI assistant with the following knowledge:
+
+### Project Context
+
+lovdacn has no `info` command. The skill reads your `lvcn.json` directly to get your `style`, `styleEngine`, `aliases`, installed `components`, `iconLibrary`, `baseColor`, and preset fields (`theme`, `chartColor`, `font`, `radius`). It can also run `lovdacn present` to inspect the current theme preset and its shareable code.
+
+### CLI Commands
+
+Full reference for the four CLI commands — `init`, `add`, `apply`, and `present` — including flags, interactive mode, named presets, preset codes, and the registry override. There is no `search`, `docs`, `info`, `view`, `build`, or `mcp` command.
+
+### React Native Rules
+
+The patterns that make React Native code correct: wrapping all text in `<Text>`, using RN primitives instead of DOM elements, `flex-row` + `gap-*` layout, `onPress` handlers, and mounting `<PortalHost />` for overlays like `Dialog`, `Select`, and `DropdownMenu`.
+
+### Styling & Theming
+
+How to use semantic tokens (`bg-primary`, `text-muted-foreground`) and component variants instead of raw colors, `cn()` for conditional classes, and the difference between the two engines — NativeWind (HSL variables + `tailwind.config.js`) and Uniwind (OKLCH via `@theme` in CSS). Includes presets, preset codes, and dark mode.
+
+### Icons
+
+Using the `Icon` component with the `as` prop (`<Icon as={CheckIcon} />`), importing icons from your project's `iconLibrary` (default `lucide-react-native`), sizing, and color inheritance inside `Button` and `Badge`.
+
+### Forms & Composition
+
+Laying out forms with `View` + `Label` + control (there is no `Field` or `FieldGroup`), option sets with `ToggleGroup`, validation via `aria-invalid`, and correct composition for `Card`, `Tabs`, `Avatar`, `Alert`, and overlays.
+
+### Registry Knowledge
+
+The 33 available components, how the registry resolves them per style and engine, portal dependencies for overlays, and how the CLI rewrites imports to your aliases.
+
+## How It Works
+
+<Steps>
+
+### Project detection
+
+The skill activates when it finds an `lvcn.json` file in your project.
+
+### Context injection
+
+It reads `lvcn.json` for your style, style engine, aliases, installed components, icon library, base color, and preset — and lists your `aliases.ui` directory to see what is already installed.
+
+### Pattern enforcement
+
+The assistant follows lovdacn's React Native rules: text inside `<Text>`, `Icon` with `as`, semantic color tokens, `View` + `gap-*` layout, and portal setup for overlays.
+
+### Component discovery
+
+Before writing code, the assistant checks your installed components, fetches component docs from the docs site, or reads the installed source in `aliases.ui` to use the exact API.
+
+</Steps>
+
+## Learn More
+
+- [CLI](/docs/cli) — Full command reference for `init`, `add`, `apply`, and `present`
+- [lvcn.json](/docs/lvcn-json) — Project configuration schema
+- [Theming](/docs/theming) — CSS variables, presets, and customization
+- [Dark Mode](/docs/dark-mode) — Color scheme setup
+- [Components](/docs/components) — Browse all 33 components
+- [skills.sh](https://skills.sh) — Learn more about AI skills
