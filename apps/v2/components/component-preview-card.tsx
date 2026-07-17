@@ -25,7 +25,13 @@ export function ComponentPreviewCard({
     setMounted(true)
   }, [])
 
-  const colorScheme = mounted ? resolvedTheme || "light" : "light"
+  const colorScheme = React.useMemo(() => {
+    if (resolvedTheme) return resolvedTheme
+    if (typeof window !== "undefined") {
+      return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+    }
+    return "light"
+  }, [resolvedTheme])
 
   // Stable src — only the component lives in the URL. The color scheme is
   // delivered live via postMessage so toggling dark mode never reloads (or
