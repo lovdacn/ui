@@ -1,0 +1,3 @@
+interface:
+  display_name: "lovdacn (lvcn)"
+  short_description: "Manages lovdacn components for Expo & React Native — adding, initializing, fixing, styling, theming, and composing UI with NativeWind or Uniwind."

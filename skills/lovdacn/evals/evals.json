@@ -1,0 +1,63 @@
+{
+  "skill_name": "lovdacn",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm building an Expo app with lovdacn (nativewind engine, nova style, lucide icons). Create a settings screen component with a Card containing: a full name text field, an email text field, and notification preferences (email, SMS, push) as independent on/off toggles. Add a validation error state for the email field.",
+      "expected_output": "A React Native component using View + Label + Input for layout, Switch for each notification toggle, aria-invalid on the email Input, Card composition, gap-* spacing, all text wrapped in <Text>, and semantic color tokens.",
+      "files": [],
+      "expectations": [
+        "All visible strings are wrapped in the <Text> component (labels, button text, error text) — no bare strings inside View/Button",
+        "Uses View with gap-* for layout and flex-row where horizontal (no space-x-*/space-y-*, no FieldGroup/Field which don't exist in lovdacn)",
+        "Uses Switch (checked + onCheckedChange) for the independent notification toggles, not looping Button with manual active state",
+        "Uses aria-invalid on the email Input for the error state (no data-invalid wrapper)",
+        "Uses Card with CardHeader/CardContent composition and pairs each control with a Label",
+        "Uses semantic tokens (text-muted-foreground, text-destructive, bg-card) instead of raw colors like text-red-500, and no manual dark: overrides",
+        "Imports Input/Label/Switch/Card/Text from the project ui alias and uses onChangeText (not onChange) / onPress (not onClick)"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Create a confirmation dialog for deleting an account, using lovdacn (uniwind engine, tabler icons). It should show a warning icon, a title, a description, and Cancel / Delete buttons. The Delete button should be destructive with a trash icon.",
+      "expected_output": "A React Native component using AlertDialog (or Dialog) with a required Title, the Icon component with as={...} for icons imported from @tabler/icons-react-native, a destructive Button, all text in <Text>, and asChild on the trigger.",
+      "files": [],
+      "expectations": [
+        "Includes a Title component (AlertDialogTitle or DialogTitle) for accessibility",
+        "Icons use the Icon component with the `as` prop (e.g. <Icon as={IconTrash} />), NOT a data-icon attribute and NOT a raw rendered icon",
+        "Icons are imported from @tabler/icons-react-native (the project's iconLibrary), not lucide-react or lucide-react-native",
+        "The Delete button uses variant=\"destructive\" and all button labels are wrapped in <Text>",
+        "Uses asChild on the trigger (and DialogClose/Cancel) to use a Button as the trigger",
+        "Notes or relies on portal setup (PortalHost + GestureHandlerRootView) since AlertDialog/Dialog are portal components",
+        "No z-index classes added to the overlay"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Create a dashboard screen for an Expo app that shows 4 stat cards in a responsive layout. Each card has a title, a large value, a percentage-change badge, and shows a loading skeleton while data loads. Using lovdacn with nativewind engine and lucide icons.",
+      "expected_output": "A React Native component with full Card composition, Skeleton for the loading state, Badge for the percentage change, semantic tokens, gap-* spacing with flex-row wrapping, size-* for square elements, and all text wrapped in <Text>.",
+      "files": [],
+      "expectations": [
+        "Uses full Card composition (CardHeader/CardTitle/CardContent) rather than dumping everything into one container",
+        "Uses the Skeleton component for the loading placeholder instead of a custom animate-pulse View",
+        "Uses the Badge component (with a <Text> child) for the percentage change instead of a styled View/Text pill",
+        "Uses semantic tokens (text-muted-foreground, text-destructive) instead of raw colors like text-green-600 for the change indicator",
+        "Uses gap-* and flex-row/flex-col for the grid-like layout (no space-x-*/space-y-*), and size-* when width equals height",
+        "All strings are wrapped in <Text>, and any icons use the Icon component with the `as` prop imported from lucide-react-native"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Using lovdacn, build a small profile form with a single-select for country, a segmented control to pick a plan (Free / Pro / Team), and a Save button. Assume the project uses the default nativewind setup with lucide icons.",
+      "expected_output": "A React Native component using Select (Trigger/Value/Content/Item with value+label and <Text> children), ToggleGroup + ToggleGroupItem with isFirst/isLast for the segmented control, a Button with a <Text> label, View + gap for layout, and Labels for each control.",
+      "files": [],
+      "expectations": [
+        "Uses Select with SelectTrigger + SelectValue (placeholder) + SelectContent, and each SelectItem has a value, a label prop, and a <Text> child",
+        "Uses ToggleGroup with type=\"single\" and ToggleGroupItem for the plan segmented control (not looped Buttons), passing isFirst/isLast on the edge items",
+        "All control text and the Save button label are wrapped in <Text>",
+        "Lays out the form with View + gap-* and pairs each control with a Label (no Field/FieldGroup)",
+        "Uses onValueChange / onPress handlers (not onChange / onClick)",
+        "References portal setup for Select (portal component) or relies on the existing PortalHost, and uses semantic tokens"
+      ]
+    }
+  ]
+}
