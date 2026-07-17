@@ -13,7 +13,54 @@ import {
   TerminalIcon,
   SparklesIcon,
   FolderIcon,
+  Droplet,
+  Sun,
+  PieChart,
+  Shield,
+  Square,
 } from "lucide-react"
+
+const StyleIcon = (
+  <div className="flex size-8 items-center justify-center rounded-lg border border-pink-500/30 bg-pink-500/10 text-pink-500 shadow-[0_0_12px_rgba(236,72,153,0.12)]">
+    <SparklesIcon className="size-[16px]" />
+  </div>
+)
+
+const ColorIcon = (
+  <div className="flex size-8 items-center justify-center rounded-lg border border-lime-500/30 bg-lime-500/10 text-lime-600 dark:text-lime-500 shadow-[0_0_12px_rgba(132,204,22,0.12)]">
+    <Droplet className="size-[16px]" />
+  </div>
+)
+
+const ThemeIcon = (
+  <div className="flex size-8 items-center justify-center rounded-lg border border-rose-500/30 bg-rose-500/10 text-rose-500 shadow-[0_0_12px_rgba(244,63,94,0.12)]">
+    <Sun className="size-[16px]" />
+  </div>
+)
+
+const ChartIcon = (
+  <div className="flex size-8 items-center justify-center rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-500 shadow-[0_0_12px_rgba(245,158,11,0.12)]">
+    <PieChart className="size-[16px]" />
+  </div>
+)
+
+const FontIcon = (
+  <div className="flex size-8 items-center justify-center rounded-lg border border-violet-500/30 bg-violet-500/10 text-violet-600 dark:text-violet-500 shadow-[0_0_12px_rgba(139,92,246,0.12)] font-semibold text-[11px] leading-none">
+    Aa
+  </div>
+)
+
+const IconLibIcon = (
+  <div className="flex size-8 items-center justify-center rounded-lg border border-indigo-500/30 bg-indigo-500/10 text-indigo-600 dark:text-indigo-500 shadow-[0_0_12px_rgba(99,102,241,0.12)]">
+    <Shield className="size-[16px]" />
+  </div>
+)
+
+const RadiusIcon = (
+  <div className="flex size-8 items-center justify-center rounded-lg border border-zinc-500/30 bg-zinc-500/10 text-zinc-500 dark:text-zinc-400 shadow-[0_0_12px_rgba(113,113,122,0.08)]">
+    <Square className="size-[16px]" />
+  </div>
+)
 
 import { useTheme } from "next-themes"
 import { cn } from "@/lib/utils"
@@ -122,17 +169,15 @@ export function CreateCustomizer() {
       const decoded = decodePreset(preset)
       if (decoded) setConfig(decoded)
     }
-    const eng = params.get("engine")
-    if (eng === "nativewind" || eng === "uniwind") setSelectedEngine(eng)
   }, [])
 
   // Sync preset to URL
   React.useEffect(() => {
     const url = new URL(window.location.href)
     url.searchParams.set("preset", presetCode)
-    url.searchParams.set("engine", selectedEngine)
+    url.searchParams.delete("engine")
     window.history.replaceState({}, "", url.toString())
-  }, [presetCode, selectedEngine])
+  }, [presetCode])
 
   const update = <K extends PresetField>(key: K, value: PresetConfig[K]) => {
     setConfig((c) => ({ ...c, [key]: value }))
@@ -186,17 +231,17 @@ export function CreateCustomizer() {
   return (
     <div className="flex flex-1 flex-col w-full overflow-hidden bg-background md:h-[calc(100dvh-var(--header-height))] md:flex-none md:flex-row">
       {/* Left Sidebar Panel - Flush to the left edge of the page */}
-      <aside className="relative z-20 w-full md:w-72 h-full border-r border-border bg-card/60 backdrop-blur-xl flex flex-col shrink-0 min-h-0 overflow-visible">
+      <aside className="relative z-20 w-full md:w-80 h-full border-r border-border bg-card/60 backdrop-blur-xl flex flex-col shrink-0 min-h-0 overflow-visible">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-border px-4 py-3 shrink-0">
-          <span className="text-sm font-semibold tracking-tight">Customize</span>
-          <span className="rounded-full border border-border bg-muted/40 px-2 py-0.5 font-mono text-[10px] text-muted-foreground">
+        <div className="flex items-center justify-between px-3.5 pt-4.5 pb-2 shrink-0 bg-transparent">
+          <span className="text-sm font-bold tracking-tight text-foreground">Customize</span>
+          <span className="rounded-full border border-zinc-300/80 dark:border-border bg-zinc-200/60 dark:bg-zinc-800/80 px-2 py-0.5 font-mono text-[9px] text-zinc-600 dark:text-zinc-400">
             {presetCode}
           </span>
         </div>
 
         {/* Pickers list */}
-        <div className="flex-1 flex flex-col gap-2.5 px-3 py-3 overflow-visible">
+        <div className="flex-1 flex flex-col gap-1.5 px-3 py-2.5 overflow-visible">
           <Picker
             label="Style"
             value={config.style}
@@ -204,6 +249,7 @@ export function CreateCustomizer() {
             onChange={(v) => update("style", v)}
             locked={locks.style}
             onToggleLock={() => toggleLock("style")}
+            icon={StyleIcon}
           />
           <Picker
             label="Base Color"
@@ -213,6 +259,7 @@ export function CreateCustomizer() {
             locked={locks.baseColor}
             onToggleLock={() => toggleLock("baseColor")}
             renderValue={(v) => v.charAt(0).toUpperCase() + v.slice(1)}
+            icon={ColorIcon}
           />
           <Picker
             label="Theme"
@@ -222,6 +269,7 @@ export function CreateCustomizer() {
             locked={locks.theme}
             onToggleLock={() => toggleLock("theme")}
             renderValue={(v) => v.charAt(0).toUpperCase() + v.slice(1)}
+            icon={ThemeIcon}
           />
           <Picker
             label="Chart Color"
@@ -231,6 +279,7 @@ export function CreateCustomizer() {
             locked={locks.chartColor}
             onToggleLock={() => toggleLock("chartColor")}
             renderValue={(v) => v.charAt(0).toUpperCase() + v.slice(1)}
+            icon={ChartIcon}
           />
           <Picker
             label="Font"
@@ -240,6 +289,7 @@ export function CreateCustomizer() {
             locked={locks.font}
             onToggleLock={() => toggleLock("font")}
             renderValue={(v) => FONT_FAMILIES[v]}
+            icon={FontIcon}
           />
           <Picker
             label="Icon Library"
@@ -249,6 +299,7 @@ export function CreateCustomizer() {
             locked={locks.iconLibrary}
             onToggleLock={() => toggleLock("iconLibrary")}
             renderValue={(v) => v.charAt(0).toUpperCase() + v.slice(1)}
+            icon={IconLibIcon}
           />
           <Picker
             label="Radius"
@@ -258,21 +309,48 @@ export function CreateCustomizer() {
             locked={locks.radius}
             onToggleLock={() => toggleLock("radius")}
             renderValue={(v) => `${v.charAt(0).toUpperCase() + v.slice(1)} (${RADIUS_VALUES[v]})`}
+            icon={RadiusIcon}
           />
         </div>
 
         {/* Footer actions */}
-        <div className="border-t border-border p-3 bg-muted/20 shrink-0 flex flex-col gap-2">
+        <div className="p-3 bg-transparent shrink-0 flex flex-col gap-2">
           <button
             onClick={() => setOpenDialog(true)}
-            className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-3 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:brightness-105 active:scale-[0.99]"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#ec4899] to-[#f97316] hover:opacity-90 text-white px-3 py-2.5 text-sm font-bold shadow-md transition-all active:scale-[0.99]"
           >
-            Get Code
+            {"</> Get Code"}
           </button>
           <div className="flex gap-2">
             <button
+              onClick={() => setSelectedEngine((e) => (e === "nativewind" ? "uniwind" : "nativewind"))}
+              className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-zinc-100/70 hover:bg-zinc-200/70 dark:bg-zinc-900/50 dark:hover:bg-zinc-900/80 px-2.5 py-1.5 text-sm font-medium transition-all active:scale-[0.99] shrink-0"
+              title={`Engine: ${selectedEngine === "nativewind" ? "NativeWind" : "Uniwind"} (Click to toggle)`}
+            >
+              <span className="flex size-5.5 items-center justify-center rounded-full bg-zinc-200 dark:bg-zinc-800 text-[10px] font-bold text-foreground border border-zinc-300 dark:border-border/80">
+                {selectedEngine === "nativewind" ? "N" : "U"}
+              </span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="text-muted-foreground"
+              >
+                <path d="m21 16-4 4-4-4" />
+                <path d="M17 20V4" />
+                <path d="m3 8 4-4 4 4" />
+                <path d="M7 4v16" />
+              </svg>
+            </button>
+            <button
               onClick={shuffle}
-              className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium transition-colors hover:bg-accent active:scale-[0.99]"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-zinc-100/70 hover:bg-zinc-200/70 dark:bg-zinc-900/50 dark:hover:bg-zinc-900/80 px-3 py-1.5 text-sm font-medium transition-all active:scale-[0.99]"
               title="Shuffle (press R)"
             >
               <DicesIcon className="size-4" />
@@ -280,7 +358,7 @@ export function CreateCustomizer() {
             </button>
             <button
               onClick={reset}
-              className="flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium transition-colors hover:bg-accent active:scale-[0.99]"
+              className="flex items-center justify-center rounded-xl border border-border bg-zinc-100/70 hover:bg-zinc-200/70 dark:bg-zinc-900/50 dark:hover:bg-zinc-900/80 px-3 py-1.5 text-sm font-medium transition-all active:scale-[0.99] shrink-0"
               title="Reset (Shift+R)"
               aria-label="Reset"
             >
@@ -289,7 +367,7 @@ export function CreateCustomizer() {
           </div>
         </div>
       </aside>
-
+ 
       {/* Right Preview area */}
       <div className="flex-1 h-full flex flex-col overflow-hidden bg-muted/5 relative">
         {/* Toggle between Expo Web and Mobile */}
@@ -319,20 +397,22 @@ export function CreateCustomizer() {
             {viewMode === "web" ? "Expo Web Preview" : "Mobile Preview"}
           </span>
         </div>
-
+ 
         {/* Preview on a dotted grid backdrop */}
         <div className="flex-1 min-h-0 overflow-hidden relative flex flex-col p-4 md:p-6 bg-[radial-gradient(hsl(var(--border)/0.6)_1px,transparent_1px)] [background-size:18px_18px]">
           {/* subtle glow */}
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_60%_at_50%_0%,hsl(var(--primary)/0.06),transparent)]" />
-
+ 
           {viewMode === "web" ? (
             /* Desktop preview - iframe pinned to fill the card (overrides UA 150px height) */
-            <div className="relative z-10 flex-1 min-h-0 overflow-hidden rounded-xl border border-border bg-background shadow-lg animate-in fade-in duration-300">
-              <iframe
-                src={webPreviewUrl}
-                className="absolute inset-0 h-full w-full border-0 select-none bg-background"
-                title="Expo Web Preview"
-              />
+            <div className="relative z-10 flex-1 min-h-0 overflow-hidden rounded-2xl p-[1px] bg-gradient-to-tr from-[#ec4899] via-[#8b5cf6] to-[#f97316] shadow-xl animate-in fade-in duration-300">
+              <div className="relative h-full w-full overflow-hidden rounded-[15px] bg-background">
+                <iframe
+                  src={webPreviewUrl}
+                  className="absolute inset-0 h-full w-full border-0 select-none bg-background animate-in fade-in duration-300"
+                  title="Expo Web Preview"
+                />
+              </div>
             </div>
           ) : (
             /* Mobile preview is not available yet. */

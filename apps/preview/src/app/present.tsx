@@ -964,17 +964,63 @@ const StatusBar = () => {
   );
 };
 
+const PREVIEW_MESSAGE = 'lvcn:preset';
+
 export default function PresentPage() {
-  const { component, preset, chrome, colorScheme: urlColorScheme } = useLocalSearchParams<{
+  const params = useLocalSearchParams<{
     component: string;
     preset?: string;
     chrome?: string;
     colorScheme?: 'light' | 'dark';
   }>();
   const systemColorScheme = useColorScheme();
-  const activeColorScheme = urlColorScheme || systemColorScheme || 'light';
 
+  // Resolve initial values synchronously from the URL so the first paint already
+  // knows the component + preset (prevents the component-list and unstyled flashes).
+  const initial = React.useMemo(() => {
+    const sp = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+    return {
+      component: sp?.get('component') ?? undefined,
+      preset: sp?.get('preset') ?? undefined,
+      chrome: sp?.get('chrome') ?? undefined,
+      colorScheme: (sp?.get('colorScheme') as 'light' | 'dark' | null) ?? undefined,
+    };
+  }, []);
+
+  const component = params.component ?? initial.component;
+  const chrome = (params.chrome ?? initial.chrome) as string | undefined;
+
+  // Live, updatable style inputs — mutated by postMessage from the parent so
+  // shuffling never reloads the iframe.
+  const [preset, setPreset] = React.useState<string | undefined>(initial.preset ?? params.preset);
+  const [activeColorScheme, setActiveColorScheme] = React.useState<'light' | 'dark'>(
+    initial.colorScheme ??
+      (params.colorScheme as 'light' | 'dark' | undefined) ??
+      (systemColorScheme === 'dark' ? 'dark' : 'light')
+  );
+  const [showPicker, setShowPicker] = React.useState(false);
+
+  // Listen for live preset updates from the parent (no reload), reveal the dev
+  // picker only on a top-level window, and tell the parent we're mounted.
   React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    function onMessage(e: MessageEvent) {
+      const data = e.data as { type?: string; preset?: string; colorScheme?: string };
+      if (!data || data.type !== PREVIEW_MESSAGE) return;
+      if (typeof data.preset === 'string') setPreset(data.preset);
+      if (data.colorScheme === 'dark' || data.colorScheme === 'light') setActiveColorScheme(data.colorScheme);
+    }
+    window.addEventListener('message', onMessage);
+    if (window.self === window.top) setShowPicker(true);
+    try {
+      window.parent?.postMessage({ type: 'lvcn:ready' }, '*');
+    } catch {
+      // ignore cross-origin restrictions
+    }
+    return () => window.removeEventListener('message', onMessage);
+  }, []);
+
+  React.useLayoutEffect(() => {
     if (typeof window === 'undefined') return;
 
     const root = document.documentElement;
@@ -1075,6 +1121,17 @@ export default function PresentPage() {
   }, [preset, activeColorScheme]);
 
   if (!component || !COMPONENT_RENDERERS[component]) {
+    // Render a neutral stage by default (also what the static export pre-renders
+    // and what embedded iframes get) so the component list never flashes. Only
+    // reveal the dev picker on a top-level window.
+    if (!showPicker) {
+      return (
+        <View
+          className="flex-1 bg-background w-full"
+          style={Platform.OS === 'web' ? ({ minHeight: '100vh' } as any) : undefined}
+        />
+      );
+    }
     return (
       <ScrollView className="flex-1 bg-background p-6">
         <Text variant="h2" className="mb-4">Component Presenter</Text>
