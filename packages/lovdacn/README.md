@@ -65,7 +65,7 @@ LOVDA_REGISTRY_URL=https://your-registry/r npx lovdacn@latest add button
 ## Links
 
 - Documentation: https://lovdacn.vercel.app
-- Repository: https://github.com/lovdacn-ui/ui
+- Repository: https://github.com/lovdacn/ui
 
 ## License
 

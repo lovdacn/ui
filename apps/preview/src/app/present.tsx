@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { View, ScrollView, StyleSheet, Pressable, useColorScheme, Platform } from 'react-native';
 import { useLocalSearchParams, Link } from 'expo-router';
+import Svg, { Path, Circle } from 'react-native-svg';
+import { cn } from '@/lib/utils';
 
 // Component imports
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -170,6 +172,107 @@ const THEME_ACCENTS: Record<string, {
   rose: { light: { primary: "346.8 77.2% 49.8%", foreground: "355.6 100% 99.7%" }, dark: { primary: "346.8 77.2% 49.8%", foreground: "355.6 100% 99.7%" } },
 };
 
+// ── Preview charts ────────────────────────────────────────────────────────
+
+const CHART_BG = ['bg-chart-1', 'bg-chart-2', 'bg-chart-3', 'bg-chart-4', 'bg-chart-5'] as const;
+
+// Sample data for the dashboard charts.
+const STOCK_DATA = [38, 30, 44, 40, 58, 52, 71, 66, 88];
+const POWER_DATA = [
+  { use: 45, solar: 20 },
+  { use: 62, solar: 34 },
+  { use: 50, solar: 27 },
+  { use: 80, solar: 45 },
+  { use: 66, solar: 52 },
+  { use: 94, solar: 61 },
+  { use: 72, solar: 47 },
+];
+const REVENUE = [
+  { label: 'Subscriptions', value: '$18.2k', pct: 92 },
+  { label: 'One-time', value: '$11.4k', pct: 64 },
+  { label: 'Services', value: '$7.8k', pct: 44 },
+  { label: 'Add-ons', value: '$4.1k', pct: 24 },
+  { label: 'Other', value: '$1.9k', pct: 12 },
+];
+const TRAFFIC = [
+  { label: 'Direct', pct: 38 },
+  { label: 'Organic', pct: 27 },
+  { label: 'Referral', pct: 18 },
+  { label: 'Social', pct: 11 },
+  { label: 'Email', pct: 6 },
+];
+
+// Build a 5-stop ramp from one "H S% L%" triplet: same hue/saturation, five
+// distinct lightness stops. This keeps multi-series charts readable for any
+// chart color (dark hues no longer collapse to identical shades).
+function chartRampFromHsl(hsl: string, isDark: boolean): string[] {
+  const m = hsl.trim().match(/^([\d.]+)\s+([\d.]+)%\s+([\d.]+)%$/);
+  if (!m) return [hsl, hsl, hsl, hsl, hsl];
+  const h = m[1];
+  const s = m[2];
+  const stops = isDark ? [58, 68, 48, 76, 40] : [52, 62, 42, 72, 34];
+  return stops.map((l) => `${h} ${s}% ${l}%`);
+}
+
+// Smooth-ish area + line chart. Inherits the active chart color through
+// `currentColor`, so it lives inside a `text-chart-1` container. It measures its
+// own width so the stroke stays crisp instead of being stretched by a viewBox.
+function AreaLineChart({
+  data,
+  height = 76,
+  strokeWidth = 2.5,
+}: {
+  data: number[];
+  height?: number;
+  strokeWidth?: number;
+}) {
+  const [width, setWidth] = React.useState(0);
+  const pad = strokeWidth + 3;
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const span = max - min || 1;
+
+  const points = data.map((v, i) => {
+    const x =
+      data.length > 1 ? pad + (i * (width - pad * 2)) / (data.length - 1) : width / 2;
+    const y = pad + (1 - (v - min) / span) * (height - pad * 2);
+    return [x, y] as [number, number];
+  });
+
+  const line = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p[0]} ${p[1]}`).join(' ');
+  const first = points[0];
+  const last = points[points.length - 1];
+  const area =
+    first && last
+      ? `${line} L ${last[0]} ${height - pad} L ${first[0]} ${height - pad} Z`
+      : '';
+
+  return (
+    <View
+      className="text-chart-1"
+      onLayout={(e) => setWidth(e.nativeEvent.layout.width)}
+      style={{ height }}
+    >
+      {width > 0 ? (
+        <Svg width={width} height={height}>
+          {!!area && <Path d={area} fill="currentColor" fillOpacity={0.15} />}
+          <Path
+            d={line}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={strokeWidth}
+            strokeLinejoin="round"
+            strokeLinecap="round"
+          />
+          {points.map((p, i) => (
+            <Circle key={i} cx={p[0]} cy={p[1]} r={strokeWidth} fill="currentColor" />
+          ))}
+        </Svg>
+      ) : null}
+    </View>
+  );
+}
+
 // Dashboard Component rendering a premium 3-column desktop layout of cards
 const DashboardComponent = ({ topPad = 64 }: { topPad?: number }) => {
   const [checked1, setChecked1] = React.useState(true);
@@ -226,6 +329,27 @@ const DashboardComponent = ({ topPad = 64 }: { topPad?: number }) => {
               <Button size="sm" variant="outline">
                 <Text>Pay Early</Text>
               </Button>
+            </CardContent>
+          </Card>
+
+          {/* Card: Revenue by Category */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg font-bold">Revenue by Category</CardTitle>
+              <CardDescription>Last 30 days.</CardDescription>
+            </CardHeader>
+            <CardContent className="gap-3">
+              {REVENUE.map((r, i) => (
+                <View key={r.label} className="gap-1.5">
+                  <View className="flex-row justify-between">
+                    <Text className="text-xs text-muted-foreground">{r.label}</Text>
+                    <Text className="text-xs font-semibold text-foreground">{r.value}</Text>
+                  </View>
+                  <View className="h-2 overflow-hidden rounded-full bg-muted/40">
+                    <View className={cn('h-full rounded-full', CHART_BG[i])} style={{ width: `${r.pct}%` }} />
+                  </View>
+                </View>
+              ))}
             </CardContent>
           </Card>
 
@@ -291,15 +415,31 @@ const DashboardComponent = ({ topPad = 64 }: { topPad?: number }) => {
               <CardDescription>Whole Home analysis.</CardDescription>
             </CardHeader>
             <CardContent className="gap-4">
-              {/* Fake Bar Chart */}
-              <View className="flex-row justify-between items-end h-28 px-4 py-4 bg-muted/20 rounded-lg">
-                <View className="w-4 bg-chart-1 rounded-t" style={{ height: '30%' }} />
-                <View className="w-4 bg-chart-1 rounded-t" style={{ height: '55%' }} />
-                <View className="w-4 bg-chart-1 rounded-t" style={{ height: '40%' }} />
-                <View className="w-4 bg-chart-1 rounded-t" style={{ height: '75%' }} />
-                <View className="w-4 bg-chart-1 rounded-t" style={{ height: '60%' }} />
-                <View className="w-4 bg-chart-1 rounded-t" style={{ height: '90%' }} />
-                <View className="w-4 bg-chart-1 rounded-t" style={{ height: '50%' }} />
+              {/* Usage vs. solar — two-series bar chart */}
+              <View className="gap-2 rounded-lg bg-muted/20 px-3 py-3">
+                <View className="h-24 flex-row items-end justify-between">
+                  {POWER_DATA.map((d, i) => (
+                    <View key={i} className="h-full flex-1 flex-row items-end justify-center gap-0.5">
+                      <View className="w-2 rounded-t bg-chart-1" style={{ height: `${d.use}%` }} />
+                      <View className="w-2 rounded-t bg-chart-2" style={{ height: `${d.solar}%` }} />
+                    </View>
+                  ))}
+                </View>
+                <View className="flex-row justify-between px-0.5">
+                  {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((l, i) => (
+                    <Text key={i} className="flex-1 text-center text-[9px] text-muted-foreground">{l}</Text>
+                  ))}
+                </View>
+              </View>
+              <View className="flex-row gap-4">
+                <View className="flex-row items-center gap-1.5">
+                  <View className="size-2 rounded-full bg-chart-1" />
+                  <Text className="text-[10px] text-muted-foreground">Usage</Text>
+                </View>
+                <View className="flex-row items-center gap-1.5">
+                  <View className="size-2 rounded-full bg-chart-2" />
+                  <Text className="text-[10px] text-muted-foreground">Solar</Text>
+                </View>
               </View>
               <View className="flex-row justify-between">
                 <View><Text className="text-[10px] text-muted-foreground">Currently Using</Text><Text className="text-sm font-semibold text-foreground">3.4 kW</Text></View>
@@ -350,19 +490,39 @@ const DashboardComponent = ({ topPad = 64 }: { topPad?: number }) => {
                 <Text className="text-xs text-muted-foreground">Ticker</Text>
                 <Badge variant="outline"><Text>VOO</Text></Badge>
               </View>
-              {/* Fake Trend Line */}
-              <View className="h-16 justify-center bg-muted/20 rounded-lg p-2 overflow-hidden flex-row items-center gap-1">
-                <View className="w-full h-[2px] bg-chart-1 relative flex-row justify-between">
-                  <View className="size-2 rounded-full bg-chart-1 -top-1" />
-                  <View className="size-2 rounded-full bg-chart-1 -top-3" />
-                  <View className="size-2 rounded-full bg-chart-1 -top-1" />
-                  <View className="size-2 rounded-full bg-chart-1 -top-2" />
-                  <View className="size-2 rounded-full bg-chart-1 -top-4" />
-                </View>
+              {/* 6-month price trend */}
+              <View className="rounded-lg bg-muted/20 p-2">
+                <AreaLineChart data={STOCK_DATA} />
               </View>
               <View className="flex-row justify-between">
                 <Text className="text-[11px] text-muted-foreground">65% achieved</Text>
                 <Text className="text-xs font-bold text-foreground">$273,000</Text>
+              </View>
+            </CardContent>
+          </Card>
+
+          {/* Card: Traffic Sources */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg font-bold">Traffic Sources</CardTitle>
+              <CardDescription>Sessions this month.</CardDescription>
+            </CardHeader>
+            <CardContent className="gap-4">
+              <View className="h-3 flex-row overflow-hidden rounded-full">
+                {TRAFFIC.map((t, i) => (
+                  <View key={t.label} className={cn('h-full', CHART_BG[i])} style={{ width: `${t.pct}%` }} />
+                ))}
+              </View>
+              <View className="gap-2">
+                {TRAFFIC.map((t, i) => (
+                  <View key={t.label} className="flex-row items-center justify-between">
+                    <View className="flex-row items-center gap-2">
+                      <View className={cn('size-2.5 rounded-full', CHART_BG[i])} />
+                      <Text className="text-xs text-muted-foreground">{t.label}</Text>
+                    </View>
+                    <Text className="text-xs font-semibold text-foreground">{t.pct}%</Text>
+                  </View>
+                ))}
               </View>
             </CardContent>
           </Card>
@@ -1059,14 +1219,13 @@ export default function PresentPage() {
     root.style.setProperty('--primary-foreground', activeTheme.foreground);
     root.style.setProperty('--ring', activeTheme.primary); // usually matches primary
 
-    // Apply the selected chart color independently from the interface accent.
+    // Apply the selected chart color as a 5-stop ramp so multi-series charts
+    // render as distinct shades instead of one flat color.
     const chartTheme = THEME_ACCENTS[chartColor] || THEME_ACCENTS.blue;
     const activeChart = isDark ? chartTheme.dark : chartTheme.light;
-    root.style.setProperty('--chart-1', activeChart.primary);
-    root.style.setProperty('--chart-2', activeChart.primary);
-    root.style.setProperty('--chart-3', activeChart.primary);
-    root.style.setProperty('--chart-4', activeChart.primary);
-    root.style.setProperty('--chart-5', activeChart.primary);
+    chartRampFromHsl(activeChart.primary, isDark).forEach((c, i) => {
+      root.style.setProperty(`--chart-${i + 1}`, c);
+    });
 
     // 2. Set radius
     const RADIUS_MAP: Record<string, string> = {

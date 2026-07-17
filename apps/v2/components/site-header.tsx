@@ -45,7 +45,7 @@ export function SiteHeader() {
   const [stars, setStars] = React.useState<number | null>(null)
 
   React.useEffect(() => {
-    fetch("https://api.github.com/repos/lovdacn-ui/ui")
+    fetch("https://api.github.com/repos/lovdacn/ui")
       .then((res) => {
         if (!res.ok) throw new Error("API call failed")
         return res.json()

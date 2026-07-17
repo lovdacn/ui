@@ -6,7 +6,7 @@ export const siteConfig = {
     "Beautifully designed React Native components you can copy, customize, and build on. Open Source. Open Code. Powered by NativeWind and Uniwind.",
   links: {
     twitter: "https://twitter.com/lvcn",
-    github: "https://github.com/lovdacn-ui/ui",
+    github: "https://github.com/lovdacn/ui",
   },
   navItems: [
     { href: "/", label: "Home" },

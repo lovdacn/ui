@@ -75,7 +75,7 @@ npm install -g pnpm
 Clone the repository and install all workspace dependencies:
 
 ```sh
-git clone https://github.com/lovdacn-ui/ui.git
+git clone https://github.com/lovdacn/ui.git
 cd ui
 pnpm install
 ```

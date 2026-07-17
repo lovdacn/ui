@@ -89,34 +89,34 @@ module.exports = withUniwind(config, {
 
 ### Install dependencies
 
-Install the core styling utilities and icons:
+Install the core styling utilities, icons, and the React Native primitives that power the interactive components (overlays, gestures, and `asChild`):
 
 <PackageManagerTabs>
 <PMTabContent value="npm">
 
 ```bash
-npm install class-variance-authority clsx tailwind-merge lucide-react-native react-native-reanimated
+npm install class-variance-authority clsx tailwind-merge lucide-react-native react-native-reanimated react-native-gesture-handler @rn-primitives/portal @rn-primitives/slot
 ```
 
 </PMTabContent>
 <PMTabContent value="yarn">
 
 ```bash
-yarn add class-variance-authority clsx tailwind-merge lucide-react-native react-native-reanimated
+yarn add class-variance-authority clsx tailwind-merge lucide-react-native react-native-reanimated react-native-gesture-handler @rn-primitives/portal @rn-primitives/slot
 ```
 
 </PMTabContent>
 <PMTabContent value="pnpm">
 
 ```bash
-pnpm add class-variance-authority clsx tailwind-merge lucide-react-native react-native-reanimated
+pnpm add class-variance-authority clsx tailwind-merge lucide-react-native react-native-reanimated react-native-gesture-handler @rn-primitives/portal @rn-primitives/slot
 ```
 
 </PMTabContent>
 <PMTabContent value="bun">
 
 ```bash
-bun add class-variance-authority clsx tailwind-merge lucide-react-native react-native-reanimated
+bun add class-variance-authority clsx tailwind-merge lucide-react-native react-native-reanimated react-native-gesture-handler @rn-primitives/portal @rn-primitives/slot
 ```
 
 </PMTabContent>
@@ -353,17 +353,24 @@ export function cn(...inputs: ClassValue[]) {
 }
 ```
 
-### Import global CSS in root layout
+### Set up the root layout
 
-Ensure your styles are loaded at the top of your app entry point:
+Import your global CSS at the top of your app entry point, then wrap the app in `GestureHandlerRootView` and mount a `<PortalHost />` at the root. Overlay components — `Dialog`, `AlertDialog`, `Popover`, `Tooltip`, `DropdownMenu`, `ContextMenu`, `HoverCard`, `Select`, and `Menubar` — render through this portal and will not work without it:
 
 ```tsx title="app/_layout.tsx"
 import "../global.css"
 
 import { Stack } from "expo-router"
+import { GestureHandlerRootView } from "react-native-gesture-handler"
+import { PortalHost } from "@rn-primitives/portal"
 
 export default function RootLayout() {
-  return <Stack />
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <Stack />
+      <PortalHost />
+    </GestureHandlerRootView>
+  )
 }
 ```
 
@@ -395,7 +402,7 @@ Adjust the config properties according to your setup (e.g. set `styleEngine` to 
 
 ### All set!
 
-You can now start adding components to your project. Use the CLI to pull components into your workspace:
+You can now start adding components to your project. Use the CLI to pull components into your workspace — each component's `@rn-primitives/*` primitive is installed automatically as you add it:
 
 <PackageManagerTabs>
 <PMTabContent value="npm">

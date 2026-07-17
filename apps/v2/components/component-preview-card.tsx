@@ -72,11 +72,6 @@ export function ComponentPreviewCard({
         className
       )}
     >
-      {title && (
-        <div className="border-b border-border bg-muted/30 px-4 py-2 text-xs font-medium text-muted-foreground">
-          {title}
-        </div>
-      )}
       <div className="relative w-full aspect-video min-h-[450px] flex items-center justify-center bg-muted/5">
         {componentName ? (
           <iframe
