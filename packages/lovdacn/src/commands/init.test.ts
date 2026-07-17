@@ -5,6 +5,7 @@ import path from "path"
 import prompts from "prompts"
 import { execa } from "execa"
 import { runInit, initOptionsSchema } from "./init"
+import { getChartRamp } from "../preset/index"
 import fs from "fs-extra"
 
 vi.mock("prompts", () => ({
@@ -133,7 +134,7 @@ describe("runInit", () => {
   })
 
   it("should prompt for project name and package manager if not provided", async () => {
-    vi.mocked(prompts).mockResolvedValue({ styleEngine: "nativewind", style: "new-york", baseColor: "zinc", projectName: "prompted-app", packageManager: "pnpm" })
+    vi.mocked(prompts).mockResolvedValue({ styleEngine: "nativewind", style: "new-york", baseColor: "zinc", chartColor: "blue", projectName: "prompted-app", packageManager: "pnpm" })
 
     const options = {
       cwd: tempCwd,
@@ -173,6 +174,7 @@ describe("runInit", () => {
       styleEngine: "nativewind",
       style: "mira",
       baseColor: "zinc",
+      chartColor: "blue",
       projectName: "mira-app",
       packageManager: "npm",
     })
@@ -194,6 +196,41 @@ describe("runInit", () => {
     const cssPath = path.join(projectPath, "global.css")
     const cssContent = await readFile(cssPath, "utf8")
     expect(cssContent).toContain("--radius: 1.5rem")
+  })
+
+  it("should prompt for chart color and thread it into lvcn.json and global.css", async () => {
+    vi.mocked(prompts).mockResolvedValue({
+      styleEngine: "nativewind",
+      style: "new-york",
+      baseColor: "zinc",
+      chartColor: "rose",
+      projectName: "chart-app",
+      packageManager: "npm",
+    })
+
+    const options = {
+      cwd: tempCwd,
+      yes: false,
+      force: false,
+    }
+
+    await runInit(options)
+
+    const projectPath = path.join(tempCwd, "chart-app")
+
+    // Selected chart color is persisted to lvcn.json
+    const lvcnContent = await readFile(path.join(projectPath, "lvcn.json"), "utf8")
+    const lvcn = JSON.parse(lvcnContent)
+    expect(lvcn.chartColor).toBe("rose")
+
+    // ...and threaded into the generated chart ramp (nativewind → hsl format),
+    // proving the prompt value reaches getStyleVars instead of defaulting to blue.
+    const cssPath = path.join(projectPath, "global.css")
+    const cssContent = await readFile(cssPath, "utf8")
+    const roseChart1 = getChartRamp("rose", "hsl").light[0]
+    const blueChart1 = getChartRamp("blue", "hsl").light[0]
+    expect(cssContent).toContain(`--chart-1: ${roseChart1}`)
+    expect(cssContent).not.toContain(`--chart-1: ${blueChart1}`)
   })
 
   it("should respect packageManager option if provided", async () => {

@@ -71,3 +71,14 @@
   --font-serif: Georgia, 'Times New Roman', serif;
 }
 
+/*
+ * React Native Web renders every root <Text> as `<div dir="auto">` and hard-codes
+ * `font: 14px System` on it (an atomic class), which blocks normal font inheritance
+ * from :root. The /present customizer updates `--font-sans` at runtime, so force the
+ * RNW text roots to honor it. Nested text renders as `<span>` with `font: inherit`,
+ * so it follows automatically. `!important` is required to beat RNW's atomic class.
+ */
+[dir="auto"] {
+  font-family: var(--font-sans) !important;
+}
+

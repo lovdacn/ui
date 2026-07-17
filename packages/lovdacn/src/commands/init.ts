@@ -17,6 +17,8 @@ import {
   ICON_PACKAGES,
   RADIUS_VALUES,
   getFontCategory,
+  PRESET_CHART_COLORS,
+  DEFAULT_PRESET_CONFIG,
   type PresetConfig,
 } from "../preset/index.js"
 import { DEFAULT_PRESETS } from "../preset/defaults.js"
@@ -31,6 +33,19 @@ const __dirname = path.dirname(__filename)
 // the published CLI. Override with LOVDA_GITHUB_URL for forks/testing.
 const GITHUB_REPO_URL =
   process.env.LOVDA_GITHUB_URL ?? "https://github.com/lovdacn-ui/ui.git"
+
+// Interactive chart-color choices — mirrors the create page's chart color
+// picker by offering every PRESET_CHART_COLORS value (all 22).
+const CHART_COLOR_CHOICES = PRESET_CHART_COLORS.map((c) => ({
+  title: c.charAt(0).toUpperCase() + c.slice(1),
+  value: c,
+}))
+
+// Default-selected index for the chart color prompt (the preset default color).
+const CHART_COLOR_INITIAL = Math.max(
+  0,
+  (PRESET_CHART_COLORS as readonly string[]).indexOf(DEFAULT_PRESET_CONFIG.chartColor)
+)
 
 export const initOptionsSchema = z.object({
   cwd: z.string(),
@@ -154,6 +169,7 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
   let styleEngine: "nativewind" | "uniwind" = "nativewind"
   let style: string = "new-york"
   let baseColor: string = "zinc"
+  let chartColor: string = DEFAULT_PRESET_CONFIG.chartColor
   let presetConfig: PresetConfig | null = null
 
   // Resolve --preset if provided
@@ -177,6 +193,7 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
     // Apply preset values
     style = presetConfig.style
     baseColor = presetConfig.baseColor
+    chartColor = presetConfig.chartColor
     console.log(pc.blue(`Using preset: ${pc.cyan(options.preset)}`))
     console.log(pc.dim(`  style: ${style}, base: ${baseColor}, theme: ${presetConfig.theme}, chart: ${presetConfig.chartColor}, font: ${FONT_FAMILIES[presetConfig.font]}, icons: ${presetConfig.iconLibrary}, radius: ${RADIUS_VALUES[presetConfig.radius]}`))
   }
@@ -284,6 +301,14 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
           ],
           initial: 0
         })
+
+        questions.push({
+          type: "select",
+          name: "chartColor",
+          message: "Which chart color would you like to use?",
+          choices: CHART_COLOR_CHOICES,
+          initial: CHART_COLOR_INITIAL,
+        })
       }
 
       if (!projectName) {
@@ -335,16 +360,17 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
         (!projectName && !response.projectName) ||
         (!packageManager && !response.packageManager) ||
         (!options.engine && !response.styleEngine) ||
-        (!presetConfig && (!response.style || !response.baseColor))
+        (!presetConfig && (!response.style || !response.baseColor || !response.chartColor))
       ) {
         process.exit(0)
       }
       projectName = projectName || response.projectName.trim()
       packageManager = packageManager || (response.packageManager as "npm" | "yarn" | "pnpm" | "bun")
       styleEngine = options.engine || response.styleEngine
-      // style/baseColor come from preset if provided, else from prompt
+      // style/baseColor/chartColor come from preset if provided, else from prompt
       style = presetConfig ? presetConfig.style : response.style
       baseColor = presetConfig ? presetConfig.baseColor : response.baseColor
+      chartColor = presetConfig ? presetConfig.chartColor : response.chartColor
     }
 
     if (!packageManager) {
@@ -465,6 +491,30 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
     baseColor = baseColorResponse.baseColor
   }
 
+  // Prompt/set chartColor
+  if (existingLvcnConfig && existingLvcnConfig.chartColor) {
+    chartColor = existingLvcnConfig.chartColor
+  } else if (presetConfig) {
+    // chartColor already set from preset
+    chartColor = presetConfig.chartColor
+  } else if (options.yes) {
+    chartColor = DEFAULT_PRESET_CONFIG.chartColor
+  } else if (!hasPackageJson) {
+    // chartColor was already prompted in new project mode prompts
+  } else {
+    const chartColorResponse = await prompts({
+      type: "select",
+      name: "chartColor",
+      message: "Which chart color would you like to use?",
+      choices: CHART_COLOR_CHOICES,
+      initial: CHART_COLOR_INITIAL,
+    })
+    if (!chartColorResponse.chartColor) {
+      process.exit(0)
+    }
+    chartColor = chartColorResponse.chartColor
+  }
+
   // Materialize the template locally: use LOVDA_TEMPLATE_DIR for local
   // development, otherwise sparse-clone it from GitHub (shadcn-style).
   const { dir: templateDir, cleanup: cleanupTemplate } =
@@ -505,7 +555,7 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
     )
 
     // 2. Setup global.css file
-    await configureGlobalCss(projectPath, styleEngine, cssRelativePath, style, baseColor, presetConfig?.theme, presetConfig?.chartColor, presetConfig?.font, presetConfig?.radius)
+    await configureGlobalCss(projectPath, styleEngine, cssRelativePath, style, baseColor, presetConfig?.theme, chartColor, presetConfig?.font, presetConfig?.radius)
     configureThemeTs(projectPath, baseColor)
 
     // 3. Configure tailwind.config.js (only for nativewind - uniwind uses @theme in CSS)
@@ -556,7 +606,7 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
     adaptScaffoldedProject(projectPath, packageManager!)
 
     // Setup global.css file with style-specific styles
-    await configureGlobalCss(projectPath, styleEngine, cssRelativePath, style, baseColor, presetConfig?.theme, presetConfig?.chartColor, presetConfig?.font, presetConfig?.radius)
+    await configureGlobalCss(projectPath, styleEngine, cssRelativePath, style, baseColor, presetConfig?.theme, chartColor, presetConfig?.font, presetConfig?.radius)
     configureThemeTs(projectPath, baseColor)
   }
 
@@ -574,6 +624,7 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
       ...(existingLvcnConfig || {}),
       // Preset fields
       baseColor: baseColor,
+      chartColor: chartColor,
       ...(presetConfig ? {
         theme: presetConfig.theme,
         chartColor: presetConfig.chartColor,
