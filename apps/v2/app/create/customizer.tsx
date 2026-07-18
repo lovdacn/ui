@@ -3,16 +3,11 @@
 import * as React from "react"
 import { createPortal } from "react-dom"
 import {
-  CopyIcon,
-  CheckIcon,
   DicesIcon,
   RotateCcwIcon,
-  XIcon,
   MonitorIcon,
   SmartphoneIcon,
-  TerminalIcon,
   SparklesIcon,
-  FolderIcon,
   Droplet,
   Sun,
   PieChart,
@@ -450,35 +445,30 @@ export function CreateCustomizer() {
               className="relative w-full max-w-[540px] rounded-2xl border border-border bg-card p-6 shadow-2xl animate-in zoom-in-95 duration-200 text-card-foreground"
             >
               {/* Header */}
-              <div className="flex items-start justify-between pb-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex size-10 items-center justify-center rounded-lg border border-border bg-muted/40">
-                    <TerminalIcon className="size-5 text-muted-foreground" />
-                  </div>
-                  <div>
-                    <h2 id="get-code-title" className="text-base font-semibold text-foreground">
-                      Get your code
-                    </h2>
-                    <p className="text-xs text-muted-foreground">
-                      Preset <span className="font-semibold text-foreground">{presetCode}</span> · run this in your terminal.
-                    </p>
-                  </div>
+              <div className="flex items-start justify-between gap-4 pb-4">
+                <div>
+                  <h2 id="get-code-title" className="text-base font-semibold text-foreground">
+                    Get your code
+                  </h2>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Preset <span className="font-semibold text-foreground">{presetCode}</span> · run this in your terminal.
+                  </p>
                 </div>
                 <button
                   onClick={() => setOpenDialog(false)}
-                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  className="shrink-0 rounded-md px-2 py-1 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
                   aria-label="Close dialog"
                 >
-                  <XIcon className="size-5" />
+                  Close
                 </button>
               </div>
 
               {/* Target: new vs existing project */}
               <div className="grid grid-cols-2 gap-3 py-4">
                 {([
-                  { key: "new", icon: SparklesIcon, title: "New project", desc: "Scaffold from scratch" },
-                  { key: "existing", icon: FolderIcon, title: "Existing project", desc: "Apply to your app" },
-                ] as const).map(({ key, icon: Icon, title, desc }) => {
+                  { key: "new", title: "New project", desc: "Scaffold from scratch" },
+                  { key: "existing", title: "Existing project", desc: "Apply to your app" },
+                ] as const).map(({ key, title, desc }) => {
                   const isSelected = target === key
                   return (
                     <button
@@ -486,17 +476,14 @@ export function CreateCustomizer() {
                       type="button"
                       onClick={() => setTarget(key)}
                       className={cn(
-                        "flex flex-col items-start gap-2 rounded-xl border p-4 text-left transition-all",
+                        "flex flex-col items-start gap-1 rounded-xl border p-4 text-left transition-all",
                         isSelected
                           ? "border-primary bg-primary/5 ring-1 ring-primary"
                           : "border-border bg-transparent hover:bg-muted/30"
                       )}
                     >
-                      <Icon className={cn("size-5", isSelected ? "text-primary" : "text-muted-foreground")} />
-                      <div>
-                        <span className="block text-sm font-medium text-foreground">{title}</span>
-                        <span className="text-xs text-muted-foreground">{desc}</span>
-                      </div>
+                      <span className="block text-sm font-medium text-foreground">{title}</span>
+                      <span className="text-xs text-muted-foreground">{desc}</span>
                     </button>
                   )
                 })}
@@ -559,17 +546,17 @@ export function CreateCustomizer() {
               </div>
 
               {/* Command block */}
-              <div className="my-4 flex items-center justify-between rounded-xl border border-border bg-muted/30 p-4 font-mono text-xs">
-                <div className="select-all overflow-x-auto whitespace-nowrap pr-2 text-foreground">
+              <div className="my-4 flex items-start justify-between gap-3 rounded-xl border border-border bg-muted/30 p-4 font-mono text-xs">
+                <div className="select-all whitespace-pre-wrap break-all text-foreground">
                   <span className="mr-1 text-muted-foreground">$</span>
                   {command}
                 </div>
                 <button
                   onClick={copy}
-                  className="shrink-0 text-muted-foreground hover:text-foreground transition-colors"
+                  className="shrink-0 rounded-md border border-border bg-background px-2 py-1 text-[11px] font-medium text-muted-foreground hover:text-foreground transition-colors"
                   title="Copy command"
                 >
-                  {copied ? <CheckIcon className="size-4 text-green-600" /> : <CopyIcon className="size-4" />}
+                  {copied ? "Copied" : "Copy"}
                 </button>
               </div>
 
@@ -585,7 +572,6 @@ export function CreateCustomizer() {
                 onClick={copy}
                 className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground transition-all hover:brightness-105 active:scale-[0.99]"
               >
-                {copied ? <CheckIcon className="size-4" /> : <CopyIcon className="size-4" />}
                 {copied ? "Copied!" : "Copy command"}
               </button>
             </div>
