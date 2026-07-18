@@ -48,7 +48,7 @@ export default function IndexPage() {
 
             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto justify-center">
               <Link
-                href="/docs/installation"
+                href="/create"
                 className="inline-flex items-center justify-center gap-2 bg-foreground hover:opacity-90 text-background font-semibold px-6 py-3 rounded-full text-base transition-all group shadow-lg"
               >
                 Get Started
