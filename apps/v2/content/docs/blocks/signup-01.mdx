@@ -1,0 +1,52 @@
+---
+title: Signup 01
+description: A sign-up screen with a registration form and a terms checkbox.
+---
+
+<ComponentPreviewCard title="Signup 01" name="signup-01" />
+
+## Installation
+
+<PackageManagerTabs>
+<PMTabContent value="npm">
+
+```bash
+npx lovdacn@latest add signup-01
+```
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+```bash
+yarn dlx lovdacn@latest add signup-01
+```
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+```bash
+pnpm dlx lovdacn@latest add signup-01
+```
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+```bash
+bunx --bun lovdacn@latest add signup-01
+```
+
+</PMTabContent>
+</PackageManagerTabs>
+
+## What it installs
+
+- `app/(auth)/_layout.tsx` — the `(auth)` route group layout
+- `app/(auth)/sign-up.tsx` — the sign-up route, rendering `<SignupForm />`
+- `components/signup-form.tsx` — the registration form
+
+**Registry dependencies:** `card`, `input`, `label`, `button`, `checkbox`, `icon`, `text`
+
+The submit button stays disabled until the terms checkbox is checked. Tapping the
+label toggles the checkbox — on React Native the label press is wired explicitly
+(`<Label onPress={...}>`), since there is no implicit `for`/`htmlFor` association
+like on the web.

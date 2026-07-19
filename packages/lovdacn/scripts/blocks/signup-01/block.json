@@ -1,0 +1,33 @@
+{
+  "name": "signup-01",
+  "type": "registry:block",
+  "description": "A sign-up screen: an (auth) route with a registration form and terms checkbox.",
+  "dependencies": [],
+  "registryDependencies": [
+    "card",
+    "input",
+    "label",
+    "button",
+    "checkbox",
+    "icon",
+    "text",
+    "utils"
+  ],
+  "files": [
+    {
+      "src": "layout.tsx",
+      "type": "registry:page",
+      "target": "app/(auth)/_layout.tsx"
+    },
+    {
+      "src": "sign-up.tsx",
+      "type": "registry:page",
+      "target": "app/(auth)/sign-up.tsx"
+    },
+    {
+      "src": "components/signup-form.tsx",
+      "type": "registry:component",
+      "path": "components/signup-form.tsx"
+    }
+  ]
+}

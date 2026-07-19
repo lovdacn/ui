@@ -322,4 +322,82 @@ export default function Layout() {
     expect(buttonContent).toContain("text-xs/relaxed")
     expect(buttonContent).not.toContain("rounded-full")
   })
+
+  it("should install a block as Expo Router routes via file `target`", async () => {
+    const lvcnConfig = {
+      $schema: "https://lovdacn.vercel.app/schema.json",
+      style: "new-york",
+      styleEngine: "nativewind",
+      tsx: true,
+      tailwind: { config: "tailwind.config.js", css: "global.css" },
+      aliases: {
+        components: "@/components",
+        utils: "@/lib/utils",
+        ui: "@/components/ui",
+      },
+      components: [],
+    }
+    await writeFile(path.join(tempCwd, "lvcn.json"), JSON.stringify(lvcnConfig, null, 2), "utf8")
+
+    // `login-01` is resolved from the shared blocks/ namespace via the
+    // fetchRegistryItem fallback (it has no per-style entry).
+    await runAdd({ components: ["login-01"], cwd: tempCwd, yes: true, overwrite: false })
+
+    // Page files land at their route `target`. This project has no `src/` dir,
+    // so `app/...` targets resolve directly under the project root.
+    const layoutPath = path.join(tempCwd, "app", "(auth)", "_layout.tsx")
+    const signInPath = path.join(tempCwd, "app", "(auth)", "sign-in.tsx")
+    expect(fs.existsSync(layoutPath)).toBe(true)
+    expect(fs.existsSync(signInPath)).toBe(true)
+
+    // The form component lands under the components alias.
+    const formPath = path.join(tempCwd, "components/login-form.tsx")
+    expect(fs.existsSync(formPath)).toBe(true)
+
+    // registryDependencies (components) are resolved and written too.
+    for (const dep of ["card", "input", "label", "button", "text"]) {
+      expect(fs.existsSync(path.join(tempCwd, `components/ui/${dep}.tsx`))).toBe(true)
+    }
+    expect(fs.existsSync(path.join(tempCwd, "lib/utils.ts"))).toBe(true)
+
+    // The route imports the form; the form imports UI through project aliases.
+    const signInContent = await readFile(signInPath, "utf8")
+    expect(signInContent).toContain("import { LoginForm } from '@/components/login-form'")
+    const formContent = await readFile(formPath, "utf8")
+    expect(formContent).toContain("import { Button } from '@/components/ui/button'")
+    expect(formContent).not.toContain("~/components")
+
+    // Block + resolved components are recorded in lvcn.json.
+    const updatedConfig = fs.readJsonSync(path.join(tempCwd, "lvcn.json"))
+    expect(updatedConfig.components).toContain("login-01")
+    expect(updatedConfig.components).toContain("card")
+    expect(updatedConfig.components).toContain("utils")
+  })
+
+  it("should place block routes under src/app for projects using a src/ layout", async () => {
+    const lvcnConfig = {
+      $schema: "https://lovdacn.vercel.app/schema.json",
+      style: "new-york",
+      styleEngine: "nativewind",
+      tsx: true,
+      tailwind: { config: "tailwind.config.js", css: "src/global.css" },
+      aliases: {
+        components: "@/components",
+        utils: "@/lib/utils",
+        ui: "@/components/ui",
+      },
+      components: [],
+    }
+    await writeFile(path.join(tempCwd, "lvcn.json"), JSON.stringify(lvcnConfig, null, 2), "utf8")
+    // Simulate an existing Expo Router project that uses the `src/app` layout.
+    await fs.ensureDir(path.join(tempCwd, "src/app"))
+
+    await runAdd({ components: ["signup-01"], cwd: tempCwd, yes: true, overwrite: false })
+
+    // `app/...` targets resolve under `src/app`; components under `src/components`.
+    expect(fs.existsSync(path.join(tempCwd, "src/app/(auth)/sign-up.tsx"))).toBe(true)
+    expect(fs.existsSync(path.join(tempCwd, "src/app/(auth)/_layout.tsx"))).toBe(true)
+    expect(fs.existsSync(path.join(tempCwd, "src/components/signup-form.tsx"))).toBe(true)
+    expect(fs.existsSync(path.join(tempCwd, "src/components/ui/checkbox.tsx"))).toBe(true)
+  })
 })

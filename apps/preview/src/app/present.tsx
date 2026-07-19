@@ -48,6 +48,12 @@ import { Toggle } from '@/components/ui/toggle';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
+// Block previews (rendered in docs iframes via /present?component=<block>)
+import { LoginForm01 } from '@/components/blocks/login-form-01';
+import { LoginForm02 } from '@/components/blocks/login-form-02';
+import { SignupForm01 } from '@/components/blocks/signup-form-01';
+import { StatsPreview } from '@/components/blocks/stats';
+
 // Extra dependencies for examples
 import { Image } from 'react-native';
 import { Home, Terminal } from 'lucide-react-native';
@@ -699,6 +705,11 @@ const ShowcaseComponent = ({ topPad = 60 }: { topPad?: number }) => {
 const COMPONENT_RENDERERS: Record<string, () => React.ReactNode> = {
   dashboard: () => <DashboardComponent />,
   showcase: () => <ShowcaseComponent />,
+  // Blocks (pre-composed sections previewed in the docs).
+  'login-01': () => <LoginForm01 />,
+  'login-02': () => <LoginForm02 />,
+  'signup-01': () => <SignupForm01 />,
+  'stats-01': () => <StatsPreview />,
   accordion: () => (
     <Accordion type="single" collapsible className="w-full max-w-sm">
       <AccordionItem value="item-1">

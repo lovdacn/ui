@@ -1,0 +1,49 @@
+---
+title: Stats 01
+description: A dashboard route with a stack of KPI stat cards and trend badges.
+---
+
+<ComponentPreviewCard title="Stats 01" name="stats-01" />
+
+## Installation
+
+<PackageManagerTabs>
+<PMTabContent value="npm">
+
+```bash
+npx lovdacn@latest add stats-01
+```
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+```bash
+yarn dlx lovdacn@latest add stats-01
+```
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+```bash
+pnpm dlx lovdacn@latest add stats-01
+```
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+```bash
+bunx --bun lovdacn@latest add stats-01
+```
+
+</PMTabContent>
+</PackageManagerTabs>
+
+## What it installs
+
+- `app/dashboard.tsx` — a `/dashboard` route rendering `<Stats />` in a scroll view
+- `components/stats.tsx` — the KPI stat cards (pass your own `data` or use the sample)
+
+**Registry dependencies:** `card`, `badge`, `icon`, `text`
+
+Each card shows a metric, a trend `Badge` (up/down), and a caption. Icons come from
+`lucide-react-native`.
