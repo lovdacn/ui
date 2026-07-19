@@ -1,36 +1,425 @@
 ---
 title: Dark Mode
-description: Adding dark mode to your Expo app with lvcn.
+description: Add dark mode and a Light / Dark / System mode toggle to your Expo app — for NativeWind and Uniwind.
 ---
 
-lvcn themes include full light and dark token sets. How you toggle dark mode depends on your style engine and platform.
+lvcn themes ship with full light and dark token sets. This guide adds a persistent, shadcn-style **theme provider** and a **mode toggle** (Light / Dark / System) to your app. Choose your style engine below.
 
-## Expo + NativeWind
+<Callout>
+Projects scaffolded with `lovda init` already include light and dark CSS variables and the `dark` mode wiring. In that case you only need the provider and toggle from the steps below.
+</Callout>
 
-Use a color scheme hook and apply the `dark` class (or NativeWind dark mode config) consistently with your CSS.
+<Tabs defaultValue="nativewind" className="my-6 w-full">
+<TabsList>
+<TabsTrigger value="nativewind">NativeWind</TabsTrigger>
+<TabsTrigger value="uniwind">Uniwind</TabsTrigger>
+</TabsList>
+<TabsContent value="nativewind">
 
-Templates ship with:
+<Steps>
 
-```ts
-// hooks/use-color-scheme.ts
-import { useColorScheme as useRNColorScheme } from "react-native"
+<Step>Enable class-based dark mode.</Step>
 
-export function useColorScheme() {
-  return useRNColorScheme()
+NativeWind switches the `dark:` variant from a class, so set `darkMode: "class"` in your Tailwind config:
+
+```js title="tailwind.config.js"
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  darkMode: "class",
+  content: ["./src/**/*.{js,jsx,ts,tsx}"],
+  presets: [require("nativewind/preset")],
+  // ...
+};
+```
+
+Then make sure `global.css` defines your tokens for light (`:root`) and dark (`.dark:root`). NativeWind uses HSL values:
+
+```css title="global.css"
+:root {
+  --background: 0 0% 100%;
+  --foreground: 0 0% 3.9%;
+  /* ...remaining tokens... */
+}
+
+.dark:root {
+  --background: 0 0% 3.9%;
+  --foreground: 0 0% 98%;
+  /* ...remaining tokens... */
 }
 ```
 
-And theme-aware wrappers such as `ThemedView` / `ThemedText`.
+See [Theming](/docs/theming) for the complete token list.
 
-Ensure `global.css` defines both light (`:root`) and dark (`.dark`) variables for your chosen base color.
+<Step>Install the persistence dependency.</Step>
 
-## Expo + Uniwind
+The chosen theme is stored so it survives app restarts.
 
-Uniwind uses Tailwind v4-style `@theme` tokens. Light and dark values are generated at init. Toggle appearance via the system color scheme or your app’s theme provider.
+```bash
+npx expo install @react-native-async-storage/async-storage
+```
 
-## Docs site
+<Step>Create a theme provider.</Step>
 
-This documentation site uses `next-themes` with the `class` strategy:
+```tsx title="components/theme-provider.tsx"
+import AsyncStorage from "@react-native-async-storage/async-storage"
+import * as React from "react"
+import { useColorScheme } from "nativewind"
+
+type Theme = "light" | "dark" | "system"
+
+type ThemeProviderState = {
+  theme: Theme
+  setTheme: (theme: Theme) => void
+}
+
+const ThemeProviderContext = React.createContext<ThemeProviderState>({
+  theme: "system",
+  setTheme: () => null,
+})
+
+export function ThemeProvider({
+  children,
+  defaultTheme = "system",
+  storageKey = "lvcn-ui-theme",
+}: {
+  children: React.ReactNode
+  defaultTheme?: Theme
+  storageKey?: string
+}) {
+  const { setColorScheme } = useColorScheme()
+  const [theme, setThemeState] = React.useState<Theme>(defaultTheme)
+
+  // Restore the saved preference on launch.
+  React.useEffect(() => {
+    AsyncStorage.getItem(storageKey).then((value) => {
+      const next = (value as Theme | null) ?? defaultTheme
+      setThemeState(next)
+      setColorScheme(next)
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const value = React.useMemo(
+    () => ({
+      theme,
+      setTheme: (next: Theme) => {
+        setThemeState(next)
+        setColorScheme(next) // drives NativeWind's `dark:` variant
+        AsyncStorage.setItem(storageKey, next)
+      },
+    }),
+    [theme, setColorScheme, storageKey]
+  )
+
+  return (
+    <ThemeProviderContext.Provider value={value}>
+      {children}
+    </ThemeProviderContext.Provider>
+  )
+}
+
+export function useTheme() {
+  return React.useContext(ThemeProviderContext)
+}
+```
+
+<Step>Wrap your root layout.</Step>
+
+```tsx title="app/_layout.tsx"
+import "../global.css"
+
+import { Stack } from "expo-router"
+
+import { ThemeProvider } from "@/components/theme-provider"
+
+export default function RootLayout() {
+  return (
+    <ThemeProvider defaultTheme="system">
+      <Stack screenOptions={{ headerShown: false }} />
+    </ThemeProvider>
+  )
+}
+```
+
+<Step>Add a mode toggle.</Step>
+
+The toggle reuses lvcn's own components. Add them first:
+
+```bash
+npx lovdacn@latest add button dropdown-menu icon text
+```
+
+```tsx title="components/mode-toggle.tsx"
+import { Moon, Sun } from "lucide-react-native"
+
+import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Icon } from "@/components/ui/icon"
+import { Text } from "@/components/ui/text"
+import { useTheme } from "@/components/theme-provider"
+
+export function ModeToggle() {
+  const { setTheme } = useTheme()
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="icon">
+          <Icon
+            as={Sun}
+            className="size-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
+          />
+          <Icon
+            as={Moon}
+            className="absolute size-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
+          />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onPress={() => setTheme("light")}>
+          <Text>Light</Text>
+        </DropdownMenuItem>
+        <DropdownMenuItem onPress={() => setTheme("dark")}>
+          <Text>Dark</Text>
+        </DropdownMenuItem>
+        <DropdownMenuItem onPress={() => setTheme("system")}>
+          <Text>System</Text>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+```
+
+<Step>Use it.</Step>
+
+Drop `<ModeToggle />` anywhere inside the provider — a screen header, tab bar, or settings screen:
+
+```tsx
+import { ModeToggle } from "@/components/mode-toggle"
+
+<ModeToggle />
+```
+
+</Steps>
+
+</TabsContent>
+<TabsContent value="uniwind">
+
+<Steps>
+
+<Step>Themes are built in.</Step>
+
+Uniwind pre-registers `light`, `dark`, and `system` themes and reads your Tailwind v4 `@theme` tokens from `global.css` — there is no `darkMode` config to set. Just make sure your light and dark token values are defined (Uniwind uses `oklch`):
+
+```css title="global.css"
+@import "tailwindcss";
+@import "uniwind";
+
+@theme {
+  --color-background: oklch(1 0 0);
+  --color-foreground: oklch(0.145 0 0);
+  /* ...remaining tokens... */
+}
+```
+
+See [Theming](/docs/theming) for the complete token list.
+
+<Step>Install the persistence dependency.</Step>
+
+The chosen theme is stored so it survives app restarts.
+
+```bash
+npx expo install @react-native-async-storage/async-storage
+```
+
+<Step>Create a theme provider.</Step>
+
+```tsx title="components/theme-provider.tsx"
+import AsyncStorage from "@react-native-async-storage/async-storage"
+import * as React from "react"
+import { Uniwind } from "uniwind"
+
+type Theme = "light" | "dark" | "system"
+
+type ThemeProviderState = {
+  theme: Theme
+  setTheme: (theme: Theme) => void
+}
+
+const ThemeProviderContext = React.createContext<ThemeProviderState>({
+  theme: "system",
+  setTheme: () => null,
+})
+
+export function ThemeProvider({
+  children,
+  defaultTheme = "system",
+  storageKey = "lvcn-ui-theme",
+}: {
+  children: React.ReactNode
+  defaultTheme?: Theme
+  storageKey?: string
+}) {
+  const [theme, setThemeState] = React.useState<Theme>(defaultTheme)
+
+  // Restore the saved preference on launch.
+  React.useEffect(() => {
+    AsyncStorage.getItem(storageKey).then((value) => {
+      const next = (value as Theme | null) ?? defaultTheme
+      setThemeState(next)
+      Uniwind.setTheme(next)
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const value = React.useMemo(
+    () => ({
+      theme,
+      setTheme: (next: Theme) => {
+        setThemeState(next)
+        Uniwind.setTheme(next) // switches Uniwind's built-in light / dark / system themes
+        AsyncStorage.setItem(storageKey, next)
+      },
+    }),
+    [theme, storageKey]
+  )
+
+  return (
+    <ThemeProviderContext.Provider value={value}>
+      {children}
+    </ThemeProviderContext.Provider>
+  )
+}
+
+export function useTheme() {
+  return React.useContext(ThemeProviderContext)
+}
+```
+
+<Callout>
+Setting `light` or `dark` also calls React Native's `Appearance.setColorScheme` for you, so native surfaces like `Alert` and `Modal` match your app. Setting `system` re-enables adaptive themes.
+</Callout>
+
+<Step>Wrap your root layout.</Step>
+
+```tsx title="app/_layout.tsx"
+import "../global.css"
+
+import { Stack } from "expo-router"
+
+import { ThemeProvider } from "@/components/theme-provider"
+
+export default function RootLayout() {
+  return (
+    <ThemeProvider defaultTheme="system">
+      <Stack screenOptions={{ headerShown: false }} />
+    </ThemeProvider>
+  )
+}
+```
+
+<Step>Add a mode toggle.</Step>
+
+The toggle reuses lvcn's own components. Add them first:
+
+```bash
+npx lovdacn@latest add button dropdown-menu icon text
+```
+
+```tsx title="components/mode-toggle.tsx"
+import { Moon, Sun } from "lucide-react-native"
+
+import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Icon } from "@/components/ui/icon"
+import { Text } from "@/components/ui/text"
+import { useTheme } from "@/components/theme-provider"
+
+export function ModeToggle() {
+  const { setTheme } = useTheme()
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="icon">
+          <Icon
+            as={Sun}
+            className="size-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
+          />
+          <Icon
+            as={Moon}
+            className="absolute size-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
+          />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onPress={() => setTheme("light")}>
+          <Text>Light</Text>
+        </DropdownMenuItem>
+        <DropdownMenuItem onPress={() => setTheme("dark")}>
+          <Text>Dark</Text>
+        </DropdownMenuItem>
+        <DropdownMenuItem onPress={() => setTheme("system")}>
+          <Text>System</Text>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+```
+
+<Step>Use it.</Step>
+
+Drop `<ModeToggle />` anywhere inside the provider — a screen header, tab bar, or settings screen:
+
+```tsx
+import { ModeToggle } from "@/components/mode-toggle"
+
+<ModeToggle />
+```
+
+</Steps>
+
+</TabsContent>
+</Tabs>
+
+## How it works
+
+- **System** follows the device appearance and keeps tracking it as the user changes their OS setting.
+- **Light / Dark** override the device and lock the app to that appearance. On NativeWind, `setColorScheme` toggles the `dark` class that powers `dark:` utilities; on Uniwind, `Uniwind.setTheme` switches the active theme.
+- The selection is persisted with AsyncStorage and re-applied on the next launch, so the toggle behaves like shadcn/ui on the web.
+
+## Use semantic tokens
+
+For components to adapt automatically, style them with semantic classes instead of hard-coded colors:
+
+```tsx
+import { View } from "react-native"
+import { Text } from "@/components/ui/text"
+
+export function Panel() {
+  return (
+    <View className="bg-background border-border rounded-lg border p-4">
+      <Text className="text-foreground">Adapts to light and dark</Text>
+    </View>
+  )
+}
+```
+
+## This documentation site
+
+For reference, this site (Next.js) uses [`next-themes`](https://github.com/pacocoursey/next-themes) with the `class` strategy — use the sun / moon control in the header to preview tokens:
 
 ```tsx
 <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
@@ -38,10 +427,14 @@ This documentation site uses `next-themes` with the `class` strategy:
 </ThemeProvider>
 ```
 
-Use the sun/moon control in the header to preview light and dark tokens.
-
 ## Checklist
 
-1. Light and dark CSS variables present for all tokens
-2. Root layout responds to system or user preference
-3. Components use semantic classes (`bg-background`, `text-foreground`, `border-border`) instead of hard-coded colors
+1. Light and dark values exist for every token
+2. The root layout is wrapped in `ThemeProvider`
+3. Components use semantic classes (`bg-background`, `text-foreground`, `border-border`)
+
+## Related
+
+- [Theming](/docs/theming) — tokens, style packs, and base colors
+- [Installation](/docs/installation) — full setup guide
+- [Expo Router](/docs/expo-router) — file-based navigation setup

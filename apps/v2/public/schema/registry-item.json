@@ -1,0 +1,117 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lovdacn.vercel.app/schema/registry-item.json",
+  "title": "lovdaCN registry item",
+  "description": "A single item in a lovdaCN registry (component, lib, or style).",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "The URL of the JSON schema for this file."
+    },
+    "name": {
+      "type": "string",
+      "description": "The name of the item. Used to identify the item in the registry. Must be unique."
+    },
+    "type": {
+      "type": "string",
+      "description": "The type of the item. Determines the target path when resolved for a project.",
+      "enum": [
+        "registry:lib",
+        "registry:ui",
+        "registry:component",
+        "registry:hook",
+        "registry:page",
+        "registry:file",
+        "registry:theme",
+        "registry:block",
+        "registry:style"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "description": "A human-readable title for the registry item. Keep it short and descriptive."
+    },
+    "description": {
+      "type": "string",
+      "description": "A brief overview of the item."
+    },
+    "author": {
+      "type": "string",
+      "description": "The author of the item. Recommended format: username <url>."
+    },
+    "dependencies": {
+      "type": "array",
+      "description": "NPM dependencies required by the registry item.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "devDependencies": {
+      "type": "array",
+      "description": "NPM dev dependencies required by the registry item.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "registryDependencies": {
+      "type": "array",
+      "description": "Other registry items this item depends on. Use the item name for lovdaCN components or a URL for other registries.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "files": {
+      "type": "array",
+      "description": "The files that make up the registry item.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "The path to the file relative to the registry root."
+          },
+          "content": {
+            "type": "string",
+            "description": "The content of the file."
+          },
+          "type": {
+            "type": "string",
+            "description": "The type of the file. Used to determine the target path when resolved for a project.",
+            "enum": [
+              "registry:lib",
+              "registry:ui",
+              "registry:component",
+              "registry:hook",
+              "registry:page",
+              "registry:file",
+              "registry:theme"
+            ]
+          },
+          "target": {
+            "type": "string",
+            "description": "The target path of the file in the project. Supports the @components/, @ui/, @lib/, and @hooks/ placeholders which resolve to the aliases configured in lvcn.json."
+          }
+        },
+        "required": ["path", "type"]
+      }
+    },
+    "meta": {
+      "type": "object",
+      "description": "Additional metadata for the registry item, e.g. { \"engine\": \"nativewind\", \"style\": \"default\" }.",
+      "additionalProperties": true
+    },
+    "docs": {
+      "type": "string",
+      "description": "Documentation for the registry item as a markdown string."
+    },
+    "categories": {
+      "type": "array",
+      "description": "The categories of the registry item.",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": ["name", "type"]
+}

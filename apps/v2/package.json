@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@types/mdx": "^2.0.14",
+    "@vercel/analytics": "^2.0.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "fumadocs-core": "^16.11.1",

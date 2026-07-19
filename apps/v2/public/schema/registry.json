@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lovdacn.vercel.app/schema/registry.json",
+  "title": "lovdaCN registry",
+  "description": "A lovdaCN registry of components, libs, and styles.",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "The URL of the JSON schema for this file."
+    },
+    "name": {
+      "type": "string",
+      "description": "The registry name."
+    },
+    "homepage": {
+      "type": "string",
+      "description": "The registry homepage."
+    },
+    "items": {
+      "type": "array",
+      "description": "The items in the registry.",
+      "default": [],
+      "items": {
+        "$ref": "https://lovdacn.vercel.app/schema/registry-item.json"
+      }
+    }
+  },
+  "required": ["name", "homepage", "items"]
+}
