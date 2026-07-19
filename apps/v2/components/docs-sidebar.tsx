@@ -19,6 +19,16 @@ const SECTIONS = [
     ],
   },
   {
+    title: "Blocks",
+    items: [
+      { name: "All Blocks", href: "/docs/blocks" },
+      { name: "Login 01", href: "/docs/blocks/login-01" },
+      { name: "Login 02", href: "/docs/blocks/login-02" },
+      { name: "Signup 01", href: "/docs/blocks/signup-01" },
+      { name: "Stats 01", href: "/docs/blocks/stats-01" },
+    ],
+  },
+  {
     title: "Components",
     items: [
       { name: "All Components", href: "/docs/components" },
@@ -85,8 +95,10 @@ export function DocsMobileNav() {
         {SECTIONS.flatMap((s) => s.items)
           .filter(
             (item) =>
-              !item.href.startsWith("/docs/components/") ||
-              item.href === "/docs/components"
+              (!item.href.startsWith("/docs/components/") ||
+                item.href === "/docs/components") &&
+              (!item.href.startsWith("/docs/blocks/") ||
+                item.href === "/docs/blocks")
           )
           .map((item) => {
             const isActive =
