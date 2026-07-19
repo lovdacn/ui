@@ -1001,5 +1001,11 @@ fs.writeJsonSync(path.join(DEST_REGISTRY, 'index.json'), STYLES, { spaces: 2 });
 // Copy styled CSS stylesheets
 copyStyledCssFiles();
 
+// Emit pre-composed "blocks" into the shared `r/blocks/` namespace. Blocks are
+// style-agnostic (they compose the per-style components), so they live in one
+// place and are resolved by name — independent of the per-style component
+// output above.
+require('./build-blocks.cjs').buildBlocks();
+
 console.log(`\n✔  Registry built successfully!`);
 console.log(`   Output: ${DEST_REGISTRY}`);

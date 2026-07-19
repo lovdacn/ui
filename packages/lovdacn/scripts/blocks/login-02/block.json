@@ -1,0 +1,33 @@
+{
+  "name": "login-02",
+  "type": "registry:block",
+  "description": "A sign-in screen with social providers and a divider, as an (auth) route.",
+  "dependencies": ["lucide-react-native"],
+  "registryDependencies": [
+    "card",
+    "input",
+    "label",
+    "button",
+    "separator",
+    "icon",
+    "text",
+    "utils"
+  ],
+  "files": [
+    {
+      "src": "layout.tsx",
+      "type": "registry:page",
+      "target": "app/(auth)/_layout.tsx"
+    },
+    {
+      "src": "sign-in.tsx",
+      "type": "registry:page",
+      "target": "app/(auth)/sign-in.tsx"
+    },
+    {
+      "src": "components/login-form.tsx",
+      "type": "registry:component",
+      "path": "components/login-form.tsx"
+    }
+  ]
+}

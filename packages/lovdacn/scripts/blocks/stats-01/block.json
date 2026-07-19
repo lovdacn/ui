@@ -1,0 +1,19 @@
+{
+  "name": "stats-01",
+  "type": "registry:block",
+  "description": "A dashboard route with a stack of KPI stat cards and trend badges.",
+  "dependencies": ["lucide-react-native"],
+  "registryDependencies": ["card", "badge", "icon", "text", "utils"],
+  "files": [
+    {
+      "src": "dashboard.tsx",
+      "type": "registry:page",
+      "target": "app/dashboard.tsx"
+    },
+    {
+      "src": "components/stats.tsx",
+      "type": "registry:component",
+      "path": "components/stats.tsx"
+    }
+  ]
+}

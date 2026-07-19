@@ -242,14 +242,23 @@ export async function runAdd(options: z.infer<typeof addOptionsSchema>) {
     const relativePath = file.path
     let targetPath: string
 
-    if (relativePath.startsWith("components/ui/")) {
-      const fileBasename = path.basename(relativePath)
+    if (file.target) {
+      // Blocks ship real routes/pages (Expo Router). A `target` is a path
+      // relative to the app, resolved against the project's app dir (src/app
+      // vs app). Everything else falls back to the alias routing below.
+      targetPath = resolveTargetPath(cwd, file.target)
+    } else if (relativePath.startsWith("components/ui/")) {
+      // Preserve any subdirectories under components/ui/ (e.g. multi-file
+      // components) rather than flattening to the basename.
+      const subPath = relativePath.slice("components/ui/".length)
       const uiFolder = resolveAliasPath(cwd, userAliases.ui || "@/components/ui")
-      targetPath = path.join(uiFolder, fileBasename)
+      targetPath = path.join(uiFolder, subPath)
     } else if (relativePath.startsWith("components/")) {
-      const fileBasename = path.basename(relativePath)
+      // Preserve subdirectories under components/ (e.g. `components/blocks/...`)
+      // so composed blocks keep their folder structure in the target project.
+      const subPath = relativePath.slice("components/".length)
       const compFolder = resolveAliasPath(cwd, userAliases.components || "@/components")
-      targetPath = path.join(compFolder, fileBasename)
+      targetPath = path.join(compFolder, subPath)
     } else if (relativePath.includes("utils")) {
       const utilsFile = resolveAliasPath(cwd, userAliases.utils || "@/lib/utils")
       targetPath =
@@ -387,6 +396,27 @@ export function resolveAliasPath(cwd: string, alias: string): string {
 }
 
 /**
+ * Resolve a block file `target` (e.g. "app/(auth)/sign-in.tsx") to an absolute
+ * path in the project. Expo Router supports both `app/` and `src/app/`; when a
+ * target begins with the `app` segment we place it under `src/app` for projects
+ * that use a `src/` layout (the lovdacn templates and most Expo apps do).
+ */
+export function resolveTargetPath(cwd: string, target: string): string {
+  const segments = target.replace(/^[\\/]+/, "").split(/[\\/]+/)
+
+  if (segments[0] === "app") {
+    const hasSrcApp = fs.existsSync(path.join(cwd, "src", "app"))
+    const hasRootApp = fs.existsSync(path.join(cwd, "app"))
+    const hasSrc = fs.existsSync(path.join(cwd, "src"))
+    if (hasSrcApp || (!hasRootApp && hasSrc)) {
+      return path.join(cwd, "src", ...segments)
+    }
+  }
+
+  return path.join(cwd, ...segments)
+}
+
+/**
  * Detect which registry UI components are installed by scanning the configured
  * `ui`/`components` alias folders, then reconcile with the tracked list in
  * lvcn.json. Returns the de-duped union, restricted to known registry names so
@@ -503,15 +533,34 @@ function getRegistryUrl(): string {
 async function fetchRegistryItem(name: string, style: string, styleEngine: string): Promise<any> {
   const registryUrl = getRegistryUrl()
 
+  // Components are resolved per style/engine. Style-agnostic "blocks" (composed
+  // sections that just import components) live once in a shared `blocks/`
+  // namespace, so we try the per-style path first and fall back to blocks.
+  const stylePath = `styles/${styleEngine}/${style}/${name}.json`
+  const blockPath = `blocks/${name}.json`
+
   if (registryUrl.startsWith("file://") || !registryUrl.startsWith("http")) {
     const cleanPath = registryUrl.replace("file://", "")
-    const itemPath = path.resolve(cleanPath, `styles/${styleEngine}/${style}/${name}.json`)
-    return await fs.readJson(itemPath)
-  } else {
-    const response = await fetch(`${registryUrl}/styles/${styleEngine}/${style}/${name}.json`)
-    if (!response.ok) {
-      throw new Error(`Failed to fetch component from registry: ${response.statusText}`)
+    const styleItemPath = path.resolve(cleanPath, stylePath)
+    if (fs.existsSync(styleItemPath)) {
+      return await fs.readJson(styleItemPath)
     }
-    return await response.json()
+    const blockItemPath = path.resolve(cleanPath, blockPath)
+    if (fs.existsSync(blockItemPath)) {
+      return await fs.readJson(blockItemPath)
+    }
+    // Neither exists — read the per-style path so the thrown error matches a
+    // missing component (preserves prior behavior/messaging).
+    return await fs.readJson(styleItemPath)
+  } else {
+    const response = await fetch(`${registryUrl}/${stylePath}`)
+    if (response.ok) {
+      return await response.json()
+    }
+    const blockResponse = await fetch(`${registryUrl}/${blockPath}`)
+    if (blockResponse.ok) {
+      return await blockResponse.json()
+    }
+    throw new Error(`Failed to fetch component from registry: ${response.statusText}`)
   }
 }

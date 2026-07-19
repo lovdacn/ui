@@ -1,0 +1,38 @@
+{
+  "$schema": "https://lovdacn.vercel.app/schema/registry-item.json",
+  "name": "login-02",
+  "type": "registry:block",
+  "description": "A sign-in screen with social providers and a divider, as an (auth) route.",
+  "dependencies": [
+    "lucide-react-native"
+  ],
+  "registryDependencies": [
+    "card",
+    "input",
+    "label",
+    "button",
+    "separator",
+    "icon",
+    "text",
+    "utils"
+  ],
+  "files": [
+    {
+      "path": "app/(auth)/_layout.tsx",
+      "content": "import { Stack } from 'expo-router';\n\n/**\n * Layout for the (auth) route group. The parentheses make it a layout group,\n * so it does not add a segment to the URL — `sign-in.tsx` is still `/sign-in`.\n */\nexport default function AuthLayout() {\n  return <Stack screenOptions={{ headerShown: false }} />;\n}\n",
+      "type": "registry:page",
+      "target": "app/(auth)/_layout.tsx"
+    },
+    {
+      "path": "app/(auth)/sign-in.tsx",
+      "content": "import { LoginForm } from '@/components/login-form';\nimport { View } from 'react-native';\n\nexport default function SignInScreen() {\n  return (\n    <View className=\"bg-background flex-1 justify-center p-4\">\n      <LoginForm />\n    </View>\n  );\n}\n",
+      "type": "registry:page",
+      "target": "app/(auth)/sign-in.tsx"
+    },
+    {
+      "path": "components/login-form.tsx",
+      "content": "import { Button } from '@/components/ui/button';\nimport {\n  Card,\n  CardContent,\n  CardDescription,\n  CardHeader,\n  CardTitle,\n} from '@/components/ui/card';\nimport { Icon } from '@/components/ui/icon';\nimport { Input } from '@/components/ui/input';\nimport { Label } from '@/components/ui/label';\nimport { Separator } from '@/components/ui/separator';\nimport { Text } from '@/components/ui/text';\nimport { Apple, Chrome } from 'lucide-react-native';\nimport * as React from 'react';\nimport { View } from 'react-native';\n\nexport function LoginForm() {\n  const [email, setEmail] = React.useState('');\n  const [password, setPassword] = React.useState('');\n\n  return (\n    <Card className=\"mx-auto w-full max-w-sm\">\n      <CardHeader className=\"items-center gap-1\">\n        <CardTitle className=\"text-xl\">Welcome back</CardTitle>\n        <CardDescription>Sign in with a provider or your email</CardDescription>\n      </CardHeader>\n      <CardContent className=\"gap-4\">\n        <View className=\"gap-2\">\n          <Button variant=\"outline\" className=\"w-full\" onPress={() => {}}>\n            <Icon as={Apple} />\n            <Text>Continue with Apple</Text>\n          </Button>\n          <Button variant=\"outline\" className=\"w-full\" onPress={() => {}}>\n            <Icon as={Chrome} />\n            <Text>Continue with Google</Text>\n          </Button>\n        </View>\n        <View className=\"flex-row items-center gap-3\">\n          <Separator className=\"flex-1\" />\n          <Text className=\"text-muted-foreground text-xs\">OR CONTINUE WITH</Text>\n          <Separator className=\"flex-1\" />\n        </View>\n        <View className=\"gap-2\">\n          <Label nativeID=\"email\">\n            <Text>Email</Text>\n          </Label>\n          <Input\n            aria-labelledby=\"email\"\n            value={email}\n            onChangeText={setEmail}\n            placeholder=\"m@example.com\"\n            autoCapitalize=\"none\"\n            autoComplete=\"email\"\n            keyboardType=\"email-address\"\n          />\n        </View>\n        <View className=\"gap-2\">\n          <Label nativeID=\"password\">\n            <Text>Password</Text>\n          </Label>\n          <Input\n            aria-labelledby=\"password\"\n            value={password}\n            onChangeText={setPassword}\n            placeholder=\"Enter your password\"\n            secureTextEntry\n            autoComplete=\"password\"\n          />\n        </View>\n        <Button className=\"w-full\" onPress={() => {}}>\n          <Text>Sign in</Text>\n        </Button>\n      </CardContent>\n    </Card>\n  );\n}\n",
+      "type": "registry:component"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+---
+title: Login 01
+description: A sign-in screen — an (auth) route with a login form card.
+---
+
+<ComponentPreviewCard title="Login 01" name="login-01" />
+
+## Installation
+
+<PackageManagerTabs>
+<PMTabContent value="npm">
+
+```bash
+npx lovdacn@latest add login-01
+```
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+```bash
+yarn dlx lovdacn@latest add login-01
+```
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+```bash
+pnpm dlx lovdacn@latest add login-01
+```
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+```bash
+bunx --bun lovdacn@latest add login-01
+```
+
+</PMTabContent>
+</PackageManagerTabs>
+
+## What it installs
+
+- `app/(auth)/_layout.tsx` — the `(auth)` route group layout (a headerless `Stack`)
+- `app/(auth)/sign-in.tsx` — the sign-in route, rendering `<LoginForm />`
+- `components/login-form.tsx` — the login form card
+
+**Registry dependencies:** `card`, `input`, `label`, `button`, `text`
+
+Routes are placed under `src/app` when your project uses a `src/` layout,
+otherwise under `app`.

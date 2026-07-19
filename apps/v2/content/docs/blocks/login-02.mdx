@@ -1,0 +1,50 @@
+---
+title: Login 02
+description: A sign-in screen with social providers and a divider.
+---
+
+<ComponentPreviewCard title="Login 02" name="login-02" />
+
+## Installation
+
+<PackageManagerTabs>
+<PMTabContent value="npm">
+
+```bash
+npx lovdacn@latest add login-02
+```
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+```bash
+yarn dlx lovdacn@latest add login-02
+```
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+```bash
+pnpm dlx lovdacn@latest add login-02
+```
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+```bash
+bunx --bun lovdacn@latest add login-02
+```
+
+</PMTabContent>
+</PackageManagerTabs>
+
+## What it installs
+
+- `app/(auth)/_layout.tsx` — the `(auth)` route group layout
+- `app/(auth)/sign-in.tsx` — the sign-in route, rendering `<LoginForm />`
+- `components/login-form.tsx` — the login form with Apple/Google buttons and a divider
+
+**Registry dependencies:** `card`, `input`, `label`, `button`, `separator`, `icon`, `text`
+
+Icons are imported from `lucide-react-native`. Swap them for your project's icon
+library if you initialized with a different one.

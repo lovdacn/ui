@@ -10,12 +10,14 @@ export function ComponentPreviewCard({
   children,
   className,
   title,
+  name,
 }: {
   children?: React.ReactNode
   className?: string
   title?: string
+  name?: string
 }) {
-  const componentName = title?.toLowerCase().replace(/ /g, "-")
+  const componentName = name ?? title?.toLowerCase().replace(/ /g, "-")
   const { resolvedTheme } = useTheme()
   const [mounted, setMounted] = React.useState(false)
   const [ready, setReady] = React.useState(false)

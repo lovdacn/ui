@@ -1,0 +1,65 @@
+[
+  {
+    "name": "login-01",
+    "type": "registry:block",
+    "description": "A sign-in screen: an (auth) route group with a login form card.",
+    "dependencies": [],
+    "registryDependencies": [
+      "card",
+      "input",
+      "label",
+      "button",
+      "text",
+      "utils"
+    ]
+  },
+  {
+    "name": "login-02",
+    "type": "registry:block",
+    "description": "A sign-in screen with social providers and a divider, as an (auth) route.",
+    "dependencies": [
+      "lucide-react-native"
+    ],
+    "registryDependencies": [
+      "card",
+      "input",
+      "label",
+      "button",
+      "separator",
+      "icon",
+      "text",
+      "utils"
+    ]
+  },
+  {
+    "name": "signup-01",
+    "type": "registry:block",
+    "description": "A sign-up screen: an (auth) route with a registration form and terms checkbox.",
+    "dependencies": [],
+    "registryDependencies": [
+      "card",
+      "input",
+      "label",
+      "button",
+      "checkbox",
+      "icon",
+      "text",
+      "utils"
+    ]
+  },
+  {
+    "name": "stats-01",
+    "type": "registry:block",
+    "description": "A dashboard route with a stack of KPI stat cards and trend badges.",
+    "dependencies": [
+      "lucide-react-native"
+    ],
+    "registryDependencies": [
+      "card",
+      "badge",
+      "icon",
+      "text",
+      "utils"
+    ]
+  }
+]
