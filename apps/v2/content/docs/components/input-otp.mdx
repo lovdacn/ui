@@ -1,0 +1,104 @@
+---
+title: Input OTP
+description: A one-time-password input with slotted digits, an active caret, and OS autofill support.
+component: true
+---
+
+<ComponentPreviewCard title="Input OTP" name="input-otp" />
+
+## Installation
+
+<PackageManagerTabs>
+<PMTabContent value="npm">
+
+```bash
+npx lovdacn@latest add input-otp
+```
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+```bash
+yarn dlx lovdacn@latest add input-otp
+```
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+```bash
+pnpm dlx lovdacn@latest add input-otp
+```
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+```bash
+bunx --bun lovdacn@latest add input-otp
+```
+
+</PMTabContent>
+</PackageManagerTabs>
+
+*(You can also use the shortened `lvcn` alias, e.g., `npx lvcn@latest add input-otp`.)*
+
+**Registry dependencies:** `text`, `utils`
+
+## Usage
+
+`InputOTP` is controlled — pass `value` and `onChangeText`. It renders a
+transparent `TextInput` over the slot boxes, so tapping anywhere focuses the
+field and each keystroke fills the next slot.
+
+```tsx
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "@/components/ui/input-otp"
+import * as React from "react"
+
+export function Example() {
+  const [value, setValue] = React.useState("")
+
+  return (
+    <InputOTP value={value} onChangeText={setValue} maxLength={6}>
+      <InputOTPGroup>
+        <InputOTPSlot index={0} />
+        <InputOTPSlot index={1} />
+        <InputOTPSlot index={2} />
+      </InputOTPGroup>
+      <InputOTPSeparator />
+      <InputOTPGroup>
+        <InputOTPSlot index={3} />
+        <InputOTPSlot index={4} />
+        <InputOTPSlot index={5} />
+      </InputOTPGroup>
+    </InputOTP>
+  )
+}
+```
+
+### Autofill
+
+The overlay input sets `textContentType="oneTimeCode"` (iOS) and
+`autoComplete="sms-otp"` (Android) so the OS can suggest codes received by SMS.
+`keyboardType` defaults to `number-pad`; pass any `TextInput` prop to override
+(e.g. `keyboardType="default"` for alphanumeric codes).
+
+## Anatomy
+
+| Part | Description |
+| --- | --- |
+| `InputOTP` | Controlled root. Props: `value`, `onChangeText`, `maxLength` (default 6), plus any `TextInput` prop. |
+| `InputOTPGroup` | A row of slots. Use two groups + a separator to split the code. |
+| `InputOTPSlot` | A single digit box. Requires `index`; shows the active caret when focused. |
+| `InputOTPSeparator` | A visual divider between groups. |
+
+## Platform
+
+Targets **Expo / React Native** with **NativeWind** or **Uniwind**. Rather than
+one `TextInput` per digit (which is fiddly to keep in sync and to backspace
+across), it uses a single transparent overlay input with `caretHidden` and draws
+its own slots + caret — this keeps paste, autofill, and backspace behaving like a
+normal field.

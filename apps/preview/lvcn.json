@@ -1,6 +1,6 @@
 {
   "$schema": "https://lovdacn.vercel.app/schema.json",
-  "style": "rhea",
+  "style": "maia",
   "styleEngine": "nativewind",
   "tsx": true,
   "tailwind": {
@@ -20,6 +20,7 @@
     "aspect-ratio",
     "avatar",
     "badge",
+    "breadcrumb",
     "button",
     "card",
     "checkbox",
@@ -30,6 +31,7 @@
     "hover-card",
     "icon",
     "input",
+    "input-otp",
     "label",
     "menubar",
     "native-only-animated-view",
@@ -38,6 +40,7 @@
     "radio-group",
     "select",
     "separator",
+    "sidebar",
     "skeleton",
     "switch",
     "tabs",
@@ -48,5 +51,9 @@
     "tooltip",
     "utils"
   ],
-  "baseColor": "olive"
+  "baseColor": "mist",
+  "theme": "indigo",
+  "chartColor": "slate",
+  "font": "dm-sans",
+  "radius": "none"
 }

@@ -12,20 +12,26 @@ export default function IndexPage() {
   return (
     <div className="flex flex-1 flex-col">
       {/* Hero Section */}
-      <section className="relative overflow-hidden border-b border-border/80 bg-muted/10 backdrop-blur-md">
+      <section className="relative overflow-hidden bg-gradient-to-b from-transparent to-muted/20 dark:from-muted/20 dark:to-transparent">
         <div className="container-wrapper">
-          <div className="container flex flex-col items-center gap-2 px-6 pt-4 pb-12 text-center md:pt-8 md:pb-16 lg:pt-10 lg:pb-20 xl:gap-4">
+          <div className="container flex flex-col items-center gap-2 px-6 pt-3 pb-8 text-center md:pt-6 md:pb-12 lg:pt-8 lg:pb-16 xl:gap-3">
             {/* Decorative background grid and gradient */}
-            <div
-              aria-hidden
-              className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_-20%,var(--color-muted),transparent_70%)] opacity-30"
-            />
-            <div
-              aria-hidden
-              className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(to_right,var(--color-border)_1px,transparent_1px),linear-gradient(to_bottom,var(--color-border)_1px,transparent_1px)] bg-[size:56px_56px] opacity-10 [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]"
-            />
+            <div className="pointer-events-none absolute inset-0 -z-10 [mask-image:linear-gradient(to_bottom,black_60%,transparent_100%)]">
+              <div
+                aria-hidden
+                className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,var(--color-foreground),transparent_80%)] opacity-15 dark:opacity-25"
+              />
+              <div
+                aria-hidden
+                className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,var(--color-muted),transparent_85%)] opacity-60 dark:opacity-85"
+              />
+              <div
+                aria-hidden
+                className="absolute inset-0 bg-[linear-gradient(to_right,var(--color-border)_1px,transparent_1px),linear-gradient(to_bottom,var(--color-border)_1px,transparent_1px)] bg-[size:56px_56px] opacity-15 dark:opacity-25 [mask-image:radial-gradient(ellipse_at_center,black,transparent_90%)]"
+              />
+            </div>
 
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-border bg-muted/60 text-xs font-medium text-muted-foreground mb-8 backdrop-blur-sm">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-border bg-muted/60 text-[11px] font-medium text-muted-foreground mb-5 backdrop-blur-sm">
               <span>Expo</span>
               <span className="text-muted-foreground/40">•</span>
               <span>NativeWind</span>
@@ -35,28 +41,28 @@ export default function IndexPage() {
               <span>shadcn-style</span>
             </div>
 
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground mb-6 max-w-3xl leading-tight">
+            <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground mb-4 max-w-2xl leading-tight">
               The UI Toolkit for <br className="hidden sm:block" />
-              <span className="bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/70 dark:from-white dark:to-zinc-500">
+              <span className="bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/60 dark:from-white dark:to-zinc-400">
                 React Native
               </span>
             </h1>
 
-            <p className="text-lg md:text-xl text-muted-foreground font-normal max-w-2xl mb-10 leading-relaxed">
+            <p className="text-base md:text-lg text-muted-foreground font-normal max-w-xl mb-8 leading-relaxed">
               {description}
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto justify-center">
+            <div className="flex flex-col sm:flex-row gap-3.5 w-full sm:w-auto justify-center">
               <Link
                 href="/create"
-                className="inline-flex items-center justify-center gap-2 bg-foreground hover:opacity-90 text-background font-semibold px-6 py-3 rounded-full text-base transition-all group shadow-lg"
+                className="inline-flex items-center justify-center gap-2 bg-foreground hover:opacity-90 text-background font-semibold px-5 py-2.5 rounded-full text-sm transition-all group shadow-lg"
               >
                 Get Started
                 <ArrowRightIcon className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
                 href="/docs/components"
-                className="inline-flex items-center justify-center border border-border bg-background hover:bg-muted text-foreground font-medium px-6 py-3 rounded-full text-base transition-all"
+                className="inline-flex items-center justify-center border border-border bg-background hover:bg-muted text-foreground font-medium px-5 py-2.5 rounded-full text-sm transition-all"
               >
                 Browse Components
               </Link>
@@ -90,7 +96,7 @@ export default function IndexPage() {
               <Link
                 key={component.name}
                 href={`/docs/components/${component.name}`}
-                className="group border border-border/60 hover:border-border bg-card hover:bg-muted/40 p-6 rounded-xl transition-all duration-200 flex flex-col justify-between min-h-[140px]"
+                className="group border border-border/50 hover:border-border/80 bg-card hover:bg-muted/40 p-6 rounded-xl transition-colors duration-200 flex flex-col justify-between min-h-[140px]"
               >
                 <div>
                   <div className="flex items-center justify-between gap-4 mb-2">

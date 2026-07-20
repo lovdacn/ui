@@ -27,7 +27,7 @@ function Alert({
       <View
         role="alert"
         className={cn(
-          'bg-card border-border relative w-full gap-0.5 rounded-2xl border px-4 py-3 text-left text-sm',
+          'bg-card border-border relative w-full gap-0.5 rounded-lg border px-4 py-3 text-left text-sm',
           className
         )}
         {...props}>

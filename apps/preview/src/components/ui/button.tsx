@@ -3,8 +3,8 @@ import { cn } from '@/lib/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { Platform, Pressable } from 'react-native';
 
-const buttonVariants = cva(cn('focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-2xl border border-transparent bg-clip-padding focus-visible:ring-3 aria-invalid:ring-3','','','','','','','',
-    'group shrink-0 flex-row items-center justify-center gap-2 shadow-none focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-2xl border border-transparent bg-clip-padding focus-visible:ring-3 aria-invalid:ring-3',
+const buttonVariants = cva(cn('focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-4xl border border-transparent bg-clip-padding focus-visible:ring-[3px] aria-invalid:ring-[3px]','','','','','','','',
+    'group shrink-0 flex-row items-center justify-center gap-2 shadow-none focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-4xl border border-transparent bg-clip-padding focus-visible:ring-[3px] aria-invalid:ring-[3px]',
     Platform.select({
       web: "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive whitespace-nowrap outline-none transition-all focus-visible:ring-[3px] disabled:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
     })
@@ -20,7 +20,7 @@ const buttonVariants = cva(cn('focus-visible:border-ring focus-visible:ring-ring
             web: 'hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40',
           })
         ),
-        outline: cn('active:bg-accent dark:border-input dark:active:bg-input/50 border shadow-sm shadow-black/5 border-border bg-background dark:bg-transparent hover:bg-muted dark:hover:bg-input/30 aria-expanded:bg-muted',
+        outline: cn('active:bg-accent dark:bg-input/30 dark:border-input dark:active:bg-input/50 border shadow-sm shadow-black/5 border-border bg-input/30 hover:bg-input/50 aria-expanded:bg-muted',
           Platform.select({
             web: 'hover:bg-accent dark:hover:bg-input/50',
           })
@@ -34,10 +34,10 @@ const buttonVariants = cva(cn('focus-visible:border-ring focus-visible:ring-ring
         link: '',
       },
       size: {
-        default: cn('py-2 sm:h-9 h-8 gap-1.5 px-3', Platform.select({ web: 'has-[>svg]:px-3' })),
-        sm: cn('rounded-md sm:h-8 h-7 gap-1 px-3', Platform.select({ web: 'has-[>svg]:px-2.5' })),
-        lg: cn('rounded-md sm:h-10 h-9 gap-1.5 px-4', Platform.select({ web: 'has-[>svg]:px-4' })),
-        icon: 'sm:h-9 sm:w-9 size-8',
+        default: cn('py-2 sm:h-9 h-9 gap-1.5 px-3', Platform.select({ web: 'has-[>svg]:px-3' })),
+        sm: cn('rounded-md sm:h-8 h-8 gap-1 px-3', Platform.select({ web: 'has-[>svg]:px-2.5' })),
+        lg: cn('rounded-md sm:h-10 h-10 gap-1.5 px-4', Platform.select({ web: 'has-[>svg]:px-4' })),
+        icon: 'sm:h-9 sm:w-9 size-9',
       },
     },
     defaultVariants: {

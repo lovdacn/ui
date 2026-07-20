@@ -104,18 +104,20 @@ export function SiteHeader() {
               href={siteConfig.links.github}
               target="_blank"
               rel="noreferrer"
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "sm" }),
-                "hidden sm:inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground font-medium"
-              )}
+              className="hidden sm:inline-flex items-center gap-2 rounded-full border border-border/80 bg-muted/40 px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted/70 hover:border-border transition-all active:scale-[0.98] group"
             >
-              <GithubIcon className="size-4" />
-              <span>GitHub</span>
+              <div className="flex items-center gap-1.5">
+                <GithubIcon className="size-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                <span>GitHub</span>
+              </div>
               {stars !== null && (
-                <div className="ml-1 flex items-center gap-0.5 rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-foreground border border-border/60">
-                  <Star className="size-3 fill-amber-400 text-amber-400" />
-                  <span>{formatStars(stars)}</span>
-                </div>
+                <>
+                  <div className="h-3 w-px bg-border/80" />
+                  <div className="flex items-center gap-1 text-[11px] font-medium text-muted-foreground group-hover:text-foreground transition-colors">
+                    <Star className="size-3 fill-amber-400/80 text-amber-400 group-hover:fill-amber-400 transition-all" />
+                    <span>{formatStars(stars)}</span>
+                  </div>
+                </>
               )}
             </Link>
             <ModeSwitcher />

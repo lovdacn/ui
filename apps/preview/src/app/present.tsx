@@ -21,6 +21,7 @@ import {
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { Breadcrumb, BreadcrumbEllipsis, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -31,6 +32,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { Icon } from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
+import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '@/components/ui/input-otp';
 import { Label } from '@/components/ui/label';
 import { Menubar, MenubarContent, MenubarItem, MenubarMenu, MenubarTrigger } from '@/components/ui/menubar';
 import { NativeOnlyAnimatedView } from '@/components/ui/native-only-animated-view';
@@ -49,6 +51,8 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 // Block previews (rendered in docs iframes via /present?component=<block>)
+import { Dashboard01 } from '@/components/blocks/dashboard-01';
+import { Dashboard02 } from '@/components/blocks/dashboard-02';
 import { LoginForm01 } from '@/components/blocks/login-form-01';
 import { LoginForm02 } from '@/components/blocks/login-form-02';
 import { SignupForm01 } from '@/components/blocks/signup-form-01';
@@ -702,10 +706,60 @@ const ShowcaseComponent = ({ topPad = 60 }: { topPad?: number }) => {
   );
 };
 
+function InputOTPDemo() {
+  const [value, setValue] = React.useState('');
+  return (
+    <InputOTP value={value} onChangeText={setValue} maxLength={6}>
+      <InputOTPGroup>
+        <InputOTPSlot index={0} />
+        <InputOTPSlot index={1} />
+        <InputOTPSlot index={2} />
+      </InputOTPGroup>
+      <InputOTPSeparator />
+      <InputOTPGroup>
+        <InputOTPSlot index={3} />
+        <InputOTPSlot index={4} />
+        <InputOTPSlot index={5} />
+      </InputOTPGroup>
+    </InputOTP>
+  );
+}
+
 const COMPONENT_RENDERERS: Record<string, () => React.ReactNode> = {
   dashboard: () => <DashboardComponent />,
   showcase: () => <ShowcaseComponent />,
   // Blocks (pre-composed sections previewed in the docs).
+  'dashboard-01': () => <Dashboard01 />,
+  'dashboard-02': () => <Dashboard02 />,
+  // `sidebar` (the component) reuses the dashboard-02 app shell as its live demo;
+  // it is rendered full-bleed via the branch below.
+  sidebar: () => <Dashboard02 />,
+  breadcrumb: () => (
+    <Breadcrumb>
+      <BreadcrumbList>
+        <BreadcrumbItem>
+          <BreadcrumbLink onPress={() => {}}>
+            <Text>Home</Text>
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+          <BreadcrumbLink onPress={() => {}}>
+            <Text>Components</Text>
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+          <BreadcrumbEllipsis />
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+          <BreadcrumbPage>Breadcrumb</BreadcrumbPage>
+        </BreadcrumbItem>
+      </BreadcrumbList>
+    </Breadcrumb>
+  ),
+  'input-otp': () => <InputOTPDemo />,
   'login-01': () => <LoginForm01 />,
   'login-02': () => <LoginForm02 />,
   'signup-01': () => <SignupForm01 />,
@@ -1323,19 +1377,26 @@ export default function PresentPage() {
 
   const Renderer = COMPONENT_RENDERERS[component];
 
-  if (component === 'showcase' || component === 'dashboard') {
+  if (component === 'showcase' || component === 'dashboard' || component === 'dashboard-01' || component === 'dashboard-02' || component === 'sidebar') {
     // `chrome=web` renders a desktop-style preview (no phone status bar, smaller top inset).
     // Anything else (e.g. `chrome=mobile`) keeps the phone status bar.
     const isWeb = chrome === 'web';
-    const topPad = isWeb ? 24 : component === 'dashboard' ? 64 : 60;
-    const Component = component === 'dashboard' ? DashboardComponent : ShowcaseComponent;
+    const topPad = isWeb ? 24 : component === 'showcase' ? 60 : 64;
     return (
       <View
         className="flex-1 bg-background w-full relative"
         style={Platform.OS === 'web' ? ({ height: '100vh' } as any) : undefined}
       >
         {!isWeb && <StatusBar />}
-        <Component topPad={topPad} />
+        {component === 'showcase' ? (
+          <ShowcaseComponent topPad={topPad} />
+        ) : component === 'dashboard' ? (
+          <DashboardComponent topPad={topPad} />
+        ) : component === 'dashboard-01' ? (
+          <Dashboard01 topPad={topPad} />
+        ) : (
+          <Dashboard02 topPad={topPad} />
+        )}
       </View>
     );
   }

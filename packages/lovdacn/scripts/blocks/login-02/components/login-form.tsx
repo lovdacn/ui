@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Text } from '@/components/ui/text';
-import { Apple, Chrome } from 'lucide-react-native';
+import { Apple, Mail } from 'lucide-react-native';
 import * as React from 'react';
 import { View } from 'react-native';
 
@@ -32,7 +32,7 @@ export function LoginForm() {
             <Text>Continue with Apple</Text>
           </Button>
           <Button variant="outline" className="w-full" onPress={() => {}}>
-            <Icon as={Chrome} />
+            <Icon as={Mail} />
             <Text>Continue with Google</Text>
           </Button>
         </View>

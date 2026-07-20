@@ -1,0 +1,51 @@
+---
+title: Dashboard 01
+description: A full application dashboard built around the sidebar — navigation, a top bar, KPI cards, an overview chart, and recent activity.
+---
+
+<ComponentPreviewCard title="Dashboard 01" name="dashboard-01" />
+
+## Installation
+
+<PackageManagerTabs>
+<PMTabContent value="npm">
+
+```bash
+npx lovdacn@latest add dashboard-01
+```
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+```bash
+yarn dlx lovdacn@latest add dashboard-01
+```
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+```bash
+pnpm dlx lovdacn@latest add dashboard-01
+```
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+```bash
+bunx --bun lovdacn@latest add dashboard-01
+```
+
+</PMTabContent>
+</PackageManagerTabs>
+
+## What it installs
+
+- `app/dashboard.tsx` — a `/dashboard` route rendering `<Dashboard01 />`
+- `components/dashboard-01.tsx` — the dashboard shell composed from the sidebar
+
+**Registry dependencies:** `sidebar`, `card`, `button`, `avatar`, `badge`, `input`, `separator`, `icon`, `text`
+
+The layout is driven by `SidebarProvider`: on phones the sidebar becomes an
+off-canvas drawer toggled by the `SidebarTrigger` in the top bar, and on wider
+screens it collapses in place. KPI cards, the overview bars, and the recent-sales
+list are plain data arrays — swap them for your own.

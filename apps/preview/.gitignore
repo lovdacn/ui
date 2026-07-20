@@ -43,3 +43,6 @@ example
 /android
 
 .vercel
+.android
+.ios
+.expo-shared
