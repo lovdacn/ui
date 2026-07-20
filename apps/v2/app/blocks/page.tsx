@@ -9,6 +9,7 @@ import {
   PageHeaderHeading,
 } from "@/components/page-header"
 import { buttonVariants } from "@/components/ui/button"
+import { BlocksBetaNotice } from "@/components/blocks-beta-notice"
 import {
   blockCategories,
   blockCategoryMeta,
@@ -45,7 +46,9 @@ export default function BlocksPage() {
       </PageHeader>
 
       <div className="container-wrapper flex-1 py-8 md:py-12">
-        <div className="container grid gap-6 px-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="container flex flex-col gap-8 px-6">
+          <BlocksBetaNotice />
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {blockCategories
             .filter((category) => blocksByCategory(category).length > 0)
             .map((category) => {
@@ -77,6 +80,7 @@ export default function BlocksPage() {
               </Link>
             )
           })}
+          </div>
         </div>
       </div>
     </>

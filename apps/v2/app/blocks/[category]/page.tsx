@@ -9,6 +9,7 @@ import {
   PageHeaderHeading,
 } from "@/components/page-header"
 import { BlockPreview } from "@/components/block-preview"
+import { BlocksBetaNotice } from "@/components/blocks-beta-notice"
 import {
   blockCategories,
   blockCategoryMeta,
@@ -67,6 +68,7 @@ export default async function BlockCategoryPage(props: {
 
       <div className="container-wrapper flex-1 py-8 md:py-12">
         <div className="container flex flex-col gap-16 px-6">
+          <BlocksBetaNotice />
           {items.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               No blocks in this category yet.
