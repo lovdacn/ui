@@ -4,63 +4,63 @@
 
 @layer base {
   :root {
-    --radius: 1.5rem;
+    --radius: 0rem;
     --background: 0 0% 100%;
-    --foreground: 107 3% 5%;
+    --foreground: 228 4% 5%;
     --card: 0 0% 100%;
-    --card-foreground: 107 3% 5%;
+    --card-foreground: 228 4% 5%;
     --popover: 0 0% 100%;
-    --popover-foreground: 107 3% 5%;
-    --primary: 107 6% 13%;
-    --primary-foreground: 107 4% 98%;
-    --secondary: 107 4% 95%;
-    --secondary-foreground: 107 6% 13%;
-    --muted: 107 4% 95%;
-    --muted-foreground: 107 9% 45%;
-    --accent: 107 4% 95%;
-    --accent-foreground: 107 6% 13%;
+    --popover-foreground: 228 4% 5%;
+    --primary: 247.0 91.7% 59.5%;
+    --primary-foreground: 180.0 0.0% 98.0%;
+    --secondary: 197 2% 95%;
+    --secondary-foreground: 223 6% 13%;
+    --muted: 197 2% 95%;
+    --muted-foreground: 213 7% 45%;
+    --accent: 197 2% 95%;
+    --accent-foreground: 223 6% 13%;
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 107 4% 98%;
-    --border: 107 5% 91%;
-    --input: 107 5% 91%;
-    --ring: 107 6% 13%;
-    --chart-1: 216.3 100.0% 58.5%;
-    --chart-2: 212.0 100.0% 65.8%;
-    --chart-3: 221.3 97.1% 53.5%;
-    --chart-4: 210.7 100.0% 77.8%;
-    --chart-5: 225.3 84.1% 49.0%;
+    --destructive-foreground: 197 2% 98%;
+    --border: 214 5% 91%;
+    --input: 214 5% 91%;
+    --ring: 223 6% 13%;
+    --chart-1: 215.4 18.4% 47.0%;
+    --chart-2: 215.0 22.6% 64.5%;
+    --chart-3: 215.3 22.0% 34.8%;
+    --chart-4: 212.7 29.9% 84.0%;
+    --chart-5: 215.3 27.9% 26.8%;
   }
 
   .dark:root {
-    --background: 107 3% 5%;
-    --foreground: 107 4% 98%;
-    --card: 107 6% 13%;
-    --card-foreground: 107 4% 98%;
-    --popover: 107 6% 13%;
-    --popover-foreground: 107 4% 98%;
-    --primary: 107 5% 91%;
-    --primary-foreground: 107 6% 13%;
-    --secondary: 107 4% 17%;
-    --secondary-foreground: 107 4% 98%;
-    --muted: 107 4% 17%;
-    --muted-foreground: 107 6% 65%;
-    --accent: 107 4% 17%;
-    --accent-foreground: 107 4% 98%;
+    --background: 228 4% 5%;
+    --foreground: 197 2% 98%;
+    --card: 223 6% 13%;
+    --card-foreground: 197 2% 98%;
+    --popover: 223 6% 13%;
+    --popover-foreground: 197 2% 98%;
+    --primary: 241.0 100.0% 68.6%;
+    --primary-foreground: 0.0 0.0% 9.1%;
+    --secondary: 216 4% 17%;
+    --secondary-foreground: 197 2% 98%;
+    --muted: 216 4% 17%;
+    --muted-foreground: 214 6% 65%;
+    --accent: 216 4% 17%;
+    --accent-foreground: 197 2% 98%;
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 107 4% 98%;
-    --border: 107 4% 17%;
-    --input: 107 4% 17%;
-    --ring: 107 9% 45%;
-    --chart-1: 212.0 100.0% 65.8%;
-    --chart-2: 210.7 100.0% 77.8%;
-    --chart-3: 216.3 100.0% 58.5%;
-    --chart-4: 210.7 100.0% 77.8%;
-    --chart-5: 221.3 97.1% 53.5%;
+    --destructive-foreground: 197 2% 98%;
+    --border: 216 4% 17%;
+    --input: 216 4% 17%;
+    --ring: 213 7% 45%;
+    --chart-1: 215.0 22.6% 64.5%;
+    --chart-2: 212.7 29.9% 84.0%;
+    --chart-3: 215.4 18.4% 47.0%;
+    --chart-4: 212.7 29.9% 84.0%;
+    --chart-5: 215.3 22.0% 34.8%;
   }
 }
 
 :root {
-  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji,
+  --font-sans: DM Sans, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji,
     Segoe UI Symbol, Noto Color Emoji;
   --font-display:
     Spline Sans, Inter, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji,
@@ -69,16 +69,5 @@
     ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
   --font-rounded: 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif;
   --font-serif: Georgia, 'Times New Roman', serif;
-}
-
-/*
- * React Native Web renders every root <Text> as `<div dir="auto">` and hard-codes
- * `font: 14px System` on it (an atomic class), which blocks normal font inheritance
- * from :root. The /present customizer updates `--font-sans` at runtime, so force the
- * RNW text roots to honor it. Nested text renders as `<span>` with `font: inherit`,
- * so it follows automatically. `!important` is required to beat RNW's atomic class.
- */
-[dir="auto"] {
-  font-family: var(--font-sans) !important;
 }
 

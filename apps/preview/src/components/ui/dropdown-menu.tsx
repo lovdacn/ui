@@ -73,7 +73,7 @@ function DropdownMenuSubContent({
     <NativeOnlyAnimatedView entering={FadeIn}>
       <DropdownMenuPrimitive.SubContent
         className={cn(
-          'border-border overflow-hidden border shadow-black/5 ring-foreground/5 dark:ring-foreground/10 bg-popover text-popover-foreground min-w-[96px] rounded-2xl p-1 shadow-lg ring-1',
+          'border-border overflow-hidden border shadow-black/5 ring-foreground/5 bg-popover text-popover-foreground min-w-36 rounded-2xl p-1 shadow-2xl ring-1',
           Platform.select({
             web: 'animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 fade-in-0 data-[state=closed]:zoom-out-95 zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 origin-(--radix-context-menu-content-transform-origin) z-50 min-w-[8rem]',
           }),
@@ -116,7 +116,7 @@ function DropdownMenuContent({
             <TextClassContext.Provider value="text-popover-foreground">
               <DropdownMenuPrimitive.Content
                 className={cn(
-                  'border-border overflow-hidden border shadow-black/5 ring-foreground/5 dark:ring-foreground/10 bg-popover text-popover-foreground min-w-32 rounded-2xl p-1 shadow-lg ring-1',
+                  'border-border overflow-hidden border shadow-black/5 ring-foreground/5 bg-popover text-popover-foreground min-w-48 rounded-2xl p-1 shadow-2xl ring-1 dark:ring-foreground/10',
                   Platform.select({
                     web: cn(
                       'animate-in fade-in-0 zoom-in-95 max-h-(--radix-context-menu-content-available-height) origin-(--radix-context-menu-content-transform-origin) z-50 cursor-default',
@@ -154,7 +154,7 @@ function DropdownMenuItem({
       )}>
       <DropdownMenuPrimitive.Item
         className={cn(
-          'active:bg-accent group relative flex flex-row items-center sm:py-1.5 gap-2 min-h-7 rounded-xl px-2 py-1.5 text-sm',
+          'active:bg-accent group relative flex flex-row items-center sm:py-1.5 gap-2.5 rounded-xl px-3 py-2 text-sm',
           Platform.select({
             web: cn(
               'focus:bg-accent focus:text-accent-foreground cursor-default outline-none data-[disabled]:pointer-events-none',
@@ -183,7 +183,7 @@ function DropdownMenuCheckboxItem({
     <TextClassContext.Provider value="text-sm text-popover-foreground select-none group-active:text-accent-foreground">
       <DropdownMenuPrimitive.CheckboxItem
         className={cn(
-          'active:bg-accent group relative flex flex-row items-center sm:py-1.5 gap-2 min-h-7 rounded-xl py-1.5 pr-8 pl-2 text-sm',
+          'active:bg-accent group relative flex flex-row items-center sm:py-1.5 gap-2.5 rounded-xl py-2 pr-8 pl-3 text-sm',
           Platform.select({
             web: 'focus:bg-accent focus:text-accent-foreground cursor-default outline-none data-[disabled]:pointer-events-none',
           }),
@@ -219,7 +219,7 @@ function DropdownMenuRadioItem({
     <TextClassContext.Provider value="text-sm text-popover-foreground select-none group-active:text-accent-foreground">
       <DropdownMenuPrimitive.RadioItem
         className={cn(
-          'active:bg-accent group relative flex flex-row items-center sm:py-1.5 gap-2 min-h-7 rounded-xl py-1.5 pr-8 pl-2 text-sm',
+          'active:bg-accent group relative flex flex-row items-center sm:py-1.5 gap-2.5 rounded-xl py-2 pr-8 pl-3 text-sm',
           Platform.select({
             web: 'focus:bg-accent focus:text-accent-foreground cursor-default outline-none data-[disabled]:pointer-events-none',
           }),
@@ -249,7 +249,7 @@ function DropdownMenuLabel({
   return (
     <DropdownMenuPrimitive.Label
       className={cn(
-        'font-medium sm:py-1.5 text-muted-foreground px-2 py-1 text-xs',
+        'font-medium sm:py-1.5 text-muted-foreground px-3 py-2.5 text-xs',
         inset && 'pl-8',
         className
       )}

@@ -1,0 +1,27 @@
+{
+  "name": "dashboard-02",
+  "type": "registry:block",
+  "description": "A dashboard application shell built around the sidebar — a branded header with search, a collapsible nav item with a sub-menu, a project list with row actions, a user footer, and a bottom tab bar overridden by the sidebar drawer.",
+  "dependencies": ["lucide-react-native"],
+  "registryDependencies": [
+    "sidebar",
+    "avatar",
+    "input",
+    "separator",
+    "icon",
+    "text",
+    "utils"
+  ],
+  "files": [
+    {
+      "src": "dashboard-02.tsx",
+      "type": "registry:page",
+      "target": "app/dashboard-02.tsx"
+    },
+    {
+      "src": "components/dashboard-02.tsx",
+      "type": "registry:component",
+      "path": "components/dashboard-02.tsx"
+    }
+  ]
+}

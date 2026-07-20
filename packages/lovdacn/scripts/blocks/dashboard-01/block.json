@@ -1,0 +1,30 @@
+{
+  "name": "dashboard-01",
+  "type": "registry:block",
+  "description": "A full application dashboard built around the sidebar — a navigation sidebar, a top bar, KPI cards, an overview chart, and a recent-activity list.",
+  "dependencies": ["lucide-react-native"],
+  "registryDependencies": [
+    "sidebar",
+    "card",
+    "button",
+    "avatar",
+    "badge",
+    "input",
+    "separator",
+    "icon",
+    "text",
+    "utils"
+  ],
+  "files": [
+    {
+      "src": "dashboard.tsx",
+      "type": "registry:page",
+      "target": "app/dashboard.tsx"
+    },
+    {
+      "src": "components/dashboard-01.tsx",
+      "type": "registry:component",
+      "path": "components/dashboard-01.tsx"
+    }
+  ]
+}

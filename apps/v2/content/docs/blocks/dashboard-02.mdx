@@ -1,0 +1,51 @@
+---
+title: Dashboard 02
+description: A dashboard application shell built around the sidebar — a branded header with search, a collapsible nav item with a sub-menu, a project list with row actions, a user footer, and a bottom tab bar.
+---
+
+<ComponentPreviewCard title="Dashboard 02" name="dashboard-02" />
+
+## Installation
+
+<PackageManagerTabs>
+<PMTabContent value="npm">
+
+```bash
+npx lovdacn@latest add dashboard-02
+```
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+```bash
+yarn dlx lovdacn@latest add dashboard-02
+```
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+```bash
+pnpm dlx lovdacn@latest add dashboard-02
+```
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+```bash
+bunx --bun lovdacn@latest add dashboard-02
+```
+
+</PMTabContent>
+</PackageManagerTabs>
+
+## What it installs
+
+- `app/dashboard-02.tsx` — a route rendering `<Dashboard02 />`
+- `components/dashboard-02.tsx` — the dashboard shell composed from the sidebar
+
+**Registry dependencies:** `sidebar`, `avatar`, `input`, `separator`, `icon`, `text`
+
+`Dashboard02` demonstrates the full `Sidebar` surface: `SidebarHeader` with a
+`SidebarInput` search, `SidebarGroup`s of `SidebarMenu` items, a collapsible item
+with a `SidebarMenuSub`, per-row `SidebarMenuAction`s, and a `SidebarFooter` user
+card — plus a bottom tab bar that the sidebar drawer overrides when it opens.

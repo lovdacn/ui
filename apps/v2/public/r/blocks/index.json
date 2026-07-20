@@ -1,5 +1,42 @@
 [
   {
+    "name": "dashboard-01",
+    "type": "registry:block",
+    "description": "A full application dashboard built around the sidebar — a navigation sidebar, a top bar, KPI cards, an overview chart, and a recent-activity list.",
+    "dependencies": [
+      "lucide-react-native"
+    ],
+    "registryDependencies": [
+      "sidebar",
+      "card",
+      "button",
+      "avatar",
+      "badge",
+      "input",
+      "separator",
+      "icon",
+      "text",
+      "utils"
+    ]
+  },
+  {
+    "name": "dashboard-02",
+    "type": "registry:block",
+    "description": "A dashboard application shell built around the sidebar — a branded header with search, a collapsible nav item with a sub-menu, a project list with row actions, a user footer, and a bottom tab bar overridden by the sidebar drawer.",
+    "dependencies": [
+      "lucide-react-native"
+    ],
+    "registryDependencies": [
+      "sidebar",
+      "avatar",
+      "input",
+      "separator",
+      "icon",
+      "text",
+      "utils"
+    ]
+  },
+  {
     "name": "login-01",
     "type": "registry:block",
     "description": "A sign-in screen: an (auth) route group with a login form card.",

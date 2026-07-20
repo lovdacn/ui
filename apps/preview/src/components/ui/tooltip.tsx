@@ -37,7 +37,7 @@ function TooltipContent({
               <TooltipPrimitive.Content
                 sideOffset={sideOffset}
                 className={cn(
-                  'bg-primary z-50 sm:py-1.5 items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs',
+                  'bg-primary z-50 sm:py-1.5 items-center gap-1.5 rounded-2xl px-3 py-1.5 text-xs',
                   Platform.select({
                     web: cn(
                       'animate-in fade-in-0 zoom-in-95 origin-(--radix-tooltip-content-transform-origin) w-fit text-balance',

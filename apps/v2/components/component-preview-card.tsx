@@ -39,7 +39,7 @@ export function ComponentPreviewCard({
   // delivered live via postMessage so toggling dark mode never reloads (or
   // flashes) the iframe.
   const src = React.useMemo(
-    () => (componentName ? getExpoPreviewUrl({ component: componentName }) : ""),
+    () => (componentName ? getExpoPreviewUrl({ component: componentName, chrome: "web" }) : ""),
     [componentName]
   )
 

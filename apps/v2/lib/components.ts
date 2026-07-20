@@ -5,6 +5,8 @@ export type ComponentMeta = {
   dependencies?: string[]
   registryDependencies?: string[]
   featured?: boolean
+  /** Recently added — surfaced with a "New" badge in the docs nav. */
+  new?: boolean
 }
 
 /** All UI components available in the lvcn registry (excluding utils). */
@@ -46,6 +48,15 @@ export const COMPONENTS: ComponentMeta[] = [
     title: "Badge",
     description: "Displays a badge or a component that looks like a badge.",
     registryDependencies: ["utils", "text"],
+  },
+  {
+    name: "breadcrumb",
+    title: "Breadcrumb",
+    description:
+      "Displays the path to the current resource using a hierarchy of links.",
+    dependencies: ["@rn-primitives/slot", "lucide-react-native"],
+    registryDependencies: ["icon", "text", "utils"],
+    new: true,
   },
   {
     name: "button",
@@ -118,6 +129,14 @@ export const COMPONENTS: ComponentMeta[] = [
     registryDependencies: ["utils"],
   },
   {
+    name: "input-otp",
+    title: "Input OTP",
+    description:
+      "A one-time-password input with slotted digits, an active caret, and OS autofill support.",
+    registryDependencies: ["text", "utils"],
+    new: true,
+  },
+  {
     name: "label",
     title: "Label",
     description: "Renders an accessible label associated with controls.",
@@ -169,6 +188,15 @@ export const COMPONENTS: ComponentMeta[] = [
     title: "Separator",
     description: "Visually or semantically separates content.",
     registryDependencies: ["utils"],
+  },
+  {
+    name: "sidebar",
+    title: "Sidebar",
+    description:
+      "A composable, collapsible sidebar with a mobile drawer — provider, trigger, groups, and menus.",
+    dependencies: ["class-variance-authority", "lucide-react-native"],
+    registryDependencies: ["icon", "separator", "skeleton", "text", "utils"],
+    new: true,
   },
   {
     name: "skeleton",

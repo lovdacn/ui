@@ -1,0 +1,157 @@
+---
+title: Breadcrumb
+description: Displays the path to the current resource using a hierarchy of links.
+component: true
+---
+
+<ComponentPreviewCard title="Breadcrumb" />
+
+<Callout className="border-amber-500/30 bg-amber-500/10 text-amber-900 dark:text-amber-200">
+  **In active development for Expo Web.** Because Expo apps also run on the web,
+  `breadcrumb` is still being refined for web layouts (hover states, truncation,
+  and keyboard focus). It works on native today, but the web styling and API may
+  still change.
+</Callout>
+
+## Installation
+
+<PackageManagerTabs>
+<PMTabContent value="npm">
+
+```bash
+npx lovdacn@latest add breadcrumb
+```
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+```bash
+yarn dlx lovdacn@latest add breadcrumb
+```
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+```bash
+pnpm dlx lovdacn@latest add breadcrumb
+```
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+```bash
+bunx --bun lovdacn@latest add breadcrumb
+```
+
+</PMTabContent>
+</PackageManagerTabs>
+
+*(You can also use the shortened `lvcn` alias, e.g., `npx lvcn@latest add breadcrumb`.)*
+
+**Registry dependencies:** `icon`, `text`, `utils`
+
+## Usage
+
+```tsx
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
+import { Text } from "@/components/ui/text"
+
+export function Example() {
+  return (
+    <Breadcrumb>
+      <BreadcrumbList>
+        <BreadcrumbItem>
+          <BreadcrumbLink onPress={() => {}}>
+            <Text>Home</Text>
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+          <BreadcrumbLink onPress={() => {}}>
+            <Text>Components</Text>
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+          <BreadcrumbPage>Breadcrumb</BreadcrumbPage>
+        </BreadcrumbItem>
+      </BreadcrumbList>
+    </Breadcrumb>
+  )
+}
+```
+
+### With Expo Router
+
+Use `asChild` on `BreadcrumbLink` to render an Expo Router `Link` (or any pressable) as the breadcrumb link:
+
+```tsx
+import { Link } from "expo-router"
+
+<BreadcrumbItem>
+  <BreadcrumbLink asChild>
+    <Link href="/">
+      <Text>Home</Text>
+    </Link>
+  </BreadcrumbLink>
+</BreadcrumbItem>
+```
+
+## Anatomy
+
+| Part | Description |
+| --- | --- |
+| `Breadcrumb` | The navigation wrapper. |
+| `BreadcrumbList` | The ordered list of items; sets muted text styling. |
+| `BreadcrumbItem` | A single item (link or page). |
+| `BreadcrumbLink` | A pressable link. Supports `asChild`. |
+| `BreadcrumbPage` | The current page (non-interactive). |
+| `BreadcrumbSeparator` | The divider between items (defaults to a chevron; pass children to override). |
+| `BreadcrumbEllipsis` | A collapsed-items indicator. |
+
+## Complexity: mobile vs. desktop
+
+Breadcrumbs are a **desktop-first** pattern, and they get awkward on phones — plan for it.
+
+**Why they're hard on mobile**
+
+- **Horizontal space.** A trail like `Home / Projects / Acme / Settings / Billing` overflows a phone width and either wraps to two lines or scrolls sideways (a poor, easily-missed affordance).
+- **Tiny tap targets.** Cramming many links onto one line makes each one small; separators can be mis-tapped.
+- **Redundancy.** Native mobile apps navigate with a back gesture/button + a screen title, so a full trail often duplicates what the header + back already convey.
+
+**Best methods**
+
+- **Prefer a title + back on phones.** Show the current page title in the top bar (that's what the blocks in this library do) and rely on the platform back gesture. Reserve the full breadcrumb for tablet/desktop widths.
+- **Collapse the middle.** If you must show a trail on mobile, keep only the root and the current page and replace the middle with `BreadcrumbEllipsis` (optionally opening a menu):
+
+  ```tsx
+  <BreadcrumbList>
+    <BreadcrumbItem>
+      <BreadcrumbLink onPress={goHome}><Text>Home</Text></BreadcrumbLink>
+    </BreadcrumbItem>
+    <BreadcrumbSeparator />
+    <BreadcrumbItem>
+      <BreadcrumbEllipsis />
+    </BreadcrumbItem>
+    <BreadcrumbSeparator />
+    <BreadcrumbItem>
+      <BreadcrumbPage>Billing</BreadcrumbPage>
+    </BreadcrumbItem>
+  </BreadcrumbList>
+  ```
+
+- **Render responsively.** Gate the trail on width with `useWindowDimensions()` (e.g. show it at `>= 768`, show a title otherwise) instead of letting it wrap.
+- **Keep targets comfortable.** Give links ≥ 44px of touchable height and keep `BreadcrumbSeparator` / `BreadcrumbEllipsis` non-interactive.
+
+## Platform
+
+Targets **Expo / React Native** with **NativeWind** or **Uniwind**. `BreadcrumbLink`
+uses a `Pressable` (or a slotted child via `asChild`) instead of an anchor, and the
+separator/ellipsis icons come from `lucide-react-native`.

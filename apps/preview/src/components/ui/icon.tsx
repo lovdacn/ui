@@ -9,6 +9,13 @@ type IconProps = LucideProps & {
 } & React.RefAttributes<LucideIcon>;
 
 function IconImpl({ as: IconComponent, ...props }: IconProps) {
+  // Guard against a missing/undefined icon (e.g. a Lucide export that no longer
+  // exists, like the removed brand icons). Rendering `undefined` as an element
+  // throws "Element type is invalid" and white-screens the whole page, so we
+  // render nothing instead.
+  if (!IconComponent) {
+    return null;
+  }
   return <IconComponent {...props} />;
 }
 

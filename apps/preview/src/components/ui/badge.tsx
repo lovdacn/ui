@@ -4,8 +4,8 @@ import { Slot } from '@rn-primitives/slot';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { Platform, View } from 'react-native';
 
-const badgeVariants = cva(cn('h-5 gap-1 rounded-2xl border border-transparent px-2 py-0.5 transition-all','','','','','','','',
-    'group shrink-0 flex-row items-center justify-center overflow-hidden h-5 gap-1 rounded-2xl border border-transparent px-2 py-0.5 transition-all',
+const badgeVariants = cva(cn('h-5 gap-1 rounded-4xl border border-transparent px-2 py-0.5 transition-all','','','','','','','',
+    'group shrink-0 flex-row items-center justify-center overflow-hidden h-5 gap-1 rounded-4xl border border-transparent px-2 py-0.5 transition-all',
     Platform.select({
       web: 'focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive w-fit whitespace-nowrap transition-[color,box-shadow] focus-visible:ring-[3px] [&>svg]:pointer-events-none [&>svg]:size-3',
     })

@@ -59,7 +59,7 @@ function Menubar({
       ) : null}
       <MenubarPrimitive.Root
         className={cn(
-          'bg-background border-border flex flex-row items-center gap-1 shadow-sm shadow-black/5 sm:h-9 h-8 rounded-2xl border p-[3px]',
+          'bg-background border-border flex flex-row items-center gap-1 shadow-sm shadow-black/5 sm:h-9 h-9 rounded-4xl border p-1',
           className
         )}
         value={value ?? valueProp}
@@ -85,7 +85,7 @@ function MenubarTrigger({
       )}>
       <MenubarPrimitive.Trigger
         className={cn(
-          'group flex items-center sm:py-1 hover:bg-muted aria-expanded:bg-muted rounded-2xl px-1.5 py-[2px] text-sm font-medium',
+          'group flex items-center sm:py-1 hover:bg-muted aria-expanded:bg-muted rounded-xl px-2 py-0.75 text-sm font-medium',
           Platform.select({
             web: 'focus:bg-accent focus:text-accent-foreground cursor-default outline-none',
           }),
@@ -119,7 +119,7 @@ function MenubarSubTrigger({
       )}>
       <MenubarPrimitive.SubTrigger
         className={cn(
-          'active:bg-accent group flex flex-row items-center sm:py-1.5 gap-2 min-h-7 rounded-xl px-2 py-1.5 text-sm',
+          'active:bg-accent group flex flex-row items-center sm:py-1.5 gap-2 rounded-xl px-3 py-2 text-sm',
           Platform.select({
             web: 'focus:bg-accent focus:text-accent-foreground cursor-default outline-none [&_svg]:pointer-events-none',
           }),
@@ -143,7 +143,7 @@ function MenubarSubContent({
     <NativeOnlyAnimatedView entering={FadeIn}>
       <MenubarPrimitive.SubContent
         className={cn(
-          'border-border overflow-hidden border shadow-black/5 bg-popover text-popover-foreground ring-foreground/5 dark:ring-foreground/10 min-w-32 rounded-2xl p-1 shadow-lg ring-1',
+          'border-border overflow-hidden border shadow-black/5 bg-popover text-popover-foreground ring-foreground/5 min-w-32 rounded-2xl p-1 shadow-2xl ring-1',
           Platform.select({
             web: 'animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 fade-in-0 data-[state=closed]:zoom-out-95 zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 origin-(--radix-context-menu-content-transform-origin) z-50 min-w-[8rem]',
           }),
@@ -175,7 +175,7 @@ function MenubarContent({
           <TextClassContext.Provider value="text-popover-foreground">
             <MenubarPrimitive.Content
               className={cn(
-                'border-border overflow-hidden border shadow-black/5 bg-popover text-popover-foreground ring-foreground/5 dark:ring-foreground/10 min-w-36 rounded-2xl p-1 shadow-lg ring-1',
+                'border-border overflow-hidden border shadow-black/5 bg-popover text-popover-foreground ring-foreground/5 min-w-48 rounded-2xl p-1 shadow-2xl ring-1',
                 Platform.select({
                   web: cn(
                     'animate-in fade-in-0 zoom-in-95 max-h-(--radix-context-menu-content-available-height) origin-(--radix-context-menu-content-transform-origin) z-50 cursor-default',
@@ -215,7 +215,7 @@ function MenubarItem({
       )}>
       <MenubarPrimitive.Item
         className={cn(
-          'active:bg-accent group relative flex flex-row items-center sm:py-1.5 gap-2 min-h-7 rounded-xl px-2 py-1.5 text-sm',
+          'active:bg-accent group relative flex flex-row items-center sm:py-1.5 gap-2.5 rounded-xl px-3 py-2 text-sm',
           Platform.select({
             web: cn(
               'focus:bg-accent focus:text-accent-foreground cursor-default outline-none data-[disabled]:pointer-events-none',
@@ -310,7 +310,7 @@ function MenubarLabel({
   return (
     <MenubarPrimitive.Label
       className={cn(
-        'font-medium sm:py-1.5 text-muted-foreground px-2 py-1 text-sm',
+        'font-medium sm:py-1.5 text-muted-foreground px-3.5 py-2.5 text-xs',
         inset && 'pl-8',
         className
       )}

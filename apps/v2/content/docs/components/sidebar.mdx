@@ -1,0 +1,168 @@
+---
+title: Sidebar
+description: A composable, collapsible sidebar with a mobile drawer — provider, trigger, groups, and menus.
+component: true
+---
+
+<ComponentPreviewCard title="Sidebar" />
+
+## Installation
+
+<PackageManagerTabs>
+<PMTabContent value="npm">
+
+```bash
+npx lovdacn@latest add sidebar
+```
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+```bash
+yarn dlx lovdacn@latest add sidebar
+```
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+```bash
+pnpm dlx lovdacn@latest add sidebar
+```
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+```bash
+bunx --bun lovdacn@latest add sidebar
+```
+
+</PMTabContent>
+</PackageManagerTabs>
+
+*(You can also use the shortened `lvcn` alias, e.g., `npx lvcn@latest add sidebar`.)*
+
+**Registry dependencies:** `icon`, `separator`, `skeleton`, `text`, `utils`
+
+## Usage
+
+Wrap your screen in `SidebarProvider`, then place a `Sidebar` next to a
+`SidebarInset`. On phones the sidebar becomes an off-canvas drawer toggled by
+`SidebarTrigger`; on wider screens it collapses in place.
+
+```tsx
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar"
+import { Icon } from "@/components/ui/icon"
+import { Text } from "@/components/ui/text"
+import { LayoutDashboard, Settings } from "lucide-react-native"
+import { View } from "react-native"
+
+export function AppShell() {
+  return (
+    <SidebarProvider>
+      <Sidebar collapsible="offcanvas">
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel>Platform</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton isActive onPress={() => {}}>
+                    <Icon as={LayoutDashboard} className="size-4" />
+                    <Text className="flex-1">Dashboard</Text>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton onPress={() => {}}>
+                    <Icon as={Settings} className="size-4" />
+                    <Text className="flex-1">Settings</Text>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
+      </Sidebar>
+
+      <SidebarInset>
+        <View className="flex-row items-center gap-2 border-b border-border p-4">
+          <SidebarTrigger />
+          <Text className="text-base font-semibold">Dashboard</Text>
+        </View>
+        {/* your screen content */}
+      </SidebarInset>
+    </SidebarProvider>
+  )
+}
+```
+
+## Anatomy
+
+| Part | Description |
+| --- | --- |
+| `SidebarProvider` | Holds open/collapsed state + mobile detection. Wrap the whole layout. |
+| `Sidebar` | The sidebar surface. Props: `side`, `variant`, `collapsible` (`offcanvas` \| `icon` \| `none`). |
+| `SidebarTrigger` | Toggles the sidebar / opens the mobile drawer. |
+| `SidebarInset` | The main content area beside the sidebar. |
+| `SidebarHeader` / `SidebarFooter` | Padded top/bottom regions. |
+| `SidebarContent` | Scrollable middle region. |
+| `SidebarGroup` / `SidebarGroupLabel` / `SidebarGroupContent` | A titled section of the menu. |
+| `SidebarMenu` / `SidebarMenuItem` / `SidebarMenuButton` | The nav list. `SidebarMenuButton` takes `isActive`, `variant`, `size`. |
+| `SidebarMenuAction` / `SidebarMenuBadge` | A trailing action / count on a row. |
+| `SidebarMenuSub` / `SidebarMenuSubItem` / `SidebarMenuSubButton` | A nested sub-menu. |
+| `SidebarSeparator` / `SidebarInput` / `SidebarRail` | A divider / input slot / edge toggle. |
+| `useSidebar()` | Read `state`, `open`, `openMobile`, `isMobile`, `toggleSidebar`. |
+
+## Responsive behavior
+
+- **Mobile (`< 768px`)** — the sidebar renders as an animated off-canvas drawer with a backdrop. Opening it overlays (and overrides) the rest of the screen, including a bottom tab bar.
+- **Desktop** — the sidebar is an in-flow column that animates its width when toggled (`offcanvas` hides it; `icon` collapses to an icon rail).
+
+## Complexity: mobile vs. desktop
+
+A sidebar means very different things on a wide screen versus a phone, and most of
+the component's work is reconciling the two.
+
+**Desktop**
+
+- Space is plentiful, so the sidebar is **persistent** — an in-flow column that's always visible and can collapse to a narrow icon rail (`collapsible="icon"`) or slide away (`offcanvas`).
+- It's typically the **primary** navigation; width animates on toggle, and content reflows beside it (`SidebarInset`).
+
+**Mobile**
+
+- There's no room for a persistent column, so the sidebar becomes an **off-canvas drawer** — an absolutely-positioned overlay with a dimmed backdrop that animates in over the screen.
+- The hard parts: animating transform/opacity smoothly, trapping taps behind a scrim, honoring **safe-area insets**, and making the drawer **override other chrome** (like a bottom tab bar) while it's open.
+
+**Best methods**
+
+- **Let the breakpoint drive it.** `SidebarProvider` switches to drawer mode under 768px automatically; you write the layout once.
+- **Pair the drawer with a bottom tab bar.** On phones, put 3–5 *primary* destinations in a bottom navbar and use the sidebar drawer for *secondary* items (workspaces, settings, account). When the drawer opens it overlays — and should hide — the bottom bar. In this library's blocks that's done by reading `openMobile` from `useSidebar()`:
+
+  ```tsx
+  function BottomNav() {
+    const { openMobile } = useSidebar()
+    if (openMobile) return null // sidebar overrides the bottom navbar when active
+    // …tab bar…
+  }
+  ```
+
+- **Keep labels on touch.** Avoid `collapsible="icon"` on phones — icon-only targets are ambiguous without a tooltip. Prefer full-width rows with a label.
+- **Respect insets.** Pad `SidebarHeader` and the top bar with the top inset, and the drawer/bottom bar with the bottom inset (`react-native-safe-area-context`).
+- **Constrain the drawer.** Keep it ≲ 85% of screen width and dim the backdrop so the underlying screen reads as inactive.
+
+## Platform
+
+Targets **Expo / React Native** with **NativeWind** or **Uniwind**. The drawer and
+width transitions use React Native's `Animated`, and it is built on semantic theme
+tokens so it adapts to every lvcn style pack.

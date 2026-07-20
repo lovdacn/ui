@@ -6,7 +6,10 @@ import { usePathname } from "next/navigation"
 import { COMPONENTS } from "@/lib/components"
 import { cn } from "@/lib/utils"
 
-const SECTIONS = [
+type NavItem = { name: string; href: string; isNew?: boolean }
+type NavSection = { title: string; items: NavItem[] }
+
+const SECTIONS: NavSection[] = [
   {
     title: "Get Started",
     items: [
@@ -19,26 +22,26 @@ const SECTIONS = [
     ],
   },
   {
-    title: "Blocks",
-    items: [
-      { name: "All Blocks", href: "/docs/blocks" },
-      { name: "Login 01", href: "/docs/blocks/login-01" },
-      { name: "Login 02", href: "/docs/blocks/login-02" },
-      { name: "Signup 01", href: "/docs/blocks/signup-01" },
-      { name: "Stats 01", href: "/docs/blocks/stats-01" },
-    ],
-  },
-  {
     title: "Components",
     items: [
       { name: "All Components", href: "/docs/components" },
       ...COMPONENTS.map((c) => ({
         name: c.title,
         href: `/docs/components/${c.name}`,
+        isNew: c.new,
       })),
     ],
   },
 ]
+
+/** A small "New" pill, mirroring shadcn's new-component marker. */
+function NewBadge() {
+  return (
+    <span className="ml-2 shrink-0 rounded-full bg-green-500/15 px-1.5 py-0.5 text-[10px] font-medium leading-none text-green-600 dark:text-green-400">
+      New
+    </span>
+  )
+}
 
 export function DocsSidebar({ className }: { className?: string }) {
   const pathname = usePathname()
@@ -67,13 +70,14 @@ export function DocsSidebar({ className }: { className?: string }) {
                     <Link
                       href={item.href}
                       className={cn(
-                        "block rounded-md border border-transparent px-2 py-1.5 text-[0.8rem] font-medium transition-colors",
+                        "flex items-center justify-between rounded-md border border-transparent px-2 py-1.5 text-[0.8rem] font-medium transition-colors",
                         isActive
                           ? "border-accent bg-accent text-accent-foreground"
                           : "text-muted-foreground hover:text-foreground"
                       )}
                     >
-                      {item.name}
+                      <span className="truncate">{item.name}</span>
+                      {item.isNew ? <NewBadge /> : null}
                     </Link>
                   </li>
                 )
