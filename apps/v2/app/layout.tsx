@@ -1,10 +1,10 @@
 import type { Metadata, Viewport } from "next"
-import { Space_Grotesk, Fraunces, JetBrains_Mono } from "next/font/google"
+import { Fraunces, Space_Grotesk, JetBrains_Mono } from "next/font/google"
 
 import { SiteHeader } from "@/components/site-header"
 import { ThemeProvider } from "@/components/theme-provider"
 import { META_THEME_COLORS, siteConfig } from "@/lib/config"
-
+import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 
 const spaceGrotesk = Space_Grotesk({
@@ -12,14 +12,15 @@ const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
 })
 
-const fraunces = Fraunces({
-  variable: "--font-heading",
+const jetBrainsMono = JetBrains_Mono({
+  variable: "--font-mono",
   subsets: ["latin"],
 })
 
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-mono",
+const fraunces = Fraunces({
+  variable: "--font-heading",
   subsets: ["latin"],
+  style: ["normal", "italic"],
 })
 
 export const metadata: Metadata = {
@@ -48,7 +49,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${spaceGrotesk.variable} ${fraunces.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${spaceGrotesk.variable} ${fraunces.variable} ${jetBrainsMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans">
         <ThemeProvider
@@ -62,6 +63,7 @@ export default function RootLayout({
             className="group/layout relative z-10 flex min-h-svh flex-col bg-background"
           >
             <SiteHeader />
+            <Analytics />
             <main className="flex min-h-0 flex-1 flex-col">{children}</main>
           </div>
         </ThemeProvider>

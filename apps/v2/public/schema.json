@@ -1,0 +1,132 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lovdacn.vercel.app/schema.json",
+  "title": "lvcn.json",
+  "description": "Configuration for a lovdaCN project. Created and maintained by the lovdacn CLI (init/add).",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "The URL of the JSON schema for this file."
+    },
+    "style": {
+      "type": "string",
+      "description": "The visual style pack. Set at init and cannot be changed afterward without re-adding components.",
+      "enum": [
+        "default",
+        "new-york",
+        "luma",
+        "lyra",
+        "maia",
+        "mira",
+        "nova",
+        "rhea",
+        "sera",
+        "vega"
+      ]
+    },
+    "styleEngine": {
+      "type": "string",
+      "description": "The styling runtime. Determines how theme tokens are defined and part of the registry fetch path. Defaults to nativewind.",
+      "enum": ["nativewind", "uniwind"]
+    },
+    "tsx": {
+      "type": "boolean",
+      "description": "Whether components use TypeScript (.tsx/.ts) or JavaScript (.jsx/.js)."
+    },
+    "tailwind": {
+      "type": "object",
+      "description": "How Tailwind / NativeWind is wired up.",
+      "properties": {
+        "config": {
+          "type": "string",
+          "description": "Path to tailwind.config.js. NativeWind only; Uniwind projects define theme in CSS via @theme."
+        },
+        "css": {
+          "type": "string",
+          "description": "Path to the global CSS file that imports Tailwind and defines the CSS variables."
+        },
+        "baseColor": {
+          "type": "string",
+          "description": "The neutral base palette used to generate theme tokens.",
+          "enum": [
+            "zinc",
+            "slate",
+            "stone",
+            "gray",
+            "neutral",
+            "taupe",
+            "mauve",
+            "olive",
+            "mist"
+          ]
+        }
+      },
+      "required": ["css"]
+    },
+    "aliases": {
+      "type": "object",
+      "description": "Import aliases the CLI uses when writing component source.",
+      "properties": {
+        "components": {
+          "type": "string",
+          "description": "Components directory (default @/components)."
+        },
+        "utils": {
+          "type": "string",
+          "description": "Where the cn helper lives (default @/lib/utils)."
+        },
+        "ui": {
+          "type": "string",
+          "description": "Where UI components are installed (default @/components/ui)."
+        }
+      },
+      "required": ["components", "utils"]
+    },
+    "components": {
+      "type": "array",
+      "description": "Component names already added to the project. The CLI appends to this automatically on add.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "baseColor": {
+      "type": "string",
+      "description": "Neutral palette (mirrors tailwind.baseColor). Part of the resolved theme preset.",
+      "enum": [
+        "zinc",
+        "slate",
+        "stone",
+        "gray",
+        "neutral",
+        "taupe",
+        "mauve",
+        "olive",
+        "mist"
+      ]
+    },
+    "theme": {
+      "type": "string",
+      "description": "Accent / primary color (e.g. blue, rose, emerald, neutral)."
+    },
+    "chartColor": {
+      "type": "string",
+      "description": "Base color for --chart-1..5 (e.g. sky, pink, blue)."
+    },
+    "font": {
+      "type": "string",
+      "description": "Font family via @expo-google-fonts (e.g. inter, dm-sans, space-grotesk, geist)."
+    },
+    "iconLibrary": {
+      "type": "string",
+      "description": "Icon package family.",
+      "enum": ["lucide", "phosphor", "tabler", "expo", "heroicons"]
+    },
+    "radius": {
+      "type": "string",
+      "description": "Border-radius scale.",
+      "enum": ["default", "none", "small", "medium", "large", "full"]
+    }
+  },
+  "required": ["style", "tailwind", "aliases"]
+}

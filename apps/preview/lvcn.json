@@ -51,9 +51,5 @@
     "tooltip",
     "utils"
   ],
-  "baseColor": "mist",
-  "theme": "indigo",
-  "chartColor": "slate",
-  "font": "dm-sans",
-  "radius": "none"
+  "baseColor": "olive"
 }

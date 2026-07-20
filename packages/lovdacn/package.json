@@ -17,8 +17,8 @@
     }
   },
   "bin": {
-    "lovdacn": "./dist/index.js",
-    "lvcn": "./dist/index.js"
+    "lovdacn": "dist/index.js",
+    "lvcn": "dist/index.js"
   },
   "scripts": {
     "test": "vitest run",
