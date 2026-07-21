@@ -391,10 +391,18 @@ function SidebarMenuButton({
   size = 'default',
   isActive = false,
   tooltip: _tooltip,
+  children,
   ...props
 }: SidebarMenuButtonProps) {
   const { state, isMobile } = useSidebar();
   const collapsed = state === 'collapsed' && !isMobile;
+  // On the collapsed icon rail, drop text labels so a single icon stays
+  // centered instead of a clipped icon + label peeking out of the rail.
+  const content = collapsed
+    ? React.Children.toArray(children).filter(
+        (child) => !(React.isValidElement(child) && child.type === Text)
+      )
+    : children;
   return (
     <TextClassContext.Provider
       value={cn('text-sm', isActive ? 'text-foreground font-medium' : 'text-muted-foreground')}
@@ -405,12 +413,14 @@ function SidebarMenuButton({
         className={cn(
           sidebarMenuButtonVariants({ variant, size }),
           isActive && 'bg-accent',
-          collapsed && 'w-9 justify-center px-0',
+          collapsed && 'size-8 justify-center gap-0 self-center px-0',
           Platform.select({ web: !isActive ? 'active:bg-accent' : undefined }),
           className
         )}
         {...props}
-      />
+      >
+        {content}
+      </Pressable>
     </TextClassContext.Provider>
   );
 }
@@ -421,6 +431,9 @@ function SidebarMenuAction({
   showOnHover: _showOnHover,
   ...props
 }: React.ComponentProps<typeof Pressable> & { showOnHover?: boolean }) {
+  const { state, isMobile } = useSidebar();
+  // Trailing actions have no room on the collapsed icon rail.
+  if (state === 'collapsed' && !isMobile) return null;
   return (
     <Pressable
       accessibilityRole="button"
@@ -436,6 +449,9 @@ function SidebarMenuAction({
 
 /** A small count/label pinned to the end of a menu row. */
 function SidebarMenuBadge({ className, ...props }: React.ComponentProps<typeof View>) {
+  const { state, isMobile } = useSidebar();
+  // Badges have no room on the collapsed icon rail.
+  if (state === 'collapsed' && !isMobile) return null;
   return (
     <View
       pointerEvents="none"
@@ -450,7 +466,19 @@ function SidebarMenuBadge({ className, ...props }: React.ComponentProps<typeof V
 
 /** A loading placeholder row for menus. */
 function SidebarMenuSkeleton({ className, ...props }: React.ComponentProps<typeof View>) {
+  const { state, isMobile } = useSidebar();
+  const collapsed = state === 'collapsed' && !isMobile;
   const width = React.useMemo<`${number}%`>(() => `${Math.floor(Math.random() * 40) + 50}%`, []);
+  if (collapsed) {
+    return (
+      <View
+        className={cn('size-8 items-center justify-center self-center rounded-md', className)}
+        {...props}
+      >
+        <Skeleton className="size-4 rounded-md" />
+      </View>
+    );
+  }
   return (
     <View className={cn('h-9 flex-row items-center gap-2 rounded-md px-2', className)} {...props}>
       <Skeleton className="size-4 rounded-md" />

@@ -1007,5 +1007,9 @@ copyStyledCssFiles();
 // output above.
 require('./build-blocks.cjs').buildBlocks();
 
+// Emit extra components (sidebar, bottom-sheet, sheet, sonner, spinner, calendar, carousel)
+require('./build-extra-components.cjs').buildExtraComponents();
+
 console.log(`\n✔  Registry built successfully!`);
 console.log(`   Output: ${DEST_REGISTRY}`);
+

@@ -50,6 +50,14 @@ export const COMPONENTS: ComponentMeta[] = [
     registryDependencies: ["utils", "text"],
   },
   {
+    name: "bottom-sheet",
+    title: "Bottom Sheet",
+    description: "A sliding drawer modal content layout that anchors at the bottom of the screen.",
+    dependencies: ["@rn-primitives/dialog", "react-native-reanimated", "react-native-screens", "lucide-react-native"],
+    registryDependencies: ["icon", "text", "utils", "native-only-animated-view"],
+    new: true,
+  },
+  {
     name: "breadcrumb",
     title: "Breadcrumb",
     description:
@@ -65,6 +73,22 @@ export const COMPONENTS: ComponentMeta[] = [
     dependencies: ["class-variance-authority"],
     registryDependencies: ["text", "utils"],
     featured: true,
+  },
+  {
+    name: "calendar",
+    title: "Calendar",
+    description: "A clean grid-based date picker calendar component optimized for React Native.",
+    dependencies: ["lucide-react-native"],
+    registryDependencies: ["utils"],
+    new: true,
+  },
+  {
+    name: "carousel",
+    title: "Carousel",
+    description: "A horizontal scrollable image or card slider with previous and next controls.",
+    dependencies: ["lucide-react-native"],
+    registryDependencies: ["utils"],
+    new: true,
   },
   {
     name: "card",
@@ -190,6 +214,14 @@ export const COMPONENTS: ComponentMeta[] = [
     registryDependencies: ["utils"],
   },
   {
+    name: "sheet",
+    title: "Sheet",
+    description: "Extends the Dialog component to content that slides in from the edge of the screen.",
+    dependencies: ["@rn-primitives/dialog", "react-native-reanimated", "react-native-screens", "lucide-react-native"],
+    registryDependencies: ["icon", "text", "utils", "native-only-animated-view"],
+    new: true,
+  },
+  {
     name: "sidebar",
     title: "Sidebar",
     description:
@@ -203,6 +235,22 @@ export const COMPONENTS: ComponentMeta[] = [
     title: "Skeleton",
     description: "Use to show a placeholder while content is loading.",
     registryDependencies: ["utils"],
+  },
+  {
+    name: "sonner",
+    title: "Sonner",
+    description: "An opinionated toast notification system that animates elegantly.",
+    dependencies: ["react-native-reanimated", "lucide-react-native"],
+    registryDependencies: ["utils"],
+    new: true,
+  },
+  {
+    name: "spinner",
+    title: "Spinner",
+    description: "A loading indicator spinner component with premium rotation animations.",
+    dependencies: ["react-native-reanimated", "lucide-react-native"],
+    registryDependencies: ["utils"],
+    new: true,
   },
   {
     name: "switch",
