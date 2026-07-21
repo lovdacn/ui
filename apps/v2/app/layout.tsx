@@ -51,6 +51,7 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${spaceGrotesk.variable} ${fraunces.variable} ${jetBrainsMono.variable} h-full antialiased`}
     >
+      <meta name="google-site-verification" content="0BqCMBBzgG8M_tlZHw5mb_rf24UsBzpYTAF77_QHEns" />
       <body className="min-h-full flex flex-col font-sans">
         <ThemeProvider
           attribute="class"
