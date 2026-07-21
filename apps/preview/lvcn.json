@@ -49,7 +49,8 @@
     "toggle",
     "toggle-group",
     "tooltip",
-    "utils"
+    "utils",
+    "bottom-sheet"
   ],
   "baseColor": "olive"
 }
