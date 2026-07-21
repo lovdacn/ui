@@ -49,6 +49,34 @@ import { Textarea } from '@/components/ui/textarea';
 import { Toggle } from '@/components/ui/toggle';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import {
+  BottomSheet,
+  BottomSheetClose,
+  BottomSheetContent,
+  BottomSheetDescription,
+  BottomSheetFooter,
+  BottomSheetHeader,
+  BottomSheetTitle,
+  BottomSheetTrigger,
+} from '@/components/ui/bottom-sheet';
+import { Calendar } from '@/components/ui/calendar';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '@/components/ui/carousel';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
+import { ToastProvider, useToast } from '@/components/ui/sonner';
+import { Spinner } from '@/components/ui/spinner';
 
 // Block previews (rendered in docs iframes via /present?component=<block>)
 import { Dashboard01 } from '@/components/blocks/dashboard-01';
@@ -1144,7 +1172,7 @@ const COMPONENT_RENDERERS: Record<string, () => React.ReactNode> = {
       </ToggleGroup>
     );
   },
-  tooltip: () => (
+    Tooltip: () => (
     <Tooltip>
       <TooltipTrigger asChild>
         <Button variant="outline">
@@ -1155,6 +1183,123 @@ const COMPONENT_RENDERERS: Record<string, () => React.ReactNode> = {
         <Text>Add to library</Text>
       </TooltipContent>
     </Tooltip>
+  ),
+  "bottom-sheet": () => (
+    <BottomSheet>
+      <BottomSheetTrigger asChild>
+        <Button>
+          <Text>Open Bottom Sheet</Text>
+        </Button>
+      </BottomSheetTrigger>
+      <BottomSheetContent>
+        <BottomSheetHeader>
+          <BottomSheetTitle>
+            <Text>Bottom Sheet Menu</Text>
+          </BottomSheetTitle>
+          <BottomSheetDescription>
+            <Text>This sheet animates smoothly from the bottom of the viewport.</Text>
+          </BottomSheetDescription>
+        </BottomSheetHeader>
+        <View className="py-4">
+          <Text>Your custom content here.</Text>
+        </View>
+        <BottomSheetFooter>
+          <BottomSheetClose asChild>
+            <Button variant="outline">
+              <Text>Close</Text>
+            </Button>
+          </BottomSheetClose>
+        </BottomSheetFooter>
+      </BottomSheetContent>
+    </BottomSheet>
+  ),
+  calendar: () => {
+    const [date, setDate] = React.useState<Date | undefined>(new Date());
+    return (
+      <View className="items-center gap-4">
+        <Calendar value={date} onChange={setDate} />
+        {date && (
+          <Text className="text-sm text-muted-foreground mt-2">
+            Selected: {date.toDateString()}
+          </Text>
+        )}
+      </View>
+    );
+  },
+  carousel: () => {
+    const items = [
+      { id: '1', title: 'Slide 1', color: 'bg-red-500/20' },
+      { id: '2', title: 'Slide 2', color: 'bg-blue-500/20' },
+      { id: '3', title: 'Slide 3', color: 'bg-green-500/20' },
+    ];
+    return (
+      <Carousel className="w-full max-w-sm h-48">
+        <CarouselContent
+          data={items}
+          renderItem={({ item }) => (
+            <CarouselItem key={item.id} className={cn("h-40 rounded-xl justify-center items-center border border-border", item.color)}>
+              <Text className="text-lg font-bold">{item.title}</Text>
+            </CarouselItem>
+          )}
+        />
+        <CarouselPrevious />
+        <CarouselNext />
+      </Carousel>
+    );
+  },
+  sheet: () => (
+    <Sheet>
+      <SheetTrigger asChild>
+        <Button variant="outline">
+          <Text>Open Side Sheet</Text>
+        </Button>
+      </SheetTrigger>
+      <SheetContent side="right">
+        <SheetHeader>
+          <SheetTitle>
+            <Text>Side Panel</Text>
+          </SheetTitle>
+          <SheetDescription>
+            <Text>This sheet animates smoothly from the right side of the screen.</Text>
+          </SheetDescription>
+        </SheetHeader>
+      </SheetContent>
+    </Sheet>
+  ),
+  sonner: () => {
+    const { toast } = useToast();
+    return (
+      <View className="flex-row flex-wrap gap-2 justify-center">
+        <Button
+          onPress={() =>
+            toast('Success Notification', {
+              description: 'The operation completed successfully.',
+              type: 'success',
+            })
+          }
+        >
+          <Text>Success Toast</Text>
+        </Button>
+        <Button
+          variant="destructive"
+          onPress={() =>
+            toast('Error Alert', {
+              description: 'An unexpected error occurred.',
+              type: 'error',
+            })
+          }
+        >
+          <Text>Error Toast</Text>
+        </Button>
+      </View>
+    );
+  },
+  spinner: () => (
+    <View className="flex-row items-center gap-4 justify-center">
+      <Spinner size="small" />
+      <Spinner size="large" />
+      <Spinner size={48} color="#f43f5e" />
+    </View>
   ),
 };
 
@@ -1421,7 +1566,9 @@ export default function PresentPage() {
         className="w-full items-center justify-center"
         style={{ maxWidth: 420 }}
       >
-        <Renderer />
+        <ToastProvider>
+          <Renderer />
+        </ToastProvider>
       </View>
     </View>
   );

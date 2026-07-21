@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, Boxes, LayoutDashboard, ShieldCheck, type LucideIcon } from "lucide-react"
 
 import {
   PageActions,
@@ -11,6 +11,7 @@ import {
 import { buttonVariants } from "@/components/ui/button"
 import { BlocksBetaNotice } from "@/components/blocks-beta-notice"
 import {
+  type BlockCategory,
   blockCategories,
   blockCategoryMeta,
   blocksByCategory,
@@ -29,7 +30,18 @@ export const metadata: Metadata = {
   description,
 }
 
+/** Icon shown on each category card. */
+const CATEGORY_ICONS: Record<BlockCategory, LucideIcon> = {
+  Dashboard: LayoutDashboard,
+  Authentication: ShieldCheck,
+  Other: Boxes,
+}
+
 export default function BlocksPage() {
+  const categories = blockCategories.filter(
+    (category) => blocksByCategory(category).length > 0
+  )
+
   return (
     <>
       <PageHeader>
@@ -49,37 +61,41 @@ export default function BlocksPage() {
         <div className="container flex flex-col gap-8 px-6">
           <BlocksBetaNotice />
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {blockCategories
-            .filter((category) => blocksByCategory(category).length > 0)
-            .map((category) => {
-            const meta = blockCategoryMeta[category]
-            const count = blocksByCategory(category).length
-            return (
-              <Link
-                key={category}
-                href={`/blocks/${categorySlug(category)}`}
-                className="group flex flex-col justify-between gap-8 rounded-xl border border-border bg-card p-6 transition-colors hover:border-foreground/20 hover:bg-accent/40"
-              >
-                <div className="flex flex-col gap-2">
+            {categories.map((category) => {
+              const meta = blockCategoryMeta[category]
+              const count = blocksByCategory(category).length
+              const Icon = CATEGORY_ICONS[category]
+              return (
+                <Link
+                  key={category}
+                  href={`/blocks/${categorySlug(category)}`}
+                  className="group relative flex flex-col gap-5 overflow-hidden rounded-xl border border-border bg-card p-6 transition-all hover:border-foreground/20 hover:shadow-sm"
+                >
                   <div className="flex items-center justify-between gap-3">
-                    <h2 className="text-lg font-semibold tracking-tight">
-                      {meta.title}
-                    </h2>
+                    <div className="flex size-10 items-center justify-center rounded-lg border border-border bg-muted/50 text-foreground transition-colors group-hover:bg-accent">
+                      <Icon className="size-5" />
+                    </div>
                     <span className="shrink-0 rounded-full border border-border px-2 py-0.5 text-xs text-muted-foreground">
                       {count} {count === 1 ? "block" : "blocks"}
                     </span>
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    {meta.description}
-                  </p>
-                </div>
-                <span className="inline-flex items-center gap-1 text-sm font-medium text-foreground">
-                  Browse
-                  <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
-                </span>
-              </Link>
-            )
-          })}
+
+                  <div className="flex flex-col gap-1.5">
+                    <h2 className="text-lg font-semibold tracking-tight">
+                      {meta.title}
+                    </h2>
+                    <p className="text-sm text-muted-foreground">
+                      {meta.description}
+                    </p>
+                  </div>
+
+                  <span className="mt-auto inline-flex items-center gap-1 text-sm font-medium text-foreground">
+                    Browse
+                    <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+                  </span>
+                </Link>
+              )
+            })}
           </div>
         </div>
       </div>

@@ -6,6 +6,10 @@ component: true
 
 <ComponentPreviewCard title="Sidebar" />
 
+<Callout className="border-amber-500/30 bg-amber-500/10 text-amber-900 dark:text-amber-200">
+  **Sidebar is in beta.** This component was recently added and will be stabled soon.
+</Callout>
+
 ## Installation
 
 <PackageManagerTabs>
@@ -127,7 +131,16 @@ export function AppShell() {
 ## Responsive behavior
 
 - **Mobile (`< 768px`)** — the sidebar renders as an animated off-canvas drawer with a backdrop. Opening it overlays (and overrides) the rest of the screen, including a bottom tab bar.
-- **Desktop** — the sidebar is an in-flow column that animates its width when toggled (`offcanvas` hides it; `icon` collapses to an icon rail).
+- **Tablet & desktop (`≥ 768px`)** — the sidebar is an in-flow column that animates its width when toggled (`offcanvas` hides it; `icon` collapses to a narrow icon rail).
+
+<Callout>
+  **`collapsible="icon"` was developed for tablets and larger screens — use it carefully on mobile devices.** The icon rail is a
+  persistent, space-saving affordance that only makes sense where the sidebar stays
+  on-screen. On phones the sidebar is a drawer, so prefer full-width, labelled rows and
+  avoid the icon rail there. When collapsed to the rail, each `SidebarMenuButton` shows
+  **only its icon** — labels, `SidebarMenuAction`s and `SidebarMenuBadge`s are hidden —
+  so make sure every menu row includes an `Icon` child.
+</Callout>
 
 ## Complexity: mobile vs. desktop
 
@@ -157,7 +170,7 @@ the component's work is reconciling the two.
   }
   ```
 
-- **Keep labels on touch.** Avoid `collapsible="icon"` on phones — icon-only targets are ambiguous without a tooltip. Prefer full-width rows with a label.
+- **Keep labels on touch.** Reserve `collapsible="icon"` for **tablets and desktop** (use carefully on mobile devices) — on phones, icon-only targets are ambiguous without a tooltip, so prefer full-width rows with a label.
 - **Respect insets.** Pad `SidebarHeader` and the top bar with the top inset, and the drawer/bottom bar with the bottom inset (`react-native-safe-area-context`).
 - **Constrain the drawer.** Keep it ≲ 85% of screen width and dim the backdrop so the underlying screen reads as inactive.
 

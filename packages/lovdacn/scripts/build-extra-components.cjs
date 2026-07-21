@@ -58,6 +58,36 @@ const COMPONENTS = [
     dependencies: [],
     registryDependencies: ['text', 'utils'],
   },
+  {
+    name: 'bottom-sheet',
+    dependencies: ['@rn-primitives/dialog', 'react-native-reanimated', 'react-native-screens', 'lucide-react-native'],
+    registryDependencies: ['icon', 'text', 'utils', 'native-only-animated-view'],
+  },
+  {
+    name: 'sheet',
+    dependencies: ['@rn-primitives/dialog', 'react-native-reanimated', 'react-native-screens', 'lucide-react-native'],
+    registryDependencies: ['icon', 'text', 'utils', 'native-only-animated-view'],
+  },
+  {
+    name: 'sonner',
+    dependencies: ['react-native-reanimated', 'lucide-react-native'],
+    registryDependencies: ['utils'],
+  },
+  {
+    name: 'spinner',
+    dependencies: ['react-native-reanimated', 'lucide-react-native'],
+    registryDependencies: ['utils'],
+  },
+  {
+    name: 'calendar',
+    dependencies: ['lucide-react-native'],
+    registryDependencies: ['utils'],
+  },
+  {
+    name: 'carousel',
+    dependencies: ['lucide-react-native'],
+    registryDependencies: ['utils'],
+  },
 ];
 
 /** Mirror build-registry's normalizeContent: strip monorepo registry prefixes. */
@@ -72,9 +102,14 @@ function buildExtraComponents() {
 
   for (const engine of ENGINES) {
     for (const comp of COMPONENTS) {
-      const srcPath = path.join(REUSABLES_SRC, engine, 'components/ui', `${comp.name}.tsx`);
+      let srcPath = path.join(REUSABLES_SRC, engine, 'components/ui', `${comp.name}.tsx`);
       if (!fs.existsSync(srcPath)) {
-        console.warn(`⚠  Missing ${comp.name} source for engine "${engine}": ${srcPath}`);
+        // Fallback to the local preview app components
+        srcPath = path.join(WORKSPACE_ROOT, 'lvcn/apps/preview/src/components/ui', `${comp.name}.tsx`);
+      }
+
+      if (!fs.existsSync(srcPath)) {
+        console.warn(`⚠  Missing ${comp.name} source: ${srcPath}`);
         continue;
       }
 

@@ -130,28 +130,26 @@ export function BlockPreview({ block }: { block: BlockMeta }) {
           >
             <ExternalLink />
           </a>
+
+          {/* Install command — to the right of the viewport + open controls */}
+          <button
+            type="button"
+            onClick={() => copyToClipboard(installCommand)}
+            aria-label="Copy install command"
+            className="group flex h-8 items-center gap-2 rounded-md border border-border bg-muted/40 px-2.5 font-mono text-xs transition-colors hover:bg-muted/70"
+          >
+            <span className="select-none text-muted-foreground">$</span>
+            <code className="whitespace-nowrap text-foreground">{installCommand}</code>
+            <span className="shrink-0 text-muted-foreground transition-colors group-hover:text-foreground">
+              {isCopied ? (
+                <Check className="size-3.5 text-green-500" />
+              ) : (
+                <Copy className="size-3.5" />
+              )}
+            </span>
+          </button>
         </div>
       </div>
-
-      {/* Full-length install command */}
-      <button
-        type="button"
-        onClick={() => copyToClipboard(installCommand)}
-        aria-label="Copy install command"
-        className="group flex w-full items-center gap-3 rounded-lg border border-border bg-muted/40 px-3 py-2.5 text-left font-mono text-sm transition-colors hover:bg-muted/70"
-      >
-        <span className="select-none text-muted-foreground">$</span>
-        <code className="no-scrollbar flex-1 overflow-x-auto whitespace-nowrap text-foreground">
-          {installCommand}
-        </code>
-        <span className="shrink-0 text-muted-foreground transition-colors group-hover:text-foreground">
-          {isCopied ? (
-            <Check className="size-4 text-green-500" />
-          ) : (
-            <Copy className="size-4" />
-          )}
-        </span>
-      </button>
 
       <div className="relative w-full overflow-hidden rounded-xl border border-border bg-background shadow-sm">
         {!ready && (
