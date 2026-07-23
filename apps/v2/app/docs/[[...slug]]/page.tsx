@@ -4,6 +4,7 @@ import { notFound } from "next/navigation"
 import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react"
 import { findNeighbour } from "fumadocs-core/page-tree"
 
+import { BlocksBetaNotice } from "@/components/blocks-beta-notice"
 import { DocsTableOfContents } from "@/components/docs-toc"
 import { buttonVariants } from "@/components/ui/button"
 import { mdxComponents } from "@/mdx-components"
@@ -60,6 +61,8 @@ export default async function DocsPage(props: {
       url: item.url,
       title: item.title,
     })) ?? []
+  const isBlocksDoc =
+    page.url === "/docs/blocks" || page.url.startsWith("/docs/blocks/")
 
   return (
     <div
@@ -106,6 +109,8 @@ export default async function DocsPage(props: {
               </p>
             )}
           </div>
+
+          {isBlocksDoc && <BlocksBetaNotice />}
 
           <div className="docs-prose w-full flex-1 pb-12">
             <MDX components={mdxComponents} />

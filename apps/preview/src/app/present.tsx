@@ -83,7 +83,11 @@ import { Dashboard01 } from '@/components/blocks/dashboard-01';
 import { Dashboard02 } from '@/components/blocks/dashboard-02';
 import { LoginForm01 } from '@/components/blocks/login-form-01';
 import { LoginForm02 } from '@/components/blocks/login-form-02';
+import { LoginForm03 } from '@/components/blocks/login-form-03';
+import { LoginForm04 } from '@/components/blocks/login-form-04';
 import { SignupForm01 } from '@/components/blocks/signup-form-01';
+import { SignupForm02 } from '@/components/blocks/signup-form-02';
+import { SignupForm03 } from '@/components/blocks/signup-form-03';
 import { StatsPreview } from '@/components/blocks/stats';
 
 // Extra dependencies for examples
@@ -790,7 +794,11 @@ const COMPONENT_RENDERERS: Record<string, () => React.ReactNode> = {
   'input-otp': () => <InputOTPDemo />,
   'login-01': () => <LoginForm01 />,
   'login-02': () => <LoginForm02 />,
+  'login-03': () => <LoginForm03 />,
+  'login-04': () => <LoginForm04 />,
   'signup-01': () => <SignupForm01 />,
+  'signup-02': () => <SignupForm02 />,
+  'signup-03': () => <SignupForm03 />,
   'stats-01': () => <StatsPreview />,
   accordion: () => (
     <Accordion type="single" collapsible className="w-full max-w-sm">
@@ -1546,6 +1554,9 @@ export default function PresentPage() {
     );
   }
 
+  const previewMaxWidth =
+    component === 'login-04' || component === 'signup-02' ? 1024 : 420;
+
   return (
     <View
       className="flex-1 items-center justify-center bg-background w-full"
@@ -1564,7 +1575,7 @@ export default function PresentPage() {
     >
       <View
         className="w-full items-center justify-center"
-        style={{ maxWidth: 420 }}
+        style={{ maxWidth: previewMaxWidth }}
       >
         <ToastProvider>
           <Renderer />

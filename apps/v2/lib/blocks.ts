@@ -46,9 +46,37 @@ export const blocks: BlockMeta[] = [
     category: "Authentication",
   },
   {
+    name: "login-03",
+    title: "Login 03",
+    description:
+      "A compact branded sign-in card with social providers and account links.",
+    category: "Authentication",
+  },
+  {
+    name: "login-04",
+    title: "Login 04",
+    description:
+      "A responsive split-panel sign-in screen with social provider actions.",
+    category: "Authentication",
+  },
+  {
     name: "signup-01",
     title: "Signup 01",
     description: "A registration screen with a terms checkbox.",
+    category: "Authentication",
+  },
+  {
+    name: "signup-02",
+    title: "Signup 02",
+    description:
+      "A detailed responsive registration screen with a branded side panel.",
+    category: "Authentication",
+  },
+  {
+    name: "signup-03",
+    title: "Signup 03",
+    description:
+      "A compact branded registration card with password confirmation.",
     category: "Authentication",
   },
 ]

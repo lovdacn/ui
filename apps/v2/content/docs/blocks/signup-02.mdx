@@ -1,0 +1,50 @@
+---
+title: Signup 02
+description: A detailed responsive registration screen with a branded side panel.
+---
+
+<ComponentPreviewCard title="Signup 02" name="signup-02" />
+
+## Installation
+
+<PackageManagerTabs>
+<PMTabContent value="npm">
+
+```bash
+npx lovdacn@latest add signup-02
+```
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+```bash
+yarn dlx lovdacn@latest add signup-02
+```
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+```bash
+pnpm dlx lovdacn@latest add signup-02
+```
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+```bash
+bunx --bun lovdacn@latest add signup-02
+```
+
+</PMTabContent>
+</PackageManagerTabs>
+
+## What it installs
+
+- `app/(auth)/_layout.tsx` — the `(auth)` route group layout
+- `app/(auth)/sign-up.tsx` — a keyboard-aware, scrollable sign-up route
+- `components/signup-form.tsx` — registration fields, password confirmation, and GitHub action
+
+**Registry dependencies:** `input`, `label`, `button`, `separator`, `icon`, `text`, `utils`
+
+Password fields sit side by side when space permits and stack on phones. The branded
+panel is hidden below `md`, while the route scrolls safely around the software keyboard.

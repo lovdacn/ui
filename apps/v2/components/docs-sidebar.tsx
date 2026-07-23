@@ -4,9 +4,15 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 
 import { COMPONENTS } from "@/lib/components"
+import { blocks } from "@/lib/blocks"
 import { cn } from "@/lib/utils"
 
-type NavItem = { name: string; href: string; isNew?: boolean }
+type NavItem = {
+  name: string
+  href: string
+  isNew?: boolean
+  isBeta?: boolean
+}
 type NavSection = { title: string; items: NavItem[] }
 
 const SECTIONS: NavSection[] = [
@@ -19,6 +25,20 @@ const SECTIONS: NavSection[] = [
       { name: "CLI", href: "/docs/cli" },
       { name: "Skills", href: "/docs/skills" },
       { name: "Dark Mode", href: "/docs/dark-mode" },
+    ],
+  },
+  {
+    title: "Blocks",
+    items: [
+      {
+        name: "All Blocks",
+        href: "/docs/blocks",
+        isBeta: true,
+      },
+      ...blocks.map((block) => ({
+        name: block.title,
+        href: `/docs/blocks/${block.name}`,
+      })),
     ],
   },
   {
@@ -39,6 +59,14 @@ function NewBadge() {
   return (
     <span className="ml-2 shrink-0 rounded-full bg-green-500/15 px-1.5 py-0.5 text-[10px] font-medium leading-none text-green-600 dark:text-green-400">
       New
+    </span>
+  )
+}
+
+function BetaBadge() {
+  return (
+    <span className="ml-2 shrink-0 rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-medium leading-none text-amber-700 dark:text-amber-300">
+      Beta
     </span>
   )
 }
@@ -77,7 +105,11 @@ export function DocsSidebar({ className }: { className?: string }) {
                       )}
                     >
                       <span className="truncate">{item.name}</span>
-                      {item.isNew ? <NewBadge /> : null}
+                      {item.isNew ? (
+                        <NewBadge />
+                      ) : item.isBeta ? (
+                        <BetaBadge />
+                      ) : null}
                     </Link>
                   </li>
                 )
@@ -99,28 +131,27 @@ export function DocsMobileNav() {
         {SECTIONS.flatMap((s) => s.items)
           .filter(
             (item) =>
-              (!item.href.startsWith("/docs/components/") ||
-                item.href === "/docs/components") &&
-              (!item.href.startsWith("/docs/blocks/") ||
-                item.href === "/docs/blocks")
+              !item.href.startsWith("/docs/components/") ||
+              item.href === "/docs/components"
           )
           .map((item) => {
             const isActive =
               item.href === "/docs"
                 ? pathname === "/docs"
-                : pathname.startsWith(item.href)
+                : pathname === item.href
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "shrink-0 rounded-full border px-3 py-1 text-xs font-medium",
+                  "flex shrink-0 items-center rounded-full border px-3 py-1 text-xs font-medium",
                   isActive
                     ? "border-foreground bg-foreground text-background"
                     : "border-border text-muted-foreground"
                 )}
               >
-                {item.name}
+                <span>{item.name}</span>
+                {item.isBeta ? <BetaBadge /> : null}
               </Link>
             )
           })}
