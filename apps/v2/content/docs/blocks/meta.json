@@ -1,4 +1,16 @@
 {
   "title": "Blocks",
-  "pages": ["index", "dashboard-01", "dashboard-02", "login-01", "login-02", "signup-01", "stats-01"]
+  "pages": [
+    "index",
+    "dashboard-01",
+    "dashboard-02",
+    "login-01",
+    "login-02",
+    "login-03",
+    "login-04",
+    "signup-01",
+    "signup-02",
+    "signup-03",
+    "stats-01"
+  ]
 }

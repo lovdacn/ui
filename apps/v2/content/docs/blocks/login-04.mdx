@@ -1,0 +1,50 @@
+---
+title: Login 04
+description: A responsive split-panel sign-in screen with social providers.
+---
+
+<ComponentPreviewCard title="Login 04" name="login-04" />
+
+## Installation
+
+<PackageManagerTabs>
+<PMTabContent value="npm">
+
+```bash
+npx lovdacn@latest add login-04
+```
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+```bash
+yarn dlx lovdacn@latest add login-04
+```
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+```bash
+pnpm dlx lovdacn@latest add login-04
+```
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+```bash
+bunx --bun lovdacn@latest add login-04
+```
+
+</PMTabContent>
+</PackageManagerTabs>
+
+## What it installs
+
+- `app/(auth)/_layout.tsx` — the `(auth)` route group layout
+- `app/(auth)/sign-in.tsx` — a keyboard-aware, scrollable sign-in route
+- `components/login-form.tsx` — the email form, social actions, and branded side panel
+
+**Registry dependencies:** `card`, `input`, `label`, `button`, `separator`, `icon`, `text`, `utils`
+
+The side panel appears at the `md` breakpoint and is removed on compact devices so the
+form keeps the full width. The route remains scrollable when a mobile keyboard is open.

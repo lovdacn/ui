@@ -69,6 +69,42 @@
     ]
   },
   {
+    "name": "login-03",
+    "type": "registry:block",
+    "description": "A branded sign-in card with social providers, email login, account links, and a mobile-safe route.",
+    "dependencies": [
+      "lucide-react-native"
+    ],
+    "registryDependencies": [
+      "card",
+      "input",
+      "label",
+      "button",
+      "separator",
+      "icon",
+      "text",
+      "utils"
+    ]
+  },
+  {
+    "name": "login-04",
+    "type": "registry:block",
+    "description": "A responsive split-panel sign-in screen with social providers and a decorative panel hidden on compact devices.",
+    "dependencies": [
+      "lucide-react-native"
+    ],
+    "registryDependencies": [
+      "card",
+      "input",
+      "label",
+      "button",
+      "separator",
+      "icon",
+      "text",
+      "utils"
+    ]
+  },
+  {
     "name": "signup-01",
     "type": "registry:block",
     "description": "A sign-up screen: an (auth) route with a registration form and terms checkbox.",
@@ -79,6 +115,40 @@
       "label",
       "button",
       "checkbox",
+      "icon",
+      "text",
+      "utils"
+    ]
+  },
+  {
+    "name": "signup-02",
+    "type": "registry:block",
+    "description": "A detailed responsive registration screen with confirmation, GitHub signup, and a decorative panel hidden on compact devices.",
+    "dependencies": [
+      "lucide-react-native"
+    ],
+    "registryDependencies": [
+      "input",
+      "label",
+      "button",
+      "separator",
+      "icon",
+      "text",
+      "utils"
+    ]
+  },
+  {
+    "name": "signup-03",
+    "type": "registry:block",
+    "description": "A compact branded registration card with responsive password fields and a mobile-safe route.",
+    "dependencies": [
+      "lucide-react-native"
+    ],
+    "registryDependencies": [
+      "card",
+      "input",
+      "label",
+      "button",
       "icon",
       "text",
       "utils"

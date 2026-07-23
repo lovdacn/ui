@@ -25,9 +25,14 @@ and `text`. If your project uses a `src/` layout, routes are placed under `src/a
 | [Dashboard 02](/docs/blocks/dashboard-02) | An app shell with a collapsible sidebar + bottom tab bar. |
 | [Login 01](/docs/blocks/login-01) | A centered sign-in card at `/sign-in`. |
 | [Login 02](/docs/blocks/login-02) | A sign-in screen with social providers. |
-| [Signup 01](/docs/blocks/signup-01) | A registration screen at `/sign-up`. |
+| [Login 03](/docs/blocks/login-03) | A compact branded login with provider and account links. |
+| [Login 04](/docs/blocks/login-04) | A responsive split-panel login screen. |
+| [Signup 01](/docs/blocks/signup-01) | A registration screen with a terms checkbox. |
+| [Signup 02](/docs/blocks/signup-02) | A detailed responsive registration screen. |
+| [Signup 03](/docs/blocks/signup-03) | A compact branded registration card. |
 | [Stats 01](/docs/blocks/stats-01) | A dashboard route with KPI stat cards. |
 
-The `login-*` and `signup-01` blocks share the same `(auth)` route group, so
-adding a login block and the signup block gives you a complete auth flow with
-cross-navigation between `/sign-in` and `/sign-up`.
+The `login-*` and `signup-*` blocks share the same `(auth)` route group. Pair one
+of each to create an auth flow with cross-navigation between `/sign-in` and
+`/sign-up`. Each block writes the shared route files, so review overwrite prompts
+when combining them.

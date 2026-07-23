@@ -1,0 +1,50 @@
+---
+title: Login 03
+description: A branded sign-in card with social providers and account links.
+---
+
+<ComponentPreviewCard title="Login 03" name="login-03" />
+
+## Installation
+
+<PackageManagerTabs>
+<PMTabContent value="npm">
+
+```bash
+npx lovdacn@latest add login-03
+```
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+```bash
+yarn dlx lovdacn@latest add login-03
+```
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+```bash
+pnpm dlx lovdacn@latest add login-03
+```
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+```bash
+bunx --bun lovdacn@latest add login-03
+```
+
+</PMTabContent>
+</PackageManagerTabs>
+
+## What it installs
+
+- `app/(auth)/_layout.tsx` — the `(auth)` route group layout
+- `app/(auth)/sign-in.tsx` — a keyboard-aware, scrollable sign-in route
+- `components/login-form.tsx` — the branded login card with Apple and Google actions
+
+**Registry dependencies:** `card`, `input`, `label`, `button`, `separator`, `icon`, `text`, `utils`
+
+The route scrolls when the keyboard or a short device reduces the available height.
+Provider buttons are presentation hooks; connect their `onPress` handlers to your auth flow.

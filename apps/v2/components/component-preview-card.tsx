@@ -18,14 +18,15 @@ export function ComponentPreviewCard({
   name?: string
 }) {
   const componentName = name ?? title?.toLowerCase().replace(/ /g, "-")
+  const hasTallBlockPreview = [
+    "login-03",
+    "login-04",
+    "signup-02",
+    "signup-03",
+  ].includes(componentName ?? "")
   const { resolvedTheme } = useTheme()
-  const [mounted, setMounted] = React.useState(false)
-  const [ready, setReady] = React.useState(false)
+  const [readySrc, setReadySrc] = React.useState<string | null>(null)
   const iframeRef = React.useRef<HTMLIFrameElement>(null)
-
-  React.useEffect(() => {
-    setMounted(true)
-  }, [])
 
   const colorScheme = React.useMemo(() => {
     if (resolvedTheme) return resolvedTheme
@@ -42,21 +43,19 @@ export function ComponentPreviewCard({
     () => (componentName ? getExpoPreviewUrl({ component: componentName, chrome: "web" }) : ""),
     [componentName]
   )
-
-  // Reset the ready gate if the embedded component changes.
-  React.useEffect(() => {
-    setReady(false)
-  }, [src])
+  const ready = readySrc === src
 
   // Only trust the "ready" ping from this card's own iframe.
   React.useEffect(() => {
     function onMessage(e: MessageEvent) {
       if (e.source !== iframeRef.current?.contentWindow) return
-      if ((e.data as { type?: string })?.type === "lvcn:ready") setReady(true)
+      if ((e.data as { type?: string })?.type === "lvcn:ready") {
+        setReadySrc(src)
+      }
     }
     window.addEventListener("message", onMessage)
     return () => window.removeEventListener("message", onMessage)
-  }, [])
+  }, [src])
 
   // Push the color scheme once the presenter is ready, and whenever it changes.
   React.useEffect(() => {
@@ -74,13 +73,21 @@ export function ComponentPreviewCard({
         className
       )}
     >
-      <div className="relative w-full aspect-video min-h-[450px] flex items-center justify-center bg-muted/5">
+      <div
+        className={cn(
+          "relative flex w-full items-center justify-center bg-muted/5",
+          hasTallBlockPreview
+            ? "min-h-[760px]"
+            : "aspect-video min-h-[450px]"
+        )}
+      >
         {componentName ? (
           <iframe
             ref={iframeRef}
             src={src}
             className={cn(
-              "w-full h-[450px] border-0 transition-opacity duration-300",
+              "w-full border-0 transition-opacity duration-300",
+              hasTallBlockPreview ? "h-[760px]" : "h-[450px]",
               ready ? "opacity-100" : "opacity-0"
             )}
             title={`${title} Live Preview`}

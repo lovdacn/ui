@@ -1,0 +1,50 @@
+---
+title: Signup 03
+description: A compact branded registration card with password confirmation.
+---
+
+<ComponentPreviewCard title="Signup 03" name="signup-03" />
+
+## Installation
+
+<PackageManagerTabs>
+<PMTabContent value="npm">
+
+```bash
+npx lovdacn@latest add signup-03
+```
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+```bash
+yarn dlx lovdacn@latest add signup-03
+```
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+```bash
+pnpm dlx lovdacn@latest add signup-03
+```
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+```bash
+bunx --bun lovdacn@latest add signup-03
+```
+
+</PMTabContent>
+</PackageManagerTabs>
+
+## What it installs
+
+- `app/(auth)/_layout.tsx` — the `(auth)` route group layout
+- `app/(auth)/sign-up.tsx` — a keyboard-aware, scrollable sign-up route
+- `components/signup-form.tsx` — the compact registration card and sign-in link
+
+**Registry dependencies:** `card`, `input`, `label`, `button`, `icon`, `text`, `utils`
+
+The password fields stack on narrow phones and share a row on wider screens. The
+route remains usable on short devices by scrolling when content or the keyboard grows.

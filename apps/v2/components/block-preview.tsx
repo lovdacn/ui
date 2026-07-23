@@ -36,7 +36,7 @@ export function BlockPreview({ block }: { block: BlockMeta }) {
   const { name, title, description } = block
   const { resolvedTheme } = useTheme()
   const [viewport, setViewport] = React.useState<ViewportKey>("desktop")
-  const [ready, setReady] = React.useState(false)
+  const [readySrc, setReadySrc] = React.useState<string | null>(null)
   const iframeRef = React.useRef<HTMLIFrameElement>(null)
   const { isCopied, copyToClipboard } = useCopyToClipboard()
 
@@ -47,6 +47,7 @@ export function BlockPreview({ block }: { block: BlockMeta }) {
     () => getExpoPreviewUrl({ component: name, chrome: "web" }),
     [name]
   )
+  const ready = readySrc === src
   const width = VIEWPORTS.find((v) => v.key === viewport)?.width ?? "100%"
 
   const colorScheme = React.useMemo(() => {
@@ -59,20 +60,17 @@ export function BlockPreview({ block }: { block: BlockMeta }) {
     return "light"
   }, [resolvedTheme])
 
-  // Reset the ready gate if the embedded component changes.
-  React.useEffect(() => {
-    setReady(false)
-  }, [src])
-
   // Only trust the "ready" ping from this card's own iframe.
   React.useEffect(() => {
     function onMessage(e: MessageEvent) {
       if (e.source !== iframeRef.current?.contentWindow) return
-      if ((e.data as { type?: string })?.type === "lvcn:ready") setReady(true)
+      if ((e.data as { type?: string })?.type === "lvcn:ready") {
+        setReadySrc(src)
+      }
     }
     window.addEventListener("message", onMessage)
     return () => window.removeEventListener("message", onMessage)
-  }, [])
+  }, [src])
 
   // Push the color scheme once the presenter is ready, and whenever it changes.
   React.useEffect(() => {
@@ -166,7 +164,8 @@ export function BlockPreview({ block }: { block: BlockMeta }) {
             src={src}
             title={`${title} preview`}
             className={cn(
-              "h-[600px] w-full border-0 bg-background transition-opacity duration-300",
+              "w-full border-0 bg-background transition-opacity duration-300",
+              block.category === "Authentication" ? "h-[720px]" : "h-[600px]",
               ready ? "opacity-100" : "opacity-0"
             )}
           />
