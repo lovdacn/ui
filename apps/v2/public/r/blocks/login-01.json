@@ -3,7 +3,9 @@
   "name": "login-01",
   "type": "registry:block",
   "description": "A sign-in screen: an (auth) route group with a login form card.",
-  "dependencies": [],
+  "dependencies": [
+    "react-native-safe-area-context"
+  ],
   "registryDependencies": [
     "card",
     "input",
@@ -21,7 +23,7 @@
     },
     {
       "path": "app/(auth)/sign-in.tsx",
-      "content": "import { LoginForm } from '@/components/login-form';\nimport { View } from 'react-native';\n\nexport default function SignInScreen() {\n  return (\n    <View className=\"bg-background flex-1 justify-center p-4\">\n      <LoginForm />\n    </View>\n  );\n}\n",
+      "content": "import { LoginForm } from '@/components/login-form';\nimport { SafeAreaView } from 'react-native-safe-area-context';\n\nexport default function SignInScreen() {\n  return (\n    <SafeAreaView className=\"bg-background flex-1 justify-center p-4\">\n      <LoginForm />\n    </SafeAreaView>\n  );\n}\n",
       "type": "registry:page",
       "target": "app/(auth)/sign-in.tsx"
     },

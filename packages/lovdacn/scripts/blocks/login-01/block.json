@@ -2,7 +2,7 @@
   "name": "login-01",
   "type": "registry:block",
   "description": "A sign-in screen: an (auth) route group with a login form card.",
-  "dependencies": [],
+  "dependencies": ["react-native-safe-area-context"],
   "registryDependencies": ["card", "input", "label", "button", "text", "utils"],
   "files": [
     {

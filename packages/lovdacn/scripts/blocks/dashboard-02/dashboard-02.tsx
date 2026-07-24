@@ -1,5 +1,10 @@
-import { Dashboard02 } from '@/components/dashboard-02';
+import { Dashboard02 } from '@/components/dashboard';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Dashboard02Screen() {
-  return <Dashboard02 />;
+  return (
+    <SafeAreaView className="bg-background flex-1">
+      <Dashboard02 />
+    </SafeAreaView>
+  );
 }

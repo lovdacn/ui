@@ -2,7 +2,7 @@
   "name": "stats-01",
   "type": "registry:block",
   "description": "A dashboard route with a stack of KPI stat cards and trend badges.",
-  "dependencies": ["lucide-react-native"],
+  "dependencies": ["lucide-react-native", "react-native-safe-area-context"],
   "registryDependencies": ["card", "badge", "icon", "text", "utils"],
   "files": [
     {

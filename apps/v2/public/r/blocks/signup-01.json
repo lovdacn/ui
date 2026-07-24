@@ -3,7 +3,9 @@
   "name": "signup-01",
   "type": "registry:block",
   "description": "A sign-up screen: an (auth) route with a registration form and terms checkbox.",
-  "dependencies": [],
+  "dependencies": [
+    "react-native-safe-area-context"
+  ],
   "registryDependencies": [
     "card",
     "input",
@@ -23,7 +25,7 @@
     },
     {
       "path": "app/(auth)/sign-up.tsx",
-      "content": "import { SignupForm } from '@/components/signup-form';\nimport { View } from 'react-native';\n\nexport default function SignUpScreen() {\n  return (\n    <View className=\"bg-background flex-1 justify-center p-4\">\n      <SignupForm />\n    </View>\n  );\n}\n",
+      "content": "import { SignupForm } from '@/components/signup-form';\nimport { SafeAreaView } from 'react-native-safe-area-context';\n\nexport default function SignUpScreen() {\n  return (\n    <SafeAreaView className=\"bg-background flex-1 justify-center p-4\">\n      <SignupForm />\n    </SafeAreaView>\n  );\n}\n",
       "type": "registry:page",
       "target": "app/(auth)/sign-up.tsx"
     },

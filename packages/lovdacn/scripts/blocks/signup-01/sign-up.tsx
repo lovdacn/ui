@@ -1,10 +1,10 @@
 import { SignupForm } from '@/components/signup-form';
-import { View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function SignUpScreen() {
   return (
-    <View className="bg-background flex-1 justify-center p-4">
+    <SafeAreaView className="bg-background flex-1 justify-center p-4">
       <SignupForm />
-    </View>
+    </SafeAreaView>
   );
 }

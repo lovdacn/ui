@@ -2,7 +2,7 @@
   "name": "signup-01",
   "type": "registry:block",
   "description": "A sign-up screen: an (auth) route with a registration form and terms checkbox.",
-  "dependencies": [],
+  "dependencies": ["react-native-safe-area-context"],
   "registryDependencies": [
     "card",
     "input",

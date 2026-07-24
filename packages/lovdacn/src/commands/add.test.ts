@@ -360,18 +360,26 @@ export default function Layout() {
     }
     expect(fs.existsSync(path.join(tempCwd, "lib/utils.ts"))).toBe(true)
 
-    // The route imports the form; the form imports UI through project aliases.
+    // The route imports the form and wraps in SafeAreaView.
     const signInContent = await readFile(signInPath, "utf8")
     expect(signInContent).toContain("import { LoginForm } from '@/components/login-form'")
+    expect(signInContent).toContain("SafeAreaView")
+    expect(signInContent).toContain("react-native-safe-area-context")
     const formContent = await readFile(formPath, "utf8")
     expect(formContent).toContain("import { Button } from '@/components/ui/button'")
     expect(formContent).not.toContain("~/components")
 
     // Block + resolved components are recorded in lvcn.json.
-    const updatedConfig = fs.readJsonSync(path.join(tempCwd, "lvcn.json"))
+    let updatedConfig = fs.readJsonSync(path.join(tempCwd, "lvcn.json"))
     expect(updatedConfig.components).toContain("login-01")
     expect(updatedConfig.components).toContain("card")
     expect(updatedConfig.components).toContain("utils")
+
+    // Installing a replacement block (`login-02`) overwrites login-01 and cleans up lvcn.json tracking
+    await runAdd({ components: ["login-02"], cwd: tempCwd, yes: true, overwrite: true })
+    updatedConfig = fs.readJsonSync(path.join(tempCwd, "lvcn.json"))
+    expect(updatedConfig.components).toContain("login-02")
+    expect(updatedConfig.components).not.toContain("login-01")
   })
 
   it("should place block routes under src/app for projects using a src/ layout", async () => {
@@ -395,7 +403,10 @@ export default function Layout() {
     await runAdd({ components: ["signup-01"], cwd: tempCwd, yes: true, overwrite: false })
 
     // `app/...` targets resolve under `src/app`; components under `src/components`.
-    expect(fs.existsSync(path.join(tempCwd, "src/app/(auth)/sign-up.tsx"))).toBe(true)
+    const signUpPath = path.join(tempCwd, "src/app/(auth)/sign-up.tsx")
+    expect(fs.existsSync(signUpPath)).toBe(true)
+    const signUpContent = await readFile(signUpPath, "utf8")
+    expect(signUpContent).toContain("SafeAreaView")
     expect(fs.existsSync(path.join(tempCwd, "src/app/(auth)/_layout.tsx"))).toBe(true)
     expect(fs.existsSync(path.join(tempCwd, "src/components/signup-form.tsx"))).toBe(true)
     expect(fs.existsSync(path.join(tempCwd, "src/components/ui/checkbox.tsx"))).toBe(true)

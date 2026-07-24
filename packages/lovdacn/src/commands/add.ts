@@ -303,9 +303,45 @@ export async function runAdd(options: z.infer<typeof addOptionsSchema>) {
     console.log(pc.green(`✔ Created ${pc.cyan(path.relative(cwd, targetPath))}`))
   }
 
-  // Register components in lvcn.json
+  // Detect and resolve overlapping block installations
+  const existingInstalled = new Set<string>(lvcnConfig.components || [])
+  const replacedBlocks = new Set<string>()
+
+  for (const newComp of resolvedComponents) {
+    for (const oldComp of Array.from(existingInstalled)) {
+      if (oldComp === newComp) continue
+
+      try {
+        const oldItem = await fetchRegistryItem(oldComp, style, styleEngine)
+        const newItem = await fetchRegistryItem(newComp, style, styleEngine)
+
+        if (oldItem?.type === "registry:block" && newItem?.type === "registry:block") {
+          const oldTargets = new Set(
+            (oldItem.files || []).map((f: any) =>
+              f.target ? resolveTargetPath(cwd, f.target) : f.path
+            )
+          )
+          const newTargets = (newItem.files || []).map((f: any) =>
+            f.target ? resolveTargetPath(cwd, f.target) : f.path
+          )
+
+          const hasOverlap = newTargets.some((targetPath: string) => oldTargets.has(targetPath))
+          if (hasOverlap) {
+            replacedBlocks.add(oldComp)
+          }
+        }
+      } catch {
+        // Ignore resolution errors for legacy entries
+      }
+    }
+  }
+
+  // Register components in lvcn.json and clean up replaced block entries
   if (!lvcnConfig.components) {
     lvcnConfig.components = []
+  }
+  for (const replaced of replacedBlocks) {
+    lvcnConfig.components = lvcnConfig.components.filter((c: string) => c !== replaced)
   }
   for (const componentName of resolvedComponents) {
     if (!lvcnConfig.components.includes(componentName)) {
