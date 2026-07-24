@@ -1,12 +1,36 @@
+import type { Metadata } from "next"
 import Link from "next/link"
 import { ArrowRightIcon } from "lucide-react"
 
 import { COMPONENTS } from "@/lib/components"
 import { PageHeader } from "@/components/page-header"
+import { siteConfig } from "@/lib/config"
 import { cn } from "@/lib/utils"
 
+const title = "lovdaCN - The UI Toolkit for React Native & Expo"
 const description =
   "A set of beautifully designed Expo components you can customize, extend, and build on. NativeWind & Uniwind. Open Source. Open Code."
+
+export const metadata: Metadata = {
+  title: {
+    absolute: title,
+  },
+  description,
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title,
+    description,
+    url: siteConfig.url,
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
+  },
+}
 
 export default function IndexPage() {
   return (
