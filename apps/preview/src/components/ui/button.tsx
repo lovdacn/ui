@@ -3,12 +3,12 @@ import { cn } from '@/lib/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { Platform, Pressable } from 'react-native';
 
-const buttonVariants = cva(cn('focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-4xl border border-transparent bg-clip-padding focus-visible:ring-[3px] aria-invalid:ring-[3px]','','','','','','','',
-    'group shrink-0 flex-row items-center justify-center gap-2 shadow-none focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-4xl border border-transparent bg-clip-padding focus-visible:ring-[3px] aria-invalid:ring-[3px]',
-    Platform.select({
-      web: "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive whitespace-nowrap outline-none transition-all focus-visible:ring-[3px] disabled:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
-    })
-  ),
+const buttonVariants = cva(cn('focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-4xl border border-transparent bg-clip-padding focus-visible:ring-[3px] aria-invalid:ring-[3px]', '', '', '', '', '', '', '',
+  'group shrink-0 flex-row items-center justify-center gap-2 shadow-none focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-4xl border border-transparent bg-clip-padding focus-visible:ring-[3px] aria-invalid:ring-[3px]',
+  Platform.select({
+    web: "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive whitespace-nowrap outline-none transition-all focus-visible:ring-[3px] disabled:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  })
+),
   {
     variants: {
       variant: {
@@ -47,10 +47,10 @@ const buttonVariants = cva(cn('focus-visible:border-ring focus-visible:ring-ring
   }
 );
 
-const buttonTextVariants = cva(cn('text-sm font-medium','','','','','','','',
-    'text-foreground text-sm font-medium',
-    Platform.select({ web: 'pointer-events-none transition-colors' })
-  ),
+const buttonTextVariants = cva(cn('text-sm font-medium', '', '', '', '', '', '', '',
+  'text-foreground text-sm font-medium',
+  Platform.select({ web: 'pointer-events-none transition-colors' })
+),
   {
     variants: {
       variant: {
