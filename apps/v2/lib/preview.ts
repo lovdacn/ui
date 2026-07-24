@@ -1,7 +1,10 @@
+const isDev = process.env.NODE_ENV === "development"
+const defaultDevOrigin = "http://localhost:8081"
 const fallbackPreviewOrigin = "https://lovdacn.expo.app"
 
 export const expoPreviewOrigin = (
-  process.env.NEXT_PUBLIC_EXPO_PREVIEW_URL ?? fallbackPreviewOrigin
+  process.env.NEXT_PUBLIC_EXPO_PREVIEW_URL ??
+  (isDev ? defaultDevOrigin : fallbackPreviewOrigin)
 ).replace(/\/+$/, "")
 
 export function getExpoPreviewUrl(params: Record<string, string>) {

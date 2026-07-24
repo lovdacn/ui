@@ -1,4 +1,9 @@
-export type BlockCategory = "Dashboard" | "Authentication" | "Other"
+export type BlockCategory =
+  | "Featured"
+  | "Dashboard"
+  | "Login"
+  | "Signup"
+  | "Other"
 
 export type BlockMeta = {
   /** Registry name, e.g. "login-01" — matches `/present?component=<name>`. */
@@ -37,55 +42,65 @@ export const blocks: BlockMeta[] = [
     name: "login-01",
     title: "Login 01",
     description: "A centered sign-in card with email and password.",
-    category: "Authentication",
+    category: "Login",
   },
   {
     name: "login-02",
     title: "Login 02",
     description: "A sign-in screen with social providers and a divider.",
-    category: "Authentication",
+    category: "Login",
   },
   {
     name: "login-03",
     title: "Login 03",
     description:
       "A compact branded sign-in card with social providers and account links.",
-    category: "Authentication",
+    category: "Login",
   },
   {
     name: "login-04",
     title: "Login 04",
     description:
       "A responsive split-panel sign-in screen with social provider actions.",
-    category: "Authentication",
+    category: "Login",
   },
   {
     name: "signup-01",
     title: "Signup 01",
     description: "A registration screen with a terms checkbox.",
-    category: "Authentication",
+    category: "Signup",
   },
   {
     name: "signup-02",
     title: "Signup 02",
     description:
       "A detailed responsive registration screen with a branded side panel.",
-    category: "Authentication",
+    category: "Signup",
   },
   {
     name: "signup-03",
     title: "Signup 03",
     description:
       "A compact branded registration card with password confirmation.",
-    category: "Authentication",
+    category: "Signup",
   },
 ]
 
-/** Category order for the landing page + routes. */
+/** Categories shown in navigation bar. */
 export const blockCategories: BlockCategory[] = [
   "Dashboard",
-  "Authentication",
-  "Other",
+  "Login",
+  "Signup",
+]
+
+/** Featured block names displayed on `/blocks`. */
+export const FEATURED_BLOCK_NAMES = [
+  "dashboard-01",
+  "dashboard-02",
+  "login-03",
+  "login-04",
+  "signup-02",
+  "stats-01",
 ]
 
 /** Display metadata for each category page. */
@@ -93,15 +108,25 @@ export const blockCategoryMeta: Record<
   BlockCategory,
   { title: string; description: string }
 > = {
-  Dashboard: {
-    title: "Dashboard",
+  Featured: {
+    title: "Featured Blocks",
     description:
-      "Data-dense app shells — navigation sidebars, top bars, KPI cards, and charts.",
+      "Curated building blocks for Expo apps — dashboards, navigation, and authentication.",
   },
-  Authentication: {
-    title: "Authentication",
+  Dashboard: {
+    title: "Dashboard & Navigation",
     description:
-      "Sign-in, sign-up, and account screens that drop into an (auth) route group.",
+      "Data-dense app shells — sidebars, top bars, KPI cards, overview charts, and activity feeds.",
+  },
+  Login: {
+    title: "Login",
+    description:
+      "Sign-in screens, split-panels, and social provider cards.",
+  },
+  Signup: {
+    title: "Signup",
+    description:
+      "Registration screens, multi-step cards, and onboarding views.",
   },
   Other: {
     title: "Other",
@@ -117,10 +142,23 @@ export function categorySlug(category: BlockCategory): string {
 
 /** Resolve a route slug back to its category (or `undefined` if unknown). */
 export function categoryFromSlug(slug: string): BlockCategory | undefined {
+  if (slug === "featured") return "Featured"
+  if (slug === "sidebar") return "Dashboard"
+  if (slug === "authentication") return "Login"
   return blockCategories.find((c) => categorySlug(c) === slug)
 }
 
 /** Blocks belonging to a category, in catalog order. */
 export function blocksByCategory(category: BlockCategory): BlockMeta[] {
+  if (category === "Featured") {
+    return FEATURED_BLOCK_NAMES.map(
+      (name) => blocks.find((b) => b.name === name)!
+    ).filter(Boolean)
+  }
   return blocks.filter((b) => b.category === category)
+}
+
+/** Get list of featured block objects. */
+export function getFeaturedBlocks(): BlockMeta[] {
+  return blocksByCategory("Featured")
 }
