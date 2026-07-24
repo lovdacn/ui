@@ -84,6 +84,7 @@ import {
 } from "./preset-data"
 
 type PackageManager = "npm" | "pnpm" | "yarn" | "bun"
+type ExpoVersion = "54" | "57"
 
 // Build picker options
 const STYLE_OPTIONS = PRESET_STYLES.map((s) => ({ value: s, label: STYLE_LABELS[s] }))
@@ -124,6 +125,7 @@ export function CreateCustomizer() {
 
   const [config, setConfig] = React.useState<PresetConfig>(DEFAULT_CONFIG)
   const [selectedEngine, setSelectedEngine] = React.useState<"nativewind" | "uniwind">("nativewind")
+  const [expoVersion, setExpoVersion] = React.useState<ExpoVersion>("57")
   const [packageManager, setPackageManager] = React.useState<PackageManager>("npm")
   const [locks, setLocks] = React.useState<Partial<Record<PresetField, boolean>>>({})
   const [copied, setCopied] = React.useState(false)
@@ -160,9 +162,9 @@ export function CreateCustomizer() {
       bun: "bunx --bun lovdacn@latest",
     }[packageManager]
     return target === "new"
-      ? `${runner} init --preset ${presetCode} --engine ${selectedEngine}`
+      ? `${runner} init --preset ${presetCode} --engine ${selectedEngine} --expo-version ${expoVersion}`
       : `${runner} apply ${presetCode}`
-  }, [packageManager, selectedEngine, presetCode, target])
+  }, [packageManager, selectedEngine, expoVersion, presetCode, target])
 
   // Read preset from URL on mount
   React.useEffect(() => {
@@ -491,29 +493,56 @@ export function CreateCustomizer() {
 
               {/* Engine — only relevant when scaffolding a new project */}
               {target === "new" && (
-                <div className="py-3">
-                  <span className="mb-2 block text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                    Engine
-                  </span>
-                  <div className="grid grid-cols-2 gap-1 rounded-xl border border-border bg-background p-1">
-                    {(["nativewind", "uniwind"] as const).map((eng) => {
-                      const isSelected = selectedEngine === eng
-                      return (
-                        <button
-                          key={eng}
-                          type="button"
-                          onClick={() => setSelectedEngine(eng)}
-                          className={cn(
-                            "rounded-lg py-1.5 text-xs font-medium transition-colors",
-                            isSelected
-                              ? "border border-border bg-muted text-foreground shadow-sm"
-                              : "text-muted-foreground hover:text-foreground"
-                          )}
-                        >
-                          {eng === "nativewind" ? "NativeWind" : "Uniwind"}
-                        </button>
-                      )
-                    })}
+                <div className="space-y-3 py-3">
+                  <div>
+                    <span className="mb-2 block text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      Engine
+                    </span>
+                    <div className="grid grid-cols-2 gap-1 rounded-xl border border-border bg-background p-1">
+                      {(["nativewind", "uniwind"] as const).map((eng) => {
+                        const isSelected = selectedEngine === eng
+                        return (
+                          <button
+                            key={eng}
+                            type="button"
+                            onClick={() => setSelectedEngine(eng)}
+                            className={cn(
+                              "rounded-lg py-1.5 text-xs font-medium transition-colors",
+                              isSelected
+                                ? "border border-border bg-muted text-foreground shadow-sm"
+                                : "text-muted-foreground hover:text-foreground"
+                            )}
+                          >
+                            {eng === "nativewind" ? "NativeWind" : "Uniwind"}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                  <div>
+                    <span className="mb-2 block text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      Expo SDK
+                    </span>
+                    <div className="grid grid-cols-2 gap-1 rounded-xl border border-border bg-background p-1">
+                      {(["54", "57"] as const).map((version) => {
+                        const isSelected = expoVersion === version
+                        return (
+                          <button
+                            key={version}
+                            type="button"
+                            onClick={() => setExpoVersion(version)}
+                            className={cn(
+                              "rounded-lg py-1.5 text-xs font-medium transition-colors",
+                              isSelected
+                                ? "border border-border bg-muted text-foreground shadow-sm"
+                                : "text-muted-foreground hover:text-foreground"
+                            )}
+                          >
+                            Expo {version}
+                          </button>
+                        )
+                      })}
+                    </div>
                   </div>
                 </div>
               )}

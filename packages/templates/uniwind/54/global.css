@@ -1,0 +1,109 @@
+@import "tailwindcss";
+@import "uniwind";
+
+@theme inline {
+  /* shadcn-style multiplicative radius scale. Small control tokens (sm/md)
+     scale freely so short controls can still clamp to pills; container tokens
+     (lg..4xl) are px-capped via min() so cards/dialogs/alerts can never grow
+     into ovals regardless of how large --radius is. */
+  --radius: 0.125rem;
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: min(var(--radius), 20px);
+  --radius-xl: min(calc(var(--radius) * 1.4), 24px);
+  --radius-2xl: min(calc(var(--radius) * 1.8), 28px);
+  --radius-3xl: min(calc(var(--radius) * 2.2), 32px);
+  --radius-4xl: min(calc(var(--radius) * 2.6), 32px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+}
+
+:root {
+  --background: oklch(0.986 0.002 67.8);
+  --foreground: oklch(0.147 0.004 49.3);
+  --card: oklch(0.986 0.002 67.8);
+  --card-foreground: oklch(0.147 0.004 49.3);
+  --popover: oklch(0.986 0.002 67.8);
+  --popover-foreground: oklch(0.147 0.004 49.3);
+  --primary: oklch(0.511 0.262 276.966);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.922 0.005 34.3);
+  --secondary-foreground: oklch(0.214 0.009 43.1);
+  --muted: oklch(0.922 0.005 34.3);
+  --muted-foreground: oklch(0.547 0.021 43.1);
+  --accent: oklch(0.922 0.005 34.3);
+  --accent-foreground: oklch(0.214 0.009 43.1);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.97 0 0);
+  --border: oklch(0.868 0.007 39.5);
+  --input: oklch(0.868 0.007 39.5);
+  --ring: oklch(0.214 0.009 43.1);
+  --chart-1: oklch(0.723 0.219 149.579);
+  --chart-2: oklch(0.792 0.209 151.711);
+  --chart-3: oklch(0.627 0.194 149.214);
+  --chart-4: oklch(0.871 0.15 154.449);
+  --chart-5: oklch(0.527 0.154 150.069);
+}
+
+.dark {
+  --background: oklch(0.147 0.004 49.3);
+  --foreground: oklch(0.986 0.002 67.8);
+  --card: oklch(0.147 0.004 49.3);
+  --card-foreground: oklch(0.986 0.002 67.8);
+  --popover: oklch(0.147 0.004 49.3);
+  --popover-foreground: oklch(0.986 0.002 67.8);
+  --primary: oklch(0.585 0.233 277.117);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.268 0.011 36.5);
+  --secondary-foreground: oklch(0.986 0.002 67.8);
+  --muted: oklch(0.268 0.011 36.5);
+  --muted-foreground: oklch(0.714 0.014 41.2);
+  --accent: oklch(0.268 0.011 36.5);
+  --accent-foreground: oklch(0.986 0.002 67.8);
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.986 0.002 67.8);
+  --border: oklch(0.268 0.011 36.5);
+  --input: oklch(0.268 0.011 36.5);
+  --ring: oklch(0.868 0.007 39.5);
+  --chart-1: oklch(0.792 0.209 151.711);
+  --chart-2: oklch(0.871 0.15 154.449);
+  --chart-3: oklch(0.723 0.219 149.579);
+  --chart-4: oklch(0.871 0.15 154.449);
+  --chart-5: oklch(0.627 0.194 149.214);
+}
+
+:root {
+  --font-sans: Instrument Serif, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji,
+    Segoe UI Symbol, Noto Color Emoji;
+  --font-display:
+    Spline Sans, Inter, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji,
+    Segoe UI Symbol, Noto Color Emoji;
+  --font-mono:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
+  --font-rounded: 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif;
+  --font-serif: Georgia, 'Times New Roman', serif;
+}
+

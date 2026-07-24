@@ -134,7 +134,7 @@ describe("runInit", () => {
   })
 
   it("should prompt for project name and package manager if not provided", async () => {
-    vi.mocked(prompts).mockResolvedValue({ styleEngine: "nativewind", style: "new-york", baseColor: "zinc", chartColor: "blue", projectName: "prompted-app", packageManager: "pnpm" })
+    vi.mocked(prompts).mockResolvedValue({ styleEngine: "nativewind", expoVersion: "57", style: "new-york", baseColor: "zinc", chartColor: "blue", projectName: "prompted-app", packageManager: "pnpm" })
 
     const options = {
       cwd: tempCwd,
@@ -160,6 +160,7 @@ describe("runInit", () => {
       yes: true,
       force: false,
       packageManager: "bun",
+      expoVersion: "54",
     })
 
     expect(parsed.cwd).toBe("/some/dir")
@@ -167,11 +168,51 @@ describe("runInit", () => {
     expect(parsed.yes).toBe(true)
     expect(parsed.force).toBe(false)
     expect(parsed.packageManager).toBe("bun")
+    expect(parsed.expoVersion).toBe("54")
   })
+
+  it("should scaffold the selected Expo SDK template", async () => {
+    const expo54TemplateDir = path.join(mockTemplateDir, "nativewind", "54")
+    await mkdir(expo54TemplateDir, { recursive: true })
+    await writeFile(
+      path.join(expo54TemplateDir, "package.json"),
+      JSON.stringify({ name: "expo-54-template", dependencies: { expo: "~54.0.35" } }, null, 2),
+      "utf8"
+    )
+    await writeFile(path.join(expo54TemplateDir, "index.js"), "console.log('expo 54')", "utf8")
+    await writeFile(
+      path.join(expo54TemplateDir, "lvcn.json"),
+      JSON.stringify({
+        $schema: "https://lovdacn.vercel.app/schema.json",
+        style: "new-york",
+        styleEngine: "nativewind",
+        tsx: true,
+        tailwind: { config: "tailwind.config.js", css: "global.css" },
+        aliases: { components: "@/components", utils: "@/lib/utils", ui: "@/components/ui" },
+        components: []
+      }, null, 2),
+      "utf8"
+    )
+
+    await runInit({
+      cwd: tempCwd,
+      name: "expo-54-app",
+      yes: true,
+      force: false,
+      expoVersion: "54",
+    })
+
+    const projectPath = path.join(tempCwd, "expo-54-app")
+    const packageJson = fs.readJsonSync(path.join(projectPath, "package.json"))
+    expect(packageJson.dependencies.expo).toBe("~54.0.35")
+    expect(await readFile(path.join(projectPath, "index.js"), "utf8")).toBe("console.log('expo 54')")
+  })
+
 
   it("should prompt for style choice and write it to lvcn.json", async () => {
     vi.mocked(prompts).mockResolvedValue({
       styleEngine: "nativewind",
+      expoVersion: "57",
       style: "mira",
       baseColor: "zinc",
       chartColor: "blue",
@@ -201,6 +242,7 @@ describe("runInit", () => {
   it("should prompt for chart color and thread it into lvcn.json and global.css", async () => {
     vi.mocked(prompts).mockResolvedValue({
       styleEngine: "nativewind",
+      expoVersion: "57",
       style: "new-york",
       baseColor: "zinc",
       chartColor: "rose",

@@ -24,6 +24,13 @@ pnpm dlx lovdacn@latest init
 bunx --bun lovdacn@latest init
 ```
 
+The latest Expo SDK template is used by default. To scaffold an Expo SDK 54
+starter, pass `--expo-version 54` (works with both NativeWind and Uniwind):
+
+```sh
+npx lovdacn@latest init --expo-version 54
+```
+
 During beta you can also pin the beta tag explicitly:
 
 ```sh

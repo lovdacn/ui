@@ -28,11 +28,15 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 // The GitHub repository that hosts the starter templates. Templates live
-// under `packages/templates/<styleEngine>` in this repo and are fetched at
+// under `packages/templates/<styleEngine>/<expoVersion>` in this repo and are fetched at
 // runtime via a sparse checkout (shadcn-style), so they are not bundled with
 // the published CLI. Override with LOVDA_GITHUB_URL for forks/testing.
 const GITHUB_REPO_URL =
   process.env.LOVDA_GITHUB_URL ?? "https://github.com/lovdacn/ui.git"
+
+const TEMPLATE_EXPO_VERSIONS = ["54", "57"] as const
+type TemplateExpoVersion = (typeof TEMPLATE_EXPO_VERSIONS)[number]
+const DEFAULT_TEMPLATE_EXPO_VERSION: TemplateExpoVersion = "57"
 
 // Interactive chart-color choices — mirrors the create page's chart color
 // picker by offering every PRESET_CHART_COLORS value (all 22).
@@ -55,6 +59,7 @@ export const initOptionsSchema = z.object({
   packageManager: z.enum(["npm", "yarn", "pnpm", "bun"]).optional(),
   preset: z.string().optional(),
   engine: z.enum(["nativewind", "uniwind"]).optional(),
+  expoVersion: z.enum(TEMPLATE_EXPO_VERSIONS).optional(),
 })
 
 export const init = new Command()
@@ -80,6 +85,10 @@ export const init = new Command()
     "--engine <engine>",
     "the style engine to use (nativewind, uniwind)"
   )
+  .option(
+    "--expo-version <version>",
+    "the Expo SDK template to use (54, 57)"
+  )
   .action(async (opts) => {
     try {
       const options = initOptionsSchema.parse({
@@ -97,22 +106,32 @@ export const init = new Command()
 // Materialize the starter template into a local directory.
 //
 // - LOVDA_TEMPLATE_DIR (local dev/testing): use a local template directory.
-//   The engine-scoped subdir (`<dir>/<styleEngine>`) is preferred, falling
-//   back to the directory itself.
-// - Otherwise: sparse-clone only `packages/templates/<styleEngine>` from
-//   GITHUB_REPO_URL into a temp dir (shallow, blobless), mirroring shadcn.
+//   The versioned engine-scoped subdir (`<dir>/<styleEngine>/<expoVersion>`) is
+//   preferred, falling back to a direct template directory for compatibility.
+// - Otherwise: sparse-clone only
+//   `packages/templates/<styleEngine>/<expoVersion>` from GITHUB_REPO_URL into
+//   a temp dir (shallow, blobless), mirroring shadcn.
 //
 // Returns the resolved template directory and a cleanup function that removes
 // any temporary clone (a no-op for the local-override path).
 async function materializeTemplate(
-  styleEngine: "nativewind" | "uniwind"
+  styleEngine: "nativewind" | "uniwind",
+  expoVersion: TemplateExpoVersion
 ): Promise<{ dir: string; cleanup: () => void }> {
   const localTemplateDir = process.env.LOVDA_TEMPLATE_DIR
   if (localTemplateDir) {
-    const scoped = path.resolve(localTemplateDir, styleEngine)
-    const dir = fs.existsSync(scoped) ? scoped : localTemplateDir
-    if (!fs.existsSync(dir)) {
-      throw new Error(`Template directory not found at ${dir}`)
+    const candidates = [
+      path.resolve(localTemplateDir, styleEngine, expoVersion),
+      path.resolve(localTemplateDir, expoVersion),
+      path.resolve(localTemplateDir),
+    ]
+    const dir = candidates.find((candidate) =>
+      fs.existsSync(path.join(candidate, "package.json"))
+    )
+    if (!dir) {
+      throw new Error(
+        `Template directory for ${styleEngine} Expo SDK ${expoVersion} not found at ${localTemplateDir}`
+      )
     }
     return { dir, cleanup: () => {} }
   }
@@ -133,18 +152,39 @@ async function materializeTemplate(
     templatePath,
     "sparse-checkout",
     "set",
-    `packages/templates/${styleEngine}`,
+    `packages/templates/${styleEngine}/${expoVersion}`,
   ])
 
-  const dir = path.resolve(templatePath, "packages", "templates", styleEngine)
+  const dir = path.resolve(
+    templatePath,
+    "packages",
+    "templates",
+    styleEngine,
+    expoVersion
+  )
   if (!fs.existsSync(dir)) {
     fs.removeSync(templatePath)
     throw new Error(
-      `Template "${styleEngine}" not found in ${GITHUB_REPO_URL}`
+      `Template "${styleEngine}" for Expo SDK ${expoVersion} not found in ${GITHUB_REPO_URL}`
     )
   }
 
   return { dir, cleanup: () => fs.removeSync(templatePath) }
+}
+
+function getTemplateExpoVersion(packageJson: any): TemplateExpoVersion | undefined {
+  const dependencies = {
+    ...(packageJson.dependencies || {}),
+    ...(packageJson.devDependencies || {}),
+  }
+  const expoVersion = dependencies.expo
+  if (typeof expoVersion !== "string") {
+    return undefined
+  }
+
+  const match = expoVersion.match(/\d+/)
+  const major = match?.[0]
+  return TEMPLATE_EXPO_VERSIONS.find((version) => version === major)
 }
 
 // Initialize a git repository and create an initial commit.
@@ -167,6 +207,8 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
   let packageManager = options.packageManager
   let projectPath: string
   let styleEngine: "nativewind" | "uniwind" = "nativewind"
+  let expoVersion: TemplateExpoVersion =
+    options.expoVersion || DEFAULT_TEMPLATE_EXPO_VERSION
   let style: string = "new-york"
   let baseColor: string = "zinc"
   let chartColor: string = DEFAULT_PRESET_CONFIG.chartColor
@@ -213,6 +255,7 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
     } catch { }
 
     const deps = { ...(packageJson.dependencies || {}), ...(packageJson.devDependencies || {}) }
+    expoVersion = options.expoVersion || getTemplateExpoVersion(packageJson) || DEFAULT_TEMPLATE_EXPO_VERSION
     if (deps["uniwind"]) {
       styleEngine = "uniwind"
     } else if (deps["nativewind"]) {
@@ -261,6 +304,19 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
             { title: "Uniwind", value: "uniwind" }
           ],
           initial: 0
+        })
+      }
+
+      if (!options.expoVersion) {
+        questions.push({
+          type: "select",
+          name: "expoVersion",
+          message: "Which Expo SDK version would you like to use?",
+          choices: TEMPLATE_EXPO_VERSIONS.map((version) => ({
+            title: `Expo SDK ${version}`,
+            value: version,
+          })),
+          initial: TEMPLATE_EXPO_VERSIONS.indexOf(DEFAULT_TEMPLATE_EXPO_VERSION),
         })
       }
 
@@ -360,6 +416,7 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
         (!projectName && !response.projectName) ||
         (!packageManager && !response.packageManager) ||
         (!options.engine && !response.styleEngine) ||
+        (!options.expoVersion && !response.expoVersion) ||
         (!presetConfig && (!response.style || !response.baseColor || !response.chartColor))
       ) {
         process.exit(0)
@@ -367,6 +424,7 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
       projectName = projectName || response.projectName.trim()
       packageManager = packageManager || (response.packageManager as "npm" | "yarn" | "pnpm" | "bun")
       styleEngine = options.engine || response.styleEngine
+      expoVersion = options.expoVersion || response.expoVersion || DEFAULT_TEMPLATE_EXPO_VERSION
       // style/baseColor/chartColor come from preset if provided, else from prompt
       style = presetConfig ? presetConfig.style : response.style
       baseColor = presetConfig ? presetConfig.baseColor : response.baseColor
@@ -518,11 +576,11 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
   // Materialize the template locally: use LOVDA_TEMPLATE_DIR for local
   // development, otherwise sparse-clone it from GitHub (shadcn-style).
   const { dir: templateDir, cleanup: cleanupTemplate } =
-    await materializeTemplate(styleEngine)
+    await materializeTemplate(styleEngine, expoVersion)
 
   // For existing projects, detect src dir from the project we're initializing into.
-  // For new projects, we assume the template has a `src` layout (both nativewind and
-  // uniwind templates ship a `src/` directory), so the CSS path resolves under `src/`.
+  // New starter layouts are determined from the selected template. This supports
+  // both SDK 54 root-level files and SDK 57 `src/` layouts.
   const hasSrcDir = hasPackageJson
     ? fs.existsSync(path.join(projectPath, "src"))
     : fs.existsSync(path.join(templateDir, "src"))
