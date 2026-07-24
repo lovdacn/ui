@@ -34,11 +34,19 @@ export async function generateMetadata(props: {
   return {
     title: doc.title,
     description: doc.description,
+    alternates: {
+      canonical: absoluteUrl(page.url),
+    },
     openGraph: {
       title: doc.title,
       description: doc.description,
       type: "article",
       url: absoluteUrl(page.url),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: doc.title,
+      description: doc.description,
     },
   }
 }

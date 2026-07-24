@@ -34,9 +34,25 @@ export async function generateMetadata(props: {
   const category = categoryFromSlug(slug)
   if (!category) return {}
   const meta = blockCategoryMeta[category]
+  const blockTitle = `${meta.title} Blocks`
+  const canonicalUrl = `/blocks/${slug}`
   return {
-    title: `${meta.title} Blocks`,
+    title: blockTitle,
     description: meta.description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title: blockTitle,
+      description: meta.description,
+      url: canonicalUrl,
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: blockTitle,
+      description: meta.description,
+    },
   }
 }
 

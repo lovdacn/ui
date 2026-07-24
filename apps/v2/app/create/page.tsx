@@ -1,10 +1,27 @@
 import type { Metadata } from "next"
 import { CreateCustomizer } from "./customizer"
 
+const title = "Create Custom UI Theme & Components"
+const description =
+  "Customize everything. Pick your style, base color, font, icons, and radius — then create your own custom version of lovdaCN for React Native and Expo."
+
 export const metadata: Metadata = {
-  title: "Create",
-  description:
-    "Customize everything. Pick your style, base color, font, icons, and radius — then create your own version of lvcn.",
+  title,
+  description,
+  alternates: {
+    canonical: "/create",
+  },
+  openGraph: {
+    title,
+    description,
+    url: "/create",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
+  },
 }
 
 export default function CreatePage() {

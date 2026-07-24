@@ -28,6 +28,20 @@ const description =
 export const metadata: Metadata = {
   title,
   description,
+  alternates: {
+    canonical: "/blocks",
+  },
+  openGraph: {
+    title,
+    description,
+    url: "/blocks",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
+  },
 }
 
 /** Icon shown on each category card. */
