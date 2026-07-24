@@ -1566,11 +1566,9 @@ export default function PresentPage() {
               minHeight: '100vh',
               padding: 40,
               // Subtle dotted grid backdrop (shadcn block-preview vibe).
-              // `--border` is a raw HSL triple, so it must be wrapped in hsl()
-              // for the gradient to resolve to a real color.
               backgroundImage:
-                'radial-gradient(circle at 1px 1px, hsl(var(--border)) 1px, transparent 0)',
-              backgroundSize: '22px 22px',
+                'radial-gradient(circle at 1px 1px, var(--border) 1px, transparent 0)',
+              backgroundSize: '24px 24px',
             } as any)
           : { flex: 1, padding: 24 }
       }
