@@ -4,7 +4,8 @@
     "type": "registry:block",
     "description": "A full application dashboard built around the sidebar — a navigation sidebar, a top bar, KPI cards, an overview chart, and a recent-activity list.",
     "dependencies": [
-      "lucide-react-native"
+      "lucide-react-native",
+      "react-native-safe-area-context"
     ],
     "registryDependencies": [
       "sidebar",
@@ -24,7 +25,8 @@
     "type": "registry:block",
     "description": "A dashboard application shell built around the sidebar — a branded header with search, a collapsible nav item with a sub-menu, a project list with row actions, a user footer, and a bottom tab bar overridden by the sidebar drawer.",
     "dependencies": [
-      "lucide-react-native"
+      "lucide-react-native",
+      "react-native-safe-area-context"
     ],
     "registryDependencies": [
       "sidebar",
@@ -40,7 +42,9 @@
     "name": "login-01",
     "type": "registry:block",
     "description": "A sign-in screen: an (auth) route group with a login form card.",
-    "dependencies": [],
+    "dependencies": [
+      "react-native-safe-area-context"
+    ],
     "registryDependencies": [
       "card",
       "input",
@@ -55,7 +59,8 @@
     "type": "registry:block",
     "description": "A sign-in screen with social providers and a divider, as an (auth) route.",
     "dependencies": [
-      "lucide-react-native"
+      "lucide-react-native",
+      "react-native-safe-area-context"
     ],
     "registryDependencies": [
       "card",
@@ -108,7 +113,9 @@
     "name": "signup-01",
     "type": "registry:block",
     "description": "A sign-up screen: an (auth) route with a registration form and terms checkbox.",
-    "dependencies": [],
+    "dependencies": [
+      "react-native-safe-area-context"
+    ],
     "registryDependencies": [
       "card",
       "input",
@@ -159,7 +166,8 @@
     "type": "registry:block",
     "description": "A dashboard route with a stack of KPI stat cards and trend badges.",
     "dependencies": [
-      "lucide-react-native"
+      "lucide-react-native",
+      "react-native-safe-area-context"
     ],
     "registryDependencies": [
       "card",

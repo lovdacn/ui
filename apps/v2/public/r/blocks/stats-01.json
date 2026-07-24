@@ -4,7 +4,8 @@
   "type": "registry:block",
   "description": "A dashboard route with a stack of KPI stat cards and trend badges.",
   "dependencies": [
-    "lucide-react-native"
+    "lucide-react-native",
+    "react-native-safe-area-context"
   ],
   "registryDependencies": [
     "card",
@@ -16,7 +17,7 @@
   "files": [
     {
       "path": "app/dashboard.tsx",
-      "content": "import { Stats } from '@/components/stats';\nimport { Text } from '@/components/ui/text';\nimport { ScrollView, View } from 'react-native';\n\nexport default function DashboardScreen() {\n  return (\n    <ScrollView className=\"bg-background flex-1\">\n      <View className=\"gap-1 p-4 pb-0\">\n        <Text variant=\"h3\">Dashboard</Text>\n        <Text className=\"text-muted-foreground\">Your key metrics at a glance</Text>\n      </View>\n      <Stats />\n    </ScrollView>\n  );\n}\n",
+      "content": "import { Stats } from '@/components/stats';\nimport { Text } from '@/components/ui/text';\nimport { ScrollView, View } from 'react-native';\nimport { SafeAreaView } from 'react-native-safe-area-context';\n\nexport default function DashboardScreen() {\n  return (\n    <SafeAreaView className=\"bg-background flex-1\">\n      <ScrollView className=\"flex-1\">\n        <View className=\"gap-1 p-4 pb-0\">\n          <Text variant=\"h3\">Dashboard</Text>\n          <Text className=\"text-muted-foreground\">Your key metrics at a glance</Text>\n        </View>\n        <Stats />\n      </ScrollView>\n    </SafeAreaView>\n  );\n}\n",
       "type": "registry:page",
       "target": "app/dashboard.tsx"
     },
