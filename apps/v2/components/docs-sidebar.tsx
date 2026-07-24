@@ -4,7 +4,6 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 
 import { COMPONENTS } from "@/lib/components"
-import { blocks } from "@/lib/blocks"
 import { cn } from "@/lib/utils"
 
 type NavItem = {
@@ -25,20 +24,6 @@ const SECTIONS: NavSection[] = [
       { name: "CLI", href: "/docs/cli" },
       { name: "Skills", href: "/docs/skills" },
       { name: "Dark Mode", href: "/docs/dark-mode" },
-    ],
-  },
-  {
-    title: "Blocks",
-    items: [
-      {
-        name: "All Blocks",
-        href: "/docs/blocks",
-        isBeta: true,
-      },
-      ...blocks.map((block) => ({
-        name: block.title,
-        href: `/docs/blocks/${block.name}`,
-      })),
     ],
   },
   {

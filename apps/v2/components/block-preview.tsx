@@ -165,7 +165,7 @@ export function BlockPreview({ block }: { block: BlockMeta }) {
             title={`${title} preview`}
             className={cn(
               "w-full border-0 bg-background transition-opacity duration-300",
-              block.category === "Authentication" ? "h-[720px]" : "h-[600px]",
+              block.category === "Login" || block.category === "Signup" ? "h-[720px]" : "h-[600px]",
               ready ? "opacity-100" : "opacity-0"
             )}
           />
