@@ -220,6 +220,7 @@ const CHART_BG = ['bg-chart-1', 'bg-chart-2', 'bg-chart-3', 'bg-chart-4', 'bg-ch
 
 // Sample data for the dashboard charts.
 const STOCK_DATA = [38, 30, 44, 40, 58, 52, 71, 66, 88];
+const STOCK_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'];
 const POWER_DATA = [
   { use: 45, solar: 20 },
   { use: 62, solar: 34 },
@@ -263,12 +264,18 @@ function AreaLineChart({
   data,
   height = 76,
   strokeWidth = 2.5,
+  labels,
+  formatValue,
 }: {
   data: number[];
   height?: number;
   strokeWidth?: number;
+  /** Optional x-axis labels, shown in the hover tooltip alongside the value. */
+  labels?: string[];
+  formatValue?: (value: number) => string;
 }) {
   const [width, setWidth] = React.useState(0);
+  const [hovered, setHovered] = React.useState<number | null>(null);
   const pad = strokeWidth + 3;
   const min = Math.min(...data);
   const max = Math.max(...data);
@@ -289,11 +296,46 @@ function AreaLineChart({
       ? `${line} L ${last[0]} ${height - pad} L ${first[0]} ${height - pad} Z`
       : '';
 
+  // Snap to the closest data point. `offsetX` is the web hover position;
+  // `locationX` is the native touch position.
+  const trackAt = React.useCallback(
+    (x: number) => {
+      if (!width || points.length === 0) return;
+      let closest = 0;
+      let best = Infinity;
+      points.forEach((p, i) => {
+        const distance = Math.abs(p[0] - x);
+        if (distance < best) {
+          best = distance;
+          closest = i;
+        }
+      });
+      setHovered(closest);
+    },
+    [points, width]
+  );
+
+  const active = hovered !== null ? points[hovered] : null;
+  const activeValue = hovered !== null ? data[hovered] : null;
+  const activeLabel = hovered !== null ? labels?.[hovered] : undefined;
+  const tooltipWidth = 84;
+
   return (
     <View
-      className="text-chart-1"
+      className="text-chart-1 relative"
       onLayout={(e) => setWidth(e.nativeEvent.layout.width)}
       style={{ height }}
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      onPointerMove={(e: any) => {
+        const ne = e?.nativeEvent ?? {};
+        trackAt(ne.offsetX ?? ne.locationX ?? 0);
+      }}
+      onPointerLeave={() => setHovered(null)}
+      onStartShouldSetResponder={() => true}
+      onResponderGrant={(e) => trackAt(e.nativeEvent.locationX)}
+      onResponderMove={(e) => trackAt(e.nativeEvent.locationX)}
+      onResponderRelease={() => setHovered(null)}
+      onResponderTerminate={() => setHovered(null)}
     >
       {width > 0 ? (
         <Svg width={width} height={height}>
@@ -306,10 +348,44 @@ function AreaLineChart({
             strokeLinejoin="round"
             strokeLinecap="round"
           />
+          {active && (
+            <Path
+              d={`M ${active[0]} ${pad} L ${active[0]} ${height - pad}`}
+              stroke="currentColor"
+              strokeOpacity={0.35}
+              strokeWidth={1}
+              strokeDasharray="3 3"
+            />
+          )}
           {points.map((p, i) => (
-            <Circle key={i} cx={p[0]} cy={p[1]} r={strokeWidth} fill="currentColor" />
+            <Circle
+              key={i}
+              cx={p[0]}
+              cy={p[1]}
+              r={hovered === i ? strokeWidth * 2 : strokeWidth}
+              fill="currentColor"
+            />
           ))}
         </Svg>
+      ) : null}
+
+      {active && activeValue !== null ? (
+        <View
+          pointerEvents="none"
+          className="border-border bg-popover absolute items-center rounded-lg border px-2 py-1 shadow-sm shadow-black/10"
+          style={{
+            width: tooltipWidth,
+            left: Math.min(Math.max(active[0] - tooltipWidth / 2, 0), Math.max(width - tooltipWidth, 0)),
+            top: Math.max(active[1] - 42, 0),
+          }}
+        >
+          {!!activeLabel && (
+            <Text className="text-muted-foreground text-[10px] leading-tight">{activeLabel}</Text>
+          )}
+          <Text className="text-popover-foreground text-xs font-semibold leading-tight">
+            {formatValue ? formatValue(activeValue) : String(activeValue)}
+          </Text>
+        </View>
       ) : null}
     </View>
   );
@@ -534,7 +610,11 @@ const DashboardComponent = ({ topPad = 64 }: { topPad?: number }) => {
               </View>
               {/* 6-month price trend */}
               <View className="rounded-lg bg-muted/20 p-2">
-                <AreaLineChart data={STOCK_DATA} />
+                <AreaLineChart
+                  data={STOCK_DATA}
+                  labels={STOCK_LABELS}
+                  formatValue={(v) => `$${v.toFixed(2)}`}
+                />
               </View>
               <View className="flex-row justify-between">
                 <Text className="text-[11px] text-muted-foreground">65% achieved</Text>
@@ -1010,9 +1090,32 @@ const COMPONENT_RENDERERS: Record<string, () => React.ReactNode> = {
   icon: () => <Icon as={Home} className="size-6 text-foreground" />,
   input: () => {
     const [val, setVal] = React.useState('');
+    const valid = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(val);
     return (
-      <View className="w-full max-w-sm">
-        <Input placeholder="Email" keyboardType="email-address" value={val} onChangeText={setVal} />
+      <View className="w-full max-w-sm gap-2">
+        <Label>
+          <Text className="font-medium">Email</Text>
+        </Label>
+        <Input
+          placeholder="you@example.com"
+          keyboardType="email-address"
+          autoCapitalize="none"
+          value={val}
+          onChangeText={setVal}
+          aria-invalid={val.length > 0 && !valid}
+        />
+        <View className="flex-row items-center justify-between">
+          <Text variant="muted" className="text-xs">
+            {val.length === 0
+              ? 'Type to see live state.'
+              : valid
+                ? 'Looks good.'
+                : 'Enter a valid email address.'}
+          </Text>
+          <Text variant="muted" className="text-xs tabular-nums">
+            {val.length}/64
+          </Text>
+        </View>
       </View>
     );
   },
@@ -1150,9 +1253,21 @@ const COMPONENT_RENDERERS: Record<string, () => React.ReactNode> = {
   ),
   textarea: () => {
     const [val, setVal] = React.useState('');
+    const words = val.trim() ? val.trim().split(/\s+/).length : 0;
     return (
-      <View className="w-full max-w-sm">
+      <View className="w-full max-w-sm gap-2">
+        <Label>
+          <Text className="font-medium">Message</Text>
+        </Label>
         <Textarea placeholder="Type your message here." value={val} onChangeText={setVal} />
+        <View className="flex-row items-center justify-between">
+          <Text variant="muted" className="text-xs">
+            {words === 0 ? 'Your message is private.' : `${words} word${words === 1 ? '' : 's'}`}
+          </Text>
+          <Text variant="muted" className="text-xs tabular-nums">
+            {val.length} chars
+          </Text>
+        </View>
       </View>
     );
   },
@@ -1180,8 +1295,9 @@ const COMPONENT_RENDERERS: Record<string, () => React.ReactNode> = {
       </ToggleGroup>
     );
   },
-    Tooltip: () => (
-    <Tooltip>
+  // Key must stay lowercase — it is matched against `?component=` and the docs slug.
+  tooltip: () => (
+    <Tooltip delayDuration={150}>
       <TooltipTrigger asChild>
         <Button variant="outline">
           <Text>Hover or Tap</Text>
@@ -1192,6 +1308,73 @@ const COMPONENT_RENDERERS: Record<string, () => React.ReactNode> = {
       </TooltipContent>
     </Tooltip>
   ),
+  typography: () => (
+    <ScrollView className="w-full" contentContainerClassName="gap-1 px-2 pb-4">
+      <Text variant="h1">The Joke Tax</Text>
+      <Text variant="lead">
+        A short tour of every text variant shipped with the Text component.
+      </Text>
+      <Text variant="h2">The King&apos;s Plan</Text>
+      <Text variant="p">
+        The king thought long and hard, and finally came up with a brilliant plan: he would
+        tax the jokes in the kingdom.
+      </Text>
+      <Text variant="h3">The Joke Tax</Text>
+      <Text variant="blockquote">
+        &quot;After all,&quot; he said, &quot;everyone enjoys a good joke, so it&apos;s only
+        fair that they should pay for the privilege.&quot;
+      </Text>
+      <Text variant="h4">People of the Kingdom</Text>
+      <Text variant="p">
+        Use <Text variant="code">variant=&quot;code&quot;</Text> for inline snippets.
+      </Text>
+      <Text variant="large">Large — a slightly heavier lead-in.</Text>
+      <Text variant="small">Small — dense metadata and captions.</Text>
+      <Text variant="muted">Muted — secondary, lower-contrast copy.</Text>
+    </ScrollView>
+  ),
+  charts: () => {
+    const series = [
+      {
+        title: 'Revenue',
+        caption: 'Last 9 months',
+        data: STOCK_DATA,
+        labels: STOCK_LABELS,
+        format: (v: number) => `$${(v * 120).toLocaleString()}`,
+      },
+      {
+        title: 'Active users',
+        caption: 'Weekly average',
+        data: [12, 19, 16, 28, 24, 33, 41, 38, 52],
+        labels: ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'W8', 'W9'],
+        format: (v: number) => `${v}k users`,
+      },
+    ];
+    return (
+      <View className="w-full gap-4">
+        {series.map((s) => (
+          <Card key={s.title}>
+            <CardHeader>
+              <CardTitle>
+                <Text>{s.title}</Text>
+              </CardTitle>
+              <CardDescription>
+                <Text>{s.caption} — hover or drag across the line for values.</Text>
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <AreaLineChart
+                data={s.data}
+                labels={s.labels}
+                formatValue={s.format}
+                height={110}
+              />
+            </CardContent>
+          </Card>
+        ))}
+      </View>
+    );
+  },
   "bottom-sheet": () => (
     <BottomSheet>
       <BottomSheetTrigger asChild>
@@ -1558,8 +1741,35 @@ export default function PresentPage() {
     component === 'login-04' || component === 'signup-02' ? 1024 : 420;
 
   return (
+    <CenteredStage component={component} maxWidth={previewMaxWidth}>
+      <ToastProvider>
+        <Renderer />
+      </ToastProvider>
+    </CenteredStage>
+  );
+}
+
+/**
+ * Centered preview stage with a hover affordance: pointing at the demo reveals a
+ * pill naming the component and the command that installs it. Hover-only, so it
+ * never covers the component in screenshots or on touch devices.
+ */
+function CenteredStage({
+  component,
+  maxWidth,
+  children,
+}: {
+  component: string;
+  maxWidth: number;
+  children: React.ReactNode;
+}) {
+  const [hovered, setHovered] = React.useState(false);
+
+  return (
     <View
       className="flex-1 items-center justify-center bg-background w-full"
+      onPointerEnter={() => setHovered(true)}
+      onPointerLeave={() => setHovered(false)}
       style={
         Platform.OS === 'web'
           ? ({
@@ -1575,12 +1785,23 @@ export default function PresentPage() {
     >
       <View
         className="w-full items-center justify-center"
-        style={{ maxWidth: previewMaxWidth }}
+        style={{ maxWidth }}
       >
-        <ToastProvider>
-          <Renderer />
-        </ToastProvider>
+        {children}
       </View>
+
+      {hovered && Platform.OS === 'web' ? (
+        <View
+          pointerEvents="none"
+          className="border-border bg-popover/95 absolute bottom-3 left-3 flex-row items-center gap-2 rounded-full border px-3 py-1.5 shadow-sm shadow-black/10"
+        >
+          <Text className="text-popover-foreground text-xs font-semibold">{component}</Text>
+          <View className="bg-border h-3 w-px" />
+          <Text className="text-muted-foreground font-mono text-[11px]">
+            npx lovdacn add {component}
+          </Text>
+        </View>
+      ) : null}
     </View>
   );
 }

@@ -46,3 +46,9 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+
+ANIMATIONS.md
+ANIMATION_IMPLEMENTATION_PLAN.md
+
+# Claude
+.claude/
