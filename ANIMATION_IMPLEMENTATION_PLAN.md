@@ -1,5 +1,7 @@
 # 🚀 Declarative `animate` Prop System: Comprehensive Implementation Master Plan
 
+> **Companion:** For the recommended phased / registry-correct path (object `animate` first, usage snippets), see [`ANIMATIONS.md`](./ANIMATIONS.md). Keep both docs.
+
 > **Target Workspace**: `lovdacn` (`c:/Users/saima/OneDrive/Desktop/expo-ui/lvcn`)  
 > **Core Engine**: React Native Reanimated v4 (`react-native-reanimated` 4.5.0) + React Native Gesture Handler (`react-native-gesture-handler`) + `@rn-primitives`  
 > **Target Platforms**: iOS, Android, and Expo Web (Universal 60–120 FPS UI Thread Performance)

@@ -208,6 +208,84 @@ describe("runInit", () => {
     expect(await readFile(path.join(projectPath, "index.js"), "utf8")).toBe("console.log('expo 54')")
   })
 
+  it("should sparse-clone the selected engine and Expo SDK directory", async () => {
+    delete process.env.LOVDA_TEMPLATE_DIR
+    let clonePath = ""
+
+    vi.mocked(execa).mockImplementation((async (command: any, args: any[] = []) => {
+      if (command === "git" && args[0] === "clone") {
+        clonePath = String(args.at(-1))
+        const templateDir = path.join(
+          clonePath,
+          "packages",
+          "templates",
+          "uniwind",
+          "54"
+        )
+        await mkdir(templateDir, { recursive: true })
+        await writeFile(
+          path.join(templateDir, "package.json"),
+          JSON.stringify(
+            { name: "uniwind-54-template", dependencies: { expo: "~54.0.35" } },
+            null,
+            2
+          ),
+          "utf8"
+        )
+        await writeFile(
+          path.join(templateDir, "index.js"),
+          "console.log('uniwind expo 54')",
+          "utf8"
+        )
+        await writeFile(
+          path.join(templateDir, "lvcn.json"),
+          JSON.stringify({
+            $schema: "https://lovdacn.vercel.app/schema.json",
+            style: "new-york",
+            styleEngine: "uniwind",
+            tsx: true,
+            tailwind: { config: "", css: "global.css" },
+            aliases: {
+              components: "@/components",
+              utils: "@/lib/utils",
+              ui: "@/components/ui",
+            },
+            components: [],
+          }),
+          "utf8"
+        )
+      }
+
+      return {} as any
+    }) as any)
+
+    await runInit({
+      cwd: tempCwd,
+      name: "uniwind-54-app",
+      yes: true,
+      force: false,
+      packageManager: "npm",
+      engine: "uniwind",
+      expoVersion: "54",
+    })
+
+    expect(clonePath).not.toBe("")
+    expect(execa).toHaveBeenCalledWith("git", [
+      "-C",
+      clonePath,
+      "sparse-checkout",
+      "set",
+      "packages/templates/uniwind/54",
+    ])
+
+    const projectPath = path.join(tempCwd, "uniwind-54-app")
+    const packageJson = fs.readJsonSync(path.join(projectPath, "package.json"))
+    expect(packageJson.dependencies.expo).toBe("~54.0.35")
+    expect(await readFile(path.join(projectPath, "index.js"), "utf8")).toBe(
+      "console.log('uniwind expo 54')"
+    )
+    expect(fs.existsSync(clonePath)).toBe(false)
+  })
 
   it("should prompt for style choice and write it to lvcn.json", async () => {
     vi.mocked(prompts).mockResolvedValue({

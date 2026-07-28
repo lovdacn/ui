@@ -1,7 +1,7 @@
 {
   "name": "lovdacn",
   "type": "module",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "private": false,
   "license": "MIT",
   "files": [
@@ -26,6 +26,7 @@
     "dev": "tsup --watch",
     "start": "node dist/index.js",
     "clean": "rimraf dist",
+    "prepack": "npm run build",
     "registry:build": "node scripts/build-registry.cjs",
     "blocks:build": "node scripts/build-blocks.cjs"
   },

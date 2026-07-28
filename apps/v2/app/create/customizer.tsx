@@ -59,7 +59,7 @@ const RadiusIcon = (
 
 import { useTheme } from "next-themes"
 import { cn } from "@/lib/utils"
-import { getExpoPreviewUrl } from "@/lib/preview"
+import { expoPreviewOrigin, getExpoPreviewUrl } from "@/lib/preview"
 import { Picker } from "./picker"
 import {
   PRESET_STYLES,
@@ -142,17 +142,50 @@ export function CreateCustomizer() {
     return "light"
   }, [resolvedTheme])
 
+  // The iframe src is intentionally *not* reactive to the preset. Putting the
+  // preset in the URL made every swatch click and every shuffle reload the whole
+  // Expo app. `present.tsx` already listens for `lvcn:preset` and applies the
+  // theme as CSS custom properties, so updates are pushed over postMessage and
+  // the preview never remounts.
   const webPreviewUrl = React.useMemo(
     () =>
       getExpoPreviewUrl({
         component: "dashboard",
         chrome: "web",
-        preset: presetCode,
-        engine: selectedEngine,
-        colorScheme,
       }),
-    [presetCode, selectedEngine, colorScheme]
+    []
   )
+
+  const previewRef = React.useRef<HTMLIFrameElement>(null)
+  const [previewReady, setPreviewReady] = React.useState(false)
+  const [previewVisible, setPreviewVisible] = React.useState(false)
+
+  // Only trust the "ready" ping from our own frame.
+  React.useEffect(() => {
+    function onMessage(e: MessageEvent) {
+      if (e.source !== previewRef.current?.contentWindow) return
+      if ((e.data as { type?: string })?.type === "lvcn:ready") {
+        setPreviewReady(true)
+      }
+    }
+    window.addEventListener("message", onMessage)
+    return () => window.removeEventListener("message", onMessage)
+  }, [])
+
+  // Push the preset + color scheme once the presenter is mounted, and on every
+  // change after that. The presenter applies them in a layout effect, so the
+  // frame is only revealed on the frame after the first message lands — that way
+  // the default (unthemed) dashboard is never visible.
+  React.useEffect(() => {
+    if (!previewReady) return
+    previewRef.current?.contentWindow?.postMessage(
+      { type: "lvcn:preset", preset: presetCode, colorScheme },
+      expoPreviewOrigin
+    )
+    if (previewVisible) return
+    const id = requestAnimationFrame(() => setPreviewVisible(true))
+    return () => cancelAnimationFrame(id)
+  }, [previewReady, previewVisible, presetCode, colorScheme])
 
   const command = React.useMemo(() => {
     const runner = {
@@ -410,9 +443,18 @@ export function CreateCustomizer() {
           {viewMode === "web" ? (
             /* Desktop preview - iframe pinned to fill the container (overrides UA 150px height) */
             <div className="relative z-10 flex-1 min-h-0 overflow-hidden animate-in fade-in duration-300">
+              {!previewVisible && (
+                <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-sm text-muted-foreground">
+                  Loading preview…
+                </div>
+              )}
               <iframe
+                ref={previewRef}
                 src={webPreviewUrl}
-                className="absolute inset-0 h-full w-full border-0 select-none bg-background"
+                className={cn(
+                  "absolute inset-0 h-full w-full border-0 select-none bg-background transition-opacity duration-300",
+                  previewVisible ? "opacity-100" : "opacity-0"
+                )}
                 title="Expo Web Preview"
               />
             </div>
