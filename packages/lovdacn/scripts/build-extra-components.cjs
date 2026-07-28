@@ -88,6 +88,15 @@ const COMPONENTS = [
     dependencies: ['lucide-react-native'],
     registryDependencies: ['utils'],
   },
+  {
+    // motion — shared animation engine. [BETA]
+    // Style-agnostic like spinner/sonner: emitted here with explicit Reanimated +
+    // Worklets deps (main components import '@/components/ui/motion', not Reanimated
+    // directly). registryDependencies is only `utils` to avoid dependency cycles.
+    name: 'motion',
+    dependencies: ['react-native-reanimated', 'react-native-worklets'],
+    registryDependencies: ['utils'],
+  },
 ];
 
 /** Mirror build-registry's normalizeContent: strip monorepo registry prefixes. */

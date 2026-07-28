@@ -52,6 +52,7 @@ export const AVAILABLE_COMPONENTS = [
   "input-otp",
   "label",
   "menubar",
+  "motion",
   "native-only-animated-view",
   "popover",
   "progress",
@@ -71,6 +72,11 @@ export const AVAILABLE_COMPONENTS = [
   "toggle-group",
   "tooltip",
 ] as const
+
+// Components shipped as beta. Adding one prints a beta notice, and the interactive
+// picker labels it "(beta)". The `motion` engine and its animate/activeAnimate
+// contract are beta until the API stabilizes.
+export const BETA_COMPONENTS = new Set<string>(["motion"])
 
 // Detect whether the target project is an Expo project (so we can defer to
 // `expo install` for SDK-compatible native module versions).
@@ -163,7 +169,10 @@ export async function runAdd(options: z.infer<typeof addOptionsSchema>) {
       type: "multiselect",
       name: "components",
       message: "Which components would you like to add?",
-      choices: AVAILABLE_COMPONENTS.map((c) => ({ title: c, value: c })),
+      choices: AVAILABLE_COMPONENTS.map((c) => ({
+        title: BETA_COMPONENTS.has(c) ? `${c} (beta)` : c,
+        value: c,
+      })),
       instructions: "Space to select. A to toggle all. Enter to submit."
     })
     if (!response.components || response.components.length === 0) {
@@ -225,6 +234,21 @@ export async function runAdd(options: z.infer<typeof addOptionsSchema>) {
     npmDependencies.add(PORTAL_DEPENDENCY)
     npmDependencies.add(GESTURE_HANDLER_DEPENDENCY)
     configurePortalHost(cwd)
+  }
+
+  // Beta gate: notify when a beta component was added (directly or transitively).
+  const betaAdded = Array.from(resolvedComponents).filter((c) => BETA_COMPONENTS.has(c))
+  if (betaAdded.length > 0) {
+    const isAre = betaAdded.length > 1 ? "are" : "is"
+    console.log()
+    console.log(pc.yellow(`⚠  Beta: ${pc.bold(betaAdded.join(", "))} ${isAre} in beta.`))
+    console.log(
+      pc.yellow(
+        "   The animation API (animate / activeAnimate) may change before the stable release."
+      )
+    )
+    console.log(pc.yellow("   Feedback welcome: https://github.com/lovdacn/ui/issues"))
+    console.log()
   }
 
   // Install npm dependencies in one run

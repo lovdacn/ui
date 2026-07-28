@@ -1,0 +1,149 @@
+---
+title: Motion
+description: Shared animation engine — the animate / activeAnimate contract and Motion hosts for animating any component or custom content.
+component: true
+---
+
+Motion is the shared animation engine behind lovdaCN's `animate` and `activeAnimate`
+props. It runs on the UI thread with Reanimated, respects system reduced-motion, and
+exposes typed object configuration plus standalone `Motion` hosts for your own content.
+
+<Callout>
+  **Beta.** Object configuration (`animate` / `activeAnimate`) and the `Motion` hosts are
+  available now. Utility-string syntax (e.g. `animate="fade-in"`) and automatic
+  per-component wiring across the whole registry are planned for later phases and may
+  change. Install the CLI from the `beta` dist-tag while this stabilizes.
+</Callout>
+
+## Installation
+
+<PackageManagerTabs>
+<PMTabContent value="npm">
+
+```bash
+npx lovdacn@beta add motion
+```
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+```bash
+yarn dlx lovdacn@beta add motion
+```
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+```bash
+pnpm dlx lovdacn@beta add motion
+```
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+```bash
+bunx --bun lovdacn@beta add motion
+```
+
+</PMTabContent>
+</PackageManagerTabs>
+
+This copies `components/ui/motion.tsx` and installs `react-native-reanimated` and
+`react-native-worklets`. Follow Expo's Reanimated setup (Babel plugin) if your project
+does not already have it.
+
+## Usage
+
+### Button (reference integration)
+
+`Button` supports both props out of the box and ships with a subtle default press scale.
+
+```tsx
+import { Button } from '@/components/ui/button';
+
+// Default: subtle press feedback (scale 0.97, snappy spring).
+<Button onPress={save}>Save</Button>
+
+// Custom mount + press animation.
+<Button
+  animate={{
+    initial: { opacity: 0, translateY: 8 },
+    to: { opacity: 1, translateY: 0 },
+    transition: { type: 'timing', duration: 180, easing: 'ease-out' },
+  }}
+  activeAnimate={{
+    to: { scale: 0.96 },
+    transition: { type: 'spring', damping: 14, stiffness: 240 },
+  }}
+  onPress={save}
+>
+  Save
+</Button>
+
+// Disable only the default press feedback.
+<Button activeAnimate={false} onPress={save}>No bounce</Button>
+```
+
+### Motion host (any content)
+
+Wrap user-owned content with `Motion` (or the typed `MotionView`, `MotionPressable`,
+`MotionText`, `MotionTextInput` hosts).
+
+```tsx
+import { Motion } from '@/components/ui/motion';
+
+<Motion
+  animate={{ initial: { opacity: 0, scale: 0.96 }, to: { opacity: 1, scale: 1 } }}
+  activeAnimate={{ scale: 0.98 }}
+>
+  <CustomTile />
+</Motion>
+```
+
+### Presets
+
+Preset names resolve to the same object model.
+
+```tsx
+<Motion animate="fade-in" />
+<Motion animate="slide-up" />
+<Button activeAnimate="press" />
+<Motion animate="spin" /> {/* continuous; stops under reduced motion */}
+```
+
+## API
+
+Every visual host accepts `SharedAnimationProps`:
+
+| Prop            | Type                                                | Description                                                                 |
+| --------------- | --------------------------------------------------- | --------------------------------------------------------------------------- |
+| `animate`       | `false \| MotionPresetName \| AnimateConfig`        | Idle / mount / loop animation. `false` disables it.                         |
+| `activeAnimate` | `false \| MotionPresetName \| MotionTarget \| ActiveAnimateConfig` | Motion while the component's semantic active state is true.   |
+| `motionActive`  | `boolean`                                           | Explicit active-state override for static hosts (Card, Text, …).            |
+| `reduceMotion`  | `"system" \| "always" \| "never"`                   | Reduced-motion policy. Defaults to `system`.                                |
+
+### Semantics
+
+- `animate` defines the idle/lifecycle layer: `initial` is the first rendered state, `to`
+  is the resting state.
+- `activeAnimate` overlays the idle target while the active state is on and returns to
+  idle when it turns off.
+- State precedence: `disabled` → `dragging` → `press` → semantic (`checked`, `selected`,
+  `open`, `expanded`, `current`, `loading`) → `focus` → `hover` → idle.
+- `animate={false}` and `activeAnimate={false}` disable only their own layer.
+- User handlers (`onPressIn`, `onPressOut`, focus, hover, …) are composed, not replaced —
+  each of your callbacks still fires exactly once. Refs resolve to the underlying host.
+
+### Reduced motion
+
+With `reduceMotion="system"` (the default), motion snaps to its final accessible value
+instead of animating when the OS "Reduce Motion" setting is on, and continuous loops stop.
+Essential state (checked indicators, open content, focus affordances) is always preserved.
+
+## Beta scope
+
+- **Available:** object `animate` / `activeAnimate`, `Motion` / `MotionView` /
+  `MotionPressable` / `MotionText` / `MotionTextInput`, `useMotion`, presets, reduced
+  motion, and the reference `Button` integration.
+- **Planned:** utility-string syntax, and automatic `motion` wiring for every component in
+  the registry (today, add `motion` explicitly or use a `Motion` host).

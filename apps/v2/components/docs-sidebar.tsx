@@ -34,6 +34,7 @@ const SECTIONS: NavSection[] = [
         name: c.title,
         href: `/docs/components/${c.name}`,
         isNew: c.new,
+        isBeta: c.beta,
       })),
     ],
   },

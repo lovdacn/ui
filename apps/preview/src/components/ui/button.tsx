@@ -1,3 +1,4 @@
+import { MotionPressable, type SharedAnimationProps } from '@/components/ui/motion';
 import { TextClassContext } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
@@ -79,14 +80,33 @@ const buttonTextVariants = cva(cn('text-sm font-medium', '', '', '', '', '', '',
   }
 );
 
-type ButtonProps = React.ComponentProps<typeof Pressable> & React.RefAttributes<typeof Pressable> & VariantProps<typeof buttonVariants>;
+type ButtonProps = React.ComponentProps<typeof Pressable> &
+  React.RefAttributes<typeof Pressable> &
+  VariantProps<typeof buttonVariants> &
+  SharedAnimationProps;
 
-function Button({ className, variant, size, ...props }: ButtonProps) {
+function Button({
+  className,
+  variant,
+  size,
+  animate,
+  activeAnimate,
+  motionActive,
+  reduceMotion,
+  ...props
+}: ButtonProps) {
   return (
     <TextClassContext.Provider value={buttonTextVariants({ variant, size })}>
-      <Pressable
+      <MotionPressable
         className={cn(props.disabled && 'opacity-50', buttonVariants({ variant, size }), className)}
         role="button"
+        // Motion [beta]: subtle default press scale (0.97, snappy spring) unless the
+        // caller overrides via `activeAnimate` or disables with `activeAnimate={false}`.
+        // `disabled` suppresses press motion automatically. Refs resolve to the pressable host.
+        animate={animate}
+        activeAnimate={activeAnimate}
+        motionActive={motionActive}
+        reduceMotion={reduceMotion}
         {...props}
       />
     </TextClassContext.Provider>
