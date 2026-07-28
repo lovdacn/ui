@@ -52,6 +52,35 @@ This copies `components/ui/motion.tsx` and installs `react-native-reanimated` an
 `react-native-worklets`. Follow Expo's Reanimated setup (Babel plugin) if your project
 does not already have it.
 
+## How it works: the primitives seam
+
+Components don't import their hosts from `react-native` directly. They import them from
+`components/ui/primitives`:
+
+```tsx
+import { Pressable, View, Text, TextInput } from '@/components/ui/primitives';
+```
+
+That one file has two interchangeable implementations:
+
+- **plain** (the default, installed with every component) — accepts `animate` /
+  `activeAnimate`, ignores them, renders the raw React Native host. No Reanimated, so an app
+  that never adds motion ships no animation runtime.
+- **motion-aware** (installed by `lovdacn add motion`) — renders engine-backed animated hosts.
+
+Because every component renders through this seam, `add motion` swaps one file and the whole
+library starts honouring `animate`. Nothing in the components changes, and adding a new
+component costs no animation work.
+
+```text
+lovdacn add button      → button + primitives (plain)   → no Reanimated
+lovdacn add motion      → motion.tsx + primitives (motion-aware) → animation live everywhere
+```
+
+Component defaults live in the components, not the hosts — Button passes
+`activeAnimate ?? 'press'`, so it has press feedback by default and you can override or
+disable it.
+
 ## Usage
 
 ### Button (reference integration)

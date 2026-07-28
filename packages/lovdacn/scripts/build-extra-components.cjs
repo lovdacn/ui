@@ -24,6 +24,11 @@ const path = require('path');
 
 const WORKSPACE_ROOT = path.resolve(__dirname, '../../../../');
 const REUSABLES_SRC = path.join(WORKSPACE_ROOT, 'react-native-reusables/packages/registry/src');
+const PREVIEW_SRC = path.join(WORKSPACE_ROOT, 'lvcn/apps/preview/src/components/ui');
+// Canonical in-repo source for style-agnostic files that are NOT part of the preview app
+// (e.g. the PLAIN primitives variant, which the preview never uses because the preview
+// always has motion installed).
+const REGISTRY_SRC = path.join(WORKSPACE_ROOT, 'lvcn/packages/lovdacn/registry-src/shared');
 const DEST_REGISTRY = path.join(WORKSPACE_ROOT, 'lvcn/apps/v2/public/r/styles');
 const SCHEMA = 'https://lovdacn.vercel.app/schema/registry-item.json';
 
@@ -90,12 +95,24 @@ const COMPONENTS = [
   },
   {
     // motion — shared animation engine. [BETA]
-    // Style-agnostic like spinner/sonner: emitted here with explicit Reanimated +
-    // Worklets deps (main components import '@/components/ui/motion', not Reanimated
-    // directly). registryDependencies is only `utils` to avoid dependency cycles.
+    // Ships TWO files: the engine, plus the MOTION-AWARE `primitives.tsx` that
+    // overwrites the plain seam. Because every component renders its hosts from
+    // `primitives`, swapping that one file upgrades the whole library at once.
+    // registryDependencies is only `utils` to avoid dependency cycles.
     name: 'motion',
     dependencies: ['react-native-reanimated', 'react-native-worklets'],
     registryDependencies: ['utils'],
+    files: ['components/ui/motion.tsx', 'components/ui/primitives.tsx'],
+  },
+  {
+    // primitives — PLAIN host indirection layer (the default seam).
+    // Infrastructure item, like `utils`: a registryDependency of components, not a
+    // showcase component. No npm dependencies — it renders raw React Native hosts and
+    // discards the animation props, so apps that never add motion ship no Reanimated.
+    name: 'primitives',
+    dependencies: [],
+    registryDependencies: [],
+    files: [{ path: 'components/ui/primitives.tsx', src: path.join(REGISTRY_SRC, 'components/ui/primitives.tsx') }],
   },
 ];
 
@@ -106,23 +123,49 @@ function normalizeContent(content) {
     .replace(/\r\n/g, '\n');
 }
 
+/**
+ * Resolve the file descriptors for a component entry.
+ * - no `files`           → single `components/ui/<name>.tsx`
+ * - `files: [string]`    → registry paths resolved from the engine/preview sources
+ * - `files: [{path,src}]`→ explicit source path (canonical in-repo source)
+ */
+function resolveFiles(comp, engine) {
+  const descriptors = comp.files ?? [`components/ui/${comp.name}.tsx`];
+
+  return descriptors.map((descriptor) => {
+    if (typeof descriptor !== 'string') {
+      return { path: descriptor.path, srcPath: descriptor.src };
+    }
+
+    const basename = path.basename(descriptor);
+    // Prefer the (optional) sibling reusables source, then the local preview app.
+    const candidates = [
+      path.join(REUSABLES_SRC, engine, 'components/ui', basename),
+      path.join(PREVIEW_SRC, basename),
+    ];
+    const srcPath = candidates.find((candidate) => fs.existsSync(candidate)) || candidates[0];
+    return { path: descriptor, srcPath };
+  });
+}
+
 function buildExtraComponents() {
   let written = 0;
 
   for (const engine of ENGINES) {
     for (const comp of COMPONENTS) {
-      let srcPath = path.join(REUSABLES_SRC, engine, 'components/ui', `${comp.name}.tsx`);
-      if (!fs.existsSync(srcPath)) {
-        // Fallback to the local preview app components
-        srcPath = path.join(WORKSPACE_ROOT, 'lvcn/apps/preview/src/components/ui', `${comp.name}.tsx`);
-      }
+      const fileDescriptors = resolveFiles(comp, engine);
 
-      if (!fs.existsSync(srcPath)) {
-        console.warn(`⚠  Missing ${comp.name} source: ${srcPath}`);
+      const missing = fileDescriptors.filter((f) => !fs.existsSync(f.srcPath));
+      if (missing.length > 0) {
+        console.warn(`⚠  Missing ${comp.name} source: ${missing.map((m) => m.srcPath).join(', ')}`);
         continue;
       }
 
-      const content = normalizeContent(fs.readFileSync(srcPath, 'utf8'));
+      const files = fileDescriptors.map((f) => ({
+        path: f.path,
+        content: normalizeContent(fs.readFileSync(f.srcPath, 'utf8')),
+        type: 'registry:ui',
+      }));
 
       for (const style of STYLES) {
         const destDir = path.join(DEST_REGISTRY, engine, style);
@@ -133,13 +176,7 @@ function buildExtraComponents() {
           name: comp.name,
           dependencies: comp.dependencies,
           registryDependencies: comp.registryDependencies,
-          files: [
-            {
-              path: `components/ui/${comp.name}.tsx`,
-              content,
-              type: 'registry:ui',
-            },
-          ],
+          files,
           meta: { engine, style },
           type: 'registry:ui',
         };

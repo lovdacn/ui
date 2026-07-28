@@ -78,6 +78,10 @@ export const AVAILABLE_COMPONENTS = [
 // contract are beta until the API stabilizes.
 export const BETA_COMPONENTS = new Set<string>(["motion"])
 
+// Marker exported by the MOTION-AWARE `components/ui/primitives.tsx`. Used to stop the
+// plain seam (a dependency of every component) from overwriting the motion-aware one.
+const MOTION_PRIMITIVES_MARKER = "MOTION_PRIMITIVES"
+
 // Detect whether the target project is an Expo project (so we can defer to
 // `expo install` for SDK-compatible native module versions).
 function isExpoProject(cwd: string): boolean {
@@ -304,6 +308,22 @@ export async function runAdd(options: z.infer<typeof addOptionsSchema>) {
 
     // Ensure target directory exists
     fs.ensureDirSync(path.dirname(targetPath))
+
+    // Install-order guard for the `primitives` host seam.
+    // `motion` ships the MOTION-AWARE primitives.tsx; every component depends on the
+    // PLAIN one. When both are queued (e.g. `add button motion`), the plain variant must
+    // never overwrite the motion-aware variant, regardless of resolution order.
+    if (
+      relativePath.endsWith("components/ui/primitives.tsx") &&
+      !file.content.includes(MOTION_PRIMITIVES_MARKER) &&
+      fs.existsSync(targetPath) &&
+      fs.readFileSync(targetPath, "utf8").includes(MOTION_PRIMITIVES_MARKER)
+    ) {
+      console.log(
+        pc.dim(`• Kept motion-aware ${path.relative(cwd, targetPath)} (skipped plain variant)`)
+      )
+      continue
+    }
 
     // Check if file exists and we are not overwriting
     if (fs.existsSync(targetPath) && !options.overwrite && !options.yes) {

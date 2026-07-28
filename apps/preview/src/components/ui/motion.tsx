@@ -785,7 +785,6 @@ export function MotionPressable({
     motionActive,
     reduceMotion,
     disabled: props.disabled ?? undefined,
-    defaultActiveAnimate: 'press',
   });
   const composed = composeMotionHandlers(props as Record<string, unknown>, handlers);
   return (
