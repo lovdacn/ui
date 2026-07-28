@@ -7,6 +7,8 @@ export type ComponentMeta = {
   featured?: boolean
   /** Recently added — surfaced with a "New" badge in the docs nav. */
   new?: boolean
+  /** Beta feature — surfaced with a "Beta" badge and gated docs. */
+  beta?: boolean
 }
 
 /** All UI components available in the lvcn registry (excluding utils). */
@@ -301,6 +303,15 @@ export const COMPONENTS: ComponentMeta[] = [
     description:
       "A popup that displays information related to an element when the element receives keyboard focus or the mouse hovers over it.",
     registryDependencies: ["utils", "text"],
+  },
+  {
+    name: "motion",
+    title: "Motion",
+    description:
+      "Shared animation engine — the `animate` / `activeAnimate` contract and Motion hosts for animating any component or custom content.",
+    dependencies: ["react-native-reanimated", "react-native-worklets"],
+    registryDependencies: ["utils"],
+    beta: true,
   },
 ]
 

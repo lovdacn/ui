@@ -1,7 +1,8 @@
+import { Pressable } from '@/components/ui/primitives';
 import { TextClassContext } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { Platform, Pressable } from 'react-native';
+import { Platform } from 'react-native';
 
 const buttonVariants = cva(cn('focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-4xl border border-transparent bg-clip-padding focus-visible:ring-[3px] aria-invalid:ring-[3px]', '', '', '', '', '', '', '',
   'group shrink-0 flex-row items-center justify-center gap-2 shadow-none focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-4xl border border-transparent bg-clip-padding focus-visible:ring-[3px] aria-invalid:ring-[3px]',
@@ -79,14 +80,20 @@ const buttonTextVariants = cva(cn('text-sm font-medium', '', '', '', '', '', '',
   }
 );
 
-type ButtonProps = React.ComponentProps<typeof Pressable> & React.RefAttributes<typeof Pressable> & VariantProps<typeof buttonVariants>;
+type ButtonProps = React.ComponentProps<typeof Pressable> &
+  React.RefAttributes<typeof Pressable> &
+  VariantProps<typeof buttonVariants>;
 
-function Button({ className, variant, size, ...props }: ButtonProps) {
+function Button({ className, variant, size, activeAnimate, ...props }: ButtonProps) {
   return (
     <TextClassContext.Provider value={buttonTextVariants({ variant, size })}>
       <Pressable
         className={cn(props.disabled && 'opacity-50', buttonVariants({ variant, size }), className)}
         role="button"
+        // Button owns its default press feedback. With the plain primitives this prop
+        // is ignored (no animation runtime); after `lovdacn add motion` it animates.
+        // Callers override with `activeAnimate={…}` or opt out with `activeAnimate={false}`.
+        activeAnimate={activeAnimate ?? 'press'}
         {...props}
       />
     </TextClassContext.Provider>

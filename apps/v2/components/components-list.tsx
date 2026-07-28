@@ -17,6 +17,10 @@ export function ComponentsList() {
             <span className="inline-flex shrink-0 items-center rounded-full bg-green-500/15 px-1.5 py-0.5 text-[10px] font-medium leading-none text-green-600 dark:text-green-400">
               New
             </span>
+          ) : component.beta ? (
+            <span className="inline-flex shrink-0 items-center rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-medium leading-none text-amber-700 dark:text-amber-300">
+              Beta
+            </span>
           ) : null}
         </div>
       ))}

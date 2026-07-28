@@ -411,4 +411,95 @@ export default function Layout() {
     expect(fs.existsSync(path.join(tempCwd, "src/components/signup-form.tsx"))).toBe(true)
     expect(fs.existsSync(path.join(tempCwd, "src/components/ui/checkbox.tsx"))).toBe(true)
   })
+
+  describe("primitives host seam", () => {
+    const seamConfig = {
+      $schema: "https://lovdacn.vercel.app/schema.json",
+      style: "default",
+      styleEngine: "nativewind",
+      tsx: true,
+      tailwind: { config: "tailwind.config.js", css: "global.css" },
+      aliases: { components: "~/components", utils: "~/lib/utils", ui: "~/components/ui" },
+      components: [],
+    }
+
+    async function writeSeamConfig() {
+      await writeFile(path.join(tempCwd, "lvcn.json"), JSON.stringify(seamConfig, null, 2), "utf8")
+    }
+
+    it("installs the PLAIN primitives seam with no animation runtime", async () => {
+      await writeSeamConfig()
+
+      await runAdd({ components: ["primitives"], cwd: tempCwd, yes: true, overwrite: true })
+
+      const seam = await readFile(path.join(tempCwd, "components/ui/primitives.tsx"), "utf8")
+      expect(seam).toContain("export { Pressable, Text, TextInput, View }")
+      // Plain seam must not pull in Reanimated, and must not claim to be motion-aware.
+      expect(seam).not.toContain("reanimated")
+      expect(seam).not.toContain("MOTION_PRIMITIVES")
+      // No npm dependencies for the plain seam.
+      expect(execa).not.toHaveBeenCalled()
+    })
+
+    it("`add motion` installs the engine AND the motion-aware seam", async () => {
+      await writeSeamConfig()
+
+      await runAdd({
+        components: ["motion"],
+        cwd: tempCwd,
+        yes: true,
+        overwrite: true,
+        packageManager: "npm" as const,
+      })
+
+      expect(fs.existsSync(path.join(tempCwd, "components/ui/motion.tsx"))).toBe(true)
+      const seam = await readFile(path.join(tempCwd, "components/ui/primitives.tsx"), "utf8")
+      expect(seam).toContain("MOTION_PRIMITIVES")
+      expect(seam).toContain("MotionPressable as Pressable")
+
+      // Reanimated + Worklets are installed for the engine.
+      expect(execa).toHaveBeenCalledWith(
+        "npm",
+        ["install", "react-native-reanimated", "react-native-worklets", "clsx", "tailwind-merge"],
+        { cwd: tempCwd, stdio: "inherit" }
+      )
+    })
+
+    it("keeps the motion-aware seam when the plain seam is installed afterwards", async () => {
+      await writeSeamConfig()
+
+      // Both queued together: motion resolves first and writes the motion-aware seam,
+      // then `primitives` would write the plain one. The guard must prevent that.
+      await runAdd({
+        components: ["motion", "primitives"],
+        cwd: tempCwd,
+        yes: true,
+        overwrite: true,
+        packageManager: "npm" as const,
+      })
+
+      const seam = await readFile(path.join(tempCwd, "components/ui/primitives.tsx"), "utf8")
+      expect(seam).toContain("MOTION_PRIMITIVES")
+      expect(seam).not.toContain("withoutMotionProps")
+    })
+
+    it("upgrades the plain seam when motion is added later", async () => {
+      await writeSeamConfig()
+
+      await runAdd({ components: ["primitives"], cwd: tempCwd, yes: true, overwrite: true })
+      const plain = await readFile(path.join(tempCwd, "components/ui/primitives.tsx"), "utf8")
+      expect(plain).not.toContain("MOTION_PRIMITIVES")
+
+      await runAdd({
+        components: ["motion"],
+        cwd: tempCwd,
+        yes: true,
+        overwrite: true,
+        packageManager: "npm" as const,
+      })
+
+      const upgraded = await readFile(path.join(tempCwd, "components/ui/primitives.tsx"), "utf8")
+      expect(upgraded).toContain("MOTION_PRIMITIVES")
+    })
+  })
 })

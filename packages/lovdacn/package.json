@@ -1,14 +1,15 @@
 {
   "name": "lovdacn",
   "type": "module",
-  "version": "0.1.4",
+  "version": "1.0.0-beta.0",
   "private": false,
   "license": "MIT",
   "files": [
     "dist"
   ],
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "tag": "beta"
   },
   "exports": {
     ".": {
@@ -28,7 +29,11 @@
     "clean": "rimraf dist",
     "prepack": "npm run build",
     "registry:build": "node scripts/build-registry.cjs",
-    "blocks:build": "node scripts/build-blocks.cjs"
+    "blocks:build": "node scripts/build-blocks.cjs",
+    "extra:build": "node scripts/build-extra-components.cjs",
+    "registry:build:all": "node scripts/build-registry.cjs && node scripts/build-blocks.cjs && node scripts/build-extra-components.cjs",
+    "version:beta": "npm version prerelease --preid=beta --no-git-tag-version",
+    "release:beta": "npm publish --tag beta --access public"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
