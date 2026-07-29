@@ -57,30 +57,46 @@ Each batch: swap host imports `react-native` → `@/components/ui/primitives`, k
       thing per component. Switch thumb keeps its class-based travel (specialized stays specialized).
       Verified: tsc at baseline; fixture proved props incl. multi-state `activeAnimate.states`.
 - [ ] **Step 5 — Batch C (disclosure/nav):** tabs, accordion, collapsible, breadcrumb, sidebar, calendar, carousel
-- [ ] **Step 6 — Batch D (overlays/feedback):** dialog, alert-dialog, sheet, bottom-sheet, popover, tooltip,
-      hover-card, select, dropdown-menu, context-menu, menubar, sonner, spinner, progress, native-only-animated-view
+- [x] **Step 6 — Batch D (overlays/feedback):** dialog, alert-dialog, sheet, bottom-sheet, select,
+      sonner, spinner, progress, dropdown-menu, context-menu, menubar routed through the seam.
+      *Gap:* popover / tooltip / hover-card render content inside the primitive's own animated
+      wrapper (no direct RN host), so they keep their built-in enter/exit and do **not** expose
+      `animate` yet.
 
 ### Phase 3 — Unify the four animation systems
-- [ ] **Step 7 — Fix `progress`.** Move `withSpring` out of `useAnimatedStyle` into a derived value.
-- [ ] **Step 8 — Menu exits.** Add `exiting` to dropdown-menu, context-menu, menubar (currently enter-only).
-- [ ] **Step 9 — Skeleton drift.** One implementation; reconcile preview (`animate-pulse`) vs registry (Reanimated loop).
-- [ ] **Step 10 — Reduced motion for CSS paths.** `@media (prefers-reduced-motion: reduce)` in the global
-      CSS templates to neutralise `animate-in`/`transition-*` (engine already handles JS-driven motion).
-- [ ] **Step 11 — Kill magic numbers.** Replace inline 150/200/250 in overlays with Step-2 seam tokens.
+- [x] **Step 7 — Fix `progress`.** `withSpring` moved into a `useDerivedValue`; the style callback
+      only reads `width.value`.
+- [x] **Step 8 — Menu exits.** dropdown-menu, context-menu, menubar now have
+      `exiting={FadeOut.duration(durations.fast)}` on every animated view.
+- [x] **Step 9 — Skeleton drift.** One implementation; single-owner rule — CSS `animate-pulse`
+      when `animate` is omitted, engine when it is supplied, nothing when `false`.
+- [x] **Step 10 — Reduced motion for CSS.** `@media (prefers-reduced-motion: reduce)` appended to
+      all global stylesheets **and** emitted by the CLI (`REDUCED_MOTION_CSS` in `init.ts`), so
+      generated consumer projects get it too.
+- [x] **Step 11 — Kill magic numbers.** Every `.duration(150|200|250)` replaced with seam tokens
+      (verified zero remaining).
 
 ### Phase 4/5 — Motion completeness + sugar
-- [ ] **Step 12 — `MotionSlot` (`asChild`)** with ref/handler/style merging + dev warning; stagger helper.
-- [ ] **Step 13 — Utility strings** (`animate="fade-in slide-up duration-200"`) compiling to the object model.
+- [x] **Step 12 — `MotionSlot` (`asChild`)** with merged refs/handlers/style, memoized animated
+      types, dev warnings; plus `stagger()`.
+- [x] **Step 13 — Utility strings.** `parseMotionString()` compiles a bounded vocabulary into the
+      object model; runtime-verified against the real source via the TypeScript API.
 
 ### Phase 0/6 — Canonical source, regeneration, docs, release
-- [ ] **Step 14 — Canonical registry source.** Create `registry-src/{nativewind,uniwind}`, seed it,
-      repoint `REUSABLES_SRC` in both builders, fail the build when it is missing (fixes C4).
-- [ ] **Step 15 — Regenerate all outputs.** `registry:build:all`; assert every component JSON gains
-      `primitives` in `registryDependencies`; no cycles; 20 engine/style dirs consistent.
-- [ ] **Step 16 — Docs.** Per-component `animate` examples, `primitives` seam page, reduced-motion notes.
-- [ ] **Step 17 — Release prep.** Bump to **`1.0.0-beta.6`** (per C2), build, full tests, commit, push.
-- [ ] **Step 18 — Publish to npm.** `pnpm --filter lovdacn release:beta` → publishes `1.0.0-beta.6`
-      under the `beta` dist-tag. **BLOCKED on C1** (owner must `npm login`, or provide `NPM_TOKEN`).
+- [x] **Step 14 — Canonical registry source.** `registry-src/{nativewind,uniwind}` seeded and
+      seam-codemodded; both builders repointed; `build-registry.cjs` throws when it is missing.
+- [x] **Step 15 — Regenerate + validate.** 880 items; 520 import the seam and **every** one
+      declares `primitives`; no cycles, no unresolvable deps; `button.json` picks it up
+      automatically via `parseImports`.
+- [x] **Step 16 — Docs.** Motion page documents the seam, utility strings, `asChild`, `stagger`,
+      reduced motion (engine + CSS) and the known gaps.
+- [x] **Step 17 — Release prep.** Bumped to **`1.0.0-beta.6`** (per C2), CLI builds, 31/31 tests,
+      v2 tsc 0 errors, preview tsc unchanged. Committed `b239c9a` and pushed to
+      `origin/feat/animate-beta`.
+- [ ] **Step 18 — Publish to npm.** **BLOCKED on C1.** `npm publish --dry-run` confirms the package
+      is ready (`lovdacn@1.0.0-beta.6`, 22.8 kB), but `npm whoami` → `E401 Unauthorized`.
+      **To finish:** `npm login` (as the `lovdacn` owner), then
+      `pnpm --filter lovdacn release:beta`.
 
 ---
 
