@@ -148,7 +148,7 @@ export function Dashboard02({ topPad = 0 }: { topPad?: number }) {
               <View className="absolute left-2 top-2 z-10">
                 <Icon as={Search} className="text-muted-foreground size-4" />
               </View>
-              <Input placeholder="Search…" className="native:pl-8 h-9 pl-8" readOnly />
+              <Input placeholder="Search…" className="native:pl-8 h-9 pl-8" />
             </View>
           </SidebarInput>
         </SidebarHeader>

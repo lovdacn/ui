@@ -420,11 +420,11 @@ const DashboardComponent = ({ topPad = 64 }: { topPad?: number }) => {
             <CardContent className="gap-4">
               <View className="gap-1.5">
                 <Label htmlFor="email"><Text className="text-xs font-semibold">Email Address</Text></Label>
-                <Input id="email" placeholder="artist@studio.inc" value="artist@studio.inc" readOnly />
+                <Input id="email" placeholder="artist@studio.inc" defaultValue="artist@studio.inc" />
               </View>
               <View className="gap-1.5">
                 <Label htmlFor="password"><Text className="text-xs font-semibold">Current Password</Text></Label>
-                <Input id="password" secureTextEntry value="••••••••••••" readOnly />
+                <Input id="password" secureTextEntry defaultValue="hunter2hunter2" />
               </View>
               <Button>
                 <Text>Update Security</Text>
@@ -480,15 +480,15 @@ const DashboardComponent = ({ topPad = 64 }: { topPad?: number }) => {
             <CardContent className="gap-4">
               <View className="gap-1.5">
                 <Label><Text className="text-xs font-semibold">Amount to Transfer</Text></Label>
-                <Input placeholder="$ 1,200.00" value="$ 1,200.00" readOnly />
+                <Input placeholder="$ 1,200.00" defaultValue="$ 1,200.00" keyboardType="decimal-pad" />
               </View>
               <View className="gap-1.5">
                 <Label><Text className="text-xs font-semibold">From Account</Text></Label>
-                <Input value="Main Checking (•8402) — $12,450.00" readOnly />
+                <Input defaultValue="Main Checking (•8402) — $12,450.00" />
               </View>
               <View className="gap-1.5">
                 <Label><Text className="text-xs font-semibold">To Account</Text></Label>
-                <Input value="High Yield Savings (•1192) — $42,100.00" readOnly />
+                <Input defaultValue="High Yield Savings (•1192) — $42,100.00" />
               </View>
               <Separator />
               <View className="gap-2">
@@ -514,11 +514,11 @@ const DashboardComponent = ({ topPad = 64 }: { topPad?: number }) => {
             <CardContent className="gap-4">
               <View className="gap-1.5">
                 <Label><Text className="text-xs font-semibold">Account Holder Name</Text></Label>
-                <Input value="Synthetic Horizons Music LLC" readOnly />
+                <Input defaultValue="Synthetic Horizons Music LLC" />
               </View>
               <View className="gap-1.5">
                 <Label><Text className="text-xs font-semibold">IBAN / Account Number</Text></Label>
-                <Input value="DE89 3704 0044 •••• ••" readOnly />
+                <Input defaultValue="DE89 3704 0044 •••• ••" />
               </View>
               <Button className="w-full">
                 <Text>Save Payout Settings</Text>
@@ -658,16 +658,16 @@ const DashboardComponent = ({ topPad = 64 }: { topPad?: number }) => {
             <CardContent className="gap-4">
               <View className="gap-1.5">
                 <Label><Text className="text-xs font-semibold">Goal Name</Text></Label>
-                <Input placeholder="e.g. New Car, Home Downpayment" readOnly />
+                <Input placeholder="e.g. New Car, Home Downpayment" />
               </View>
               <View className="flex-row gap-2">
                 <View className="flex-1 gap-1.5">
                   <Label><Text className="text-xs font-semibold">Target Amount</Text></Label>
-                  <Input placeholder="$15,000" readOnly />
+                  <Input placeholder="$15,000" keyboardType="decimal-pad" />
                 </View>
                 <View className="flex-1 gap-1.5">
                   <Label><Text className="text-xs font-semibold">Target Date</Text></Label>
-                  <Input placeholder="Dec 2025" readOnly />
+                  <Input placeholder="Dec 2025" />
                 </View>
               </View>
               <View className="flex-row gap-2 mt-2">
@@ -803,13 +803,13 @@ const ShowcaseComponent = ({ topPad = 60 }: { topPad?: number }) => {
             </TabsList>
             <TabsContent value="general" className="p-4 border border-t-0 border-border rounded-b-lg gap-2">
               <Text variant="large">Profile Details</Text>
-              <Input placeholder="John Doe" value="John Doe" readOnly />
-              <Input placeholder="john@example.com" value="john@example.com" readOnly />
+              <Input placeholder="John Doe" defaultValue="John Doe" />
+              <Input placeholder="john@example.com" defaultValue="john@example.com" keyboardType="email-address" autoCapitalize="none" />
             </TabsContent>
             <TabsContent value="security" className="p-4 border border-t-0 border-border rounded-b-lg gap-2">
               <Text variant="large">Change Password</Text>
-              <Input placeholder="Current Password" secureTextEntry readOnly />
-              <Input placeholder="New Password" secureTextEntry readOnly />
+              <Input placeholder="Current Password" secureTextEntry />
+              <Input placeholder="New Password" secureTextEntry />
             </TabsContent>
           </Tabs>
         </CardContent>
