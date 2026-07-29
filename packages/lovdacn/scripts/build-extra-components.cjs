@@ -23,7 +23,8 @@ const fs = require('fs-extra');
 const path = require('path');
 
 const WORKSPACE_ROOT = path.resolve(__dirname, '../../../../');
-const REUSABLES_SRC = path.join(WORKSPACE_ROOT, 'react-native-reusables/packages/registry/src');
+// Canonical in-repo registry source (Phase 0) — was a non-existent sibling checkout.
+const REUSABLES_SRC = path.join(WORKSPACE_ROOT, 'lvcn/packages/lovdacn/registry-src');
 const PREVIEW_SRC = path.join(WORKSPACE_ROOT, 'lvcn/apps/preview/src/components/ui');
 // Canonical in-repo source for style-agnostic files that are NOT part of the preview app
 // (e.g. the PLAIN primitives variant, which the preview never uses because the preview
@@ -51,47 +52,47 @@ const COMPONENTS = [
   {
     name: 'sidebar',
     dependencies: ['class-variance-authority', 'lucide-react-native'],
-    registryDependencies: ['icon', 'separator', 'skeleton', 'text', 'utils'],
+    registryDependencies: ['icon', 'primitives', 'separator', 'skeleton', 'text', 'utils'],
   },
   {
     name: 'breadcrumb',
     dependencies: ['@rn-primitives/slot', 'lucide-react-native'],
-    registryDependencies: ['icon', 'text', 'utils'],
+    registryDependencies: ['icon', 'primitives', 'text', 'utils'],
   },
   {
     name: 'input-otp',
     dependencies: [],
-    registryDependencies: ['text', 'utils'],
+    registryDependencies: ['primitives', 'text', 'utils'],
   },
   {
     name: 'bottom-sheet',
     dependencies: ['@rn-primitives/dialog', 'react-native-reanimated', 'react-native-screens', 'lucide-react-native'],
-    registryDependencies: ['icon', 'text', 'utils', 'native-only-animated-view'],
+    registryDependencies: ['icon', 'primitives', 'text', 'utils', 'native-only-animated-view'],
   },
   {
     name: 'sheet',
     dependencies: ['@rn-primitives/dialog', 'react-native-reanimated', 'react-native-screens', 'lucide-react-native'],
-    registryDependencies: ['icon', 'text', 'utils', 'native-only-animated-view'],
+    registryDependencies: ['icon', 'primitives', 'text', 'utils', 'native-only-animated-view'],
   },
   {
     name: 'sonner',
     dependencies: ['react-native-reanimated', 'lucide-react-native'],
-    registryDependencies: ['utils'],
+    registryDependencies: ['primitives', 'utils'],
   },
   {
     name: 'spinner',
     dependencies: ['react-native-reanimated', 'lucide-react-native'],
-    registryDependencies: ['utils'],
+    registryDependencies: ['primitives', 'utils'],
   },
   {
     name: 'calendar',
     dependencies: ['lucide-react-native'],
-    registryDependencies: ['utils'],
+    registryDependencies: ['primitives', 'utils'],
   },
   {
     name: 'carousel',
     dependencies: ['lucide-react-native'],
-    registryDependencies: ['utils'],
+    registryDependencies: ['primitives', 'utils'],
   },
   {
     // motion — shared animation engine. [BETA]

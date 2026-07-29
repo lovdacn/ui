@@ -1,11 +1,6 @@
+import { Pressable, View } from '@/components/ui/primitives';
 import * as React from 'react';
-import {
-  FlatList,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
-  Pressable,
-  View,
-} from 'react-native';
+import { FlatList, NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 import { cn } from '@/lib/utils';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 

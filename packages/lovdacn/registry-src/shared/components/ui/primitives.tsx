@@ -111,8 +111,15 @@ export interface ActiveAnimateConfig {
   states?: Partial<Record<ActiveState, ActiveStateConfig>>;
 }
 
-export type AnimateProp = false | MotionPresetName | AnimateConfig;
-export type ActiveAnimateProp = false | MotionPresetName | MotionTarget | ActiveAnimateConfig;
+/** Preset name, utility string (e.g. 'fade-in slide-up duration-200'), config object, or alse. */
+export type MotionUtilityString = string & {};
+export type AnimateProp = false | MotionPresetName | MotionUtilityString | AnimateConfig;
+export type ActiveAnimateProp =
+  | false
+  | MotionPresetName
+  | MotionUtilityString
+  | MotionTarget
+  | ActiveAnimateConfig;
 
 export interface SharedAnimationProps {
   /** Idle, mount, exit, or continuous animation. `false` disables it. */
@@ -124,6 +131,42 @@ export interface SharedAnimationProps {
   /** Defaults to `system`. */
   reduceMotion?: 'system' | 'always' | 'never';
 }
+
+/* -------------------------------------------------------------------------------------------------
+ * Shared timing tokens
+ * -----------------------------------------------------------------------------------------------*/
+
+/**
+ * The single vocabulary for animation duration/easing across lovdaCN. Declared here (not
+ * imported from the engine) so components have one set of timing tokens even when no
+ * animation runtime is installed.
+ *
+ * These values are mirrored by `@/components/ui/motion` and by the Tailwind `duration-*`
+ * classes used on web — keep all three in sync so an animation looks the same whichever
+ * system drives it.
+ */
+export const durations = {
+  instant: 0,
+  fast: 150,
+  base: 200,
+  slow: 250,
+  slower: 300,
+} as const;
+
+export const transitions = {
+  /** Quick exits and dismissals. */
+  fast: { type: 'timing', duration: durations.fast, easing: 'ease-out' },
+  /** Default enter/idle transition. */
+  base: { type: 'timing', duration: durations.base, easing: 'ease-out' },
+  /** Slower, more deliberate movement (sheets, drawers). */
+  slow: { type: 'timing', duration: durations.slow, easing: 'ease-out' },
+  /** Crisp interaction feedback — the default for press/active states. */
+  springSnappy: { type: 'spring', damping: 18, stiffness: 240, mass: 1 },
+  /** Gentle, settling movement. */
+  springSoft: { type: 'spring', damping: 20, stiffness: 120, mass: 1 },
+  /** Playful overshoot. */
+  springBouncy: { type: 'spring', damping: 10, stiffness: 260, mass: 1 },
+} satisfies Record<string, MotionTransition>;
 
 /* -------------------------------------------------------------------------------------------------
  * Hosts — accept the animation props, ignore them, render the plain host
@@ -152,5 +195,19 @@ function Text(props: PlainProps<typeof RNText>) {
 function TextInput(props: PlainProps<typeof RNTextInput>) {
   return <RNTextInput {...withoutMotionProps(props)} />;
 }
+
+/**
+ * Host INSTANCE types, exported under the same names as the components above.
+ * TypeScript keeps types and values in separate declaration spaces, so `View` is both
+ * the component (value) and the underlying host instance type. That keeps existing
+ * component code working unchanged:
+ *
+ *   React.ComponentProps<typeof View>   → the component's props
+ *   React.RefAttributes<View>           → a ref to the real native host
+ */
+type View = RNView;
+type Text = RNText;
+type TextInput = RNTextInput;
+type Pressable = React.ComponentRef<typeof RNPressable>;
 
 export { Pressable, Text, TextInput, View };

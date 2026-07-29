@@ -1,3 +1,4 @@
+import { durations } from '@/components/ui/primitives';
 import { NativeOnlyAnimatedView } from '@/components/ui/native-only-animated-view';
 import { TextClassContext } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
@@ -29,7 +30,7 @@ function TooltipContent({
           <NativeOnlyAnimatedView
             entering={
               side === 'top'
-                ? FadeInDown.withInitialValues({ transform: [{ translateY: 3 }] }).duration(150)
+                ? FadeInDown.withInitialValues({ transform: [{ translateY: 3 }] }).duration(durations.fast)
                 : FadeInUp.withInitialValues({ transform: [{ translateY: -5 }] })
             }
             exiting={FadeOut}>

@@ -1,3 +1,4 @@
+import { Text, type SharedAnimationProps } from '@/components/ui/primitives';
 import { cn } from '@/lib/utils';
 import * as LabelPrimitive from '@rn-primitives/label';
 import { Platform } from 'react-native';
@@ -9,8 +10,26 @@ function Label({
   onPressIn,
   onPressOut,
   disabled,
+  animate,
+  activeAnimate,
+  motionActive,
+  reduceMotion,
   ...props
-}: React.ComponentProps<typeof LabelPrimitive.Text>) {
+}: React.ComponentProps<typeof LabelPrimitive.Text> & SharedAnimationProps) {
+  const textProps = {
+    className: cn(
+      'text-foreground text-sm font-medium',
+      Platform.select({ web: 'leading-none' }),
+      className
+    ),
+    ...props,
+  };
+
+  // The primitive owns the text host, so motion is attached with `asChild` — and only when
+  // the caller asks for it, leaving default rendering untouched.
+  const hasMotion =
+    animate !== undefined || activeAnimate !== undefined || motionActive !== undefined;
+
   return (
     <LabelPrimitive.Root
       className={cn(
@@ -25,14 +44,18 @@ function Label({
       onPressIn={onPressIn}
       onPressOut={onPressOut}
       disabled={disabled}>
-      <LabelPrimitive.Text
-        className={cn(
-          'text-foreground text-sm font-medium',
-          Platform.select({ web: 'leading-none' }),
-          className
-        )}
-        {...props}
-      />
+      {hasMotion ? (
+        <LabelPrimitive.Text {...textProps} asChild>
+          <Text
+            animate={animate}
+            activeAnimate={activeAnimate}
+            motionActive={motionActive}
+            reduceMotion={reduceMotion}
+          />
+        </LabelPrimitive.Text>
+      ) : (
+        <LabelPrimitive.Text {...textProps} />
+      )}
     </LabelPrimitive.Root>
   );
 }

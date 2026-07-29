@@ -23,11 +23,15 @@ import * as React from 'react';
 import {
   Pressable,
   type PressableProps,
+  type StyleProp,
   type TextProps,
   TextInput,
   type TextInputProps,
   type ViewProps,
+  type ViewStyle,
 } from 'react-native';
+// Host instance types — used so refs on the animated hosts resolve to the real native host.
+import type { Text as RNTextHost, View as RNViewHost } from 'react-native';
 import Animated, {
   cancelAnimation,
   Easing,
@@ -130,8 +134,15 @@ export interface ActiveAnimateConfig {
   states?: Partial<Record<ActiveState, ActiveStateConfig>>;
 }
 
-export type AnimateProp = false | MotionPresetName | AnimateConfig;
-export type ActiveAnimateProp = false | MotionPresetName | MotionTarget | ActiveAnimateConfig;
+/** Preset name, utility string (e.g. 'fade-in slide-up duration-200'), config object, or alse. */
+export type MotionUtilityString = string & {};
+export type AnimateProp = false | MotionPresetName | MotionUtilityString | AnimateConfig;
+export type ActiveAnimateProp =
+  | false
+  | MotionPresetName
+  | MotionUtilityString
+  | MotionTarget
+  | ActiveAnimateConfig;
 
 export interface SharedAnimationProps {
   /** Idle, mount, exit, or continuous animation. `false` disables it. */
@@ -150,7 +161,39 @@ export interface SharedAnimationProps {
 
 type LoopKind = 'spin' | 'pulse' | 'bounce' | 'shake' | 'wiggle';
 
-const SPRING_SNAPPY: MotionTransition = { type: 'spring', damping: 18, stiffness: 240, mass: 1 };
+/**
+ * Shared timing tokens — the single vocabulary for animation duration/easing across
+ * lovdaCN. Components import these from `@/components/ui/primitives` (which mirrors
+ * them) so they never have to depend on this engine directly.
+ *
+ * Keep these values in sync with the copies in the PLAIN primitives variant and with
+ * the Tailwind `duration-*` classes used on web, so an animation looks the same
+ * whichever system drives it.
+ */
+export const durations = {
+  instant: 0,
+  fast: 150,
+  base: 200,
+  slow: 250,
+  slower: 300,
+} as const;
+
+export const transitions = {
+  /** Quick exits and dismissals. */
+  fast: { type: 'timing', duration: durations.fast, easing: 'ease-out' },
+  /** Default enter/idle transition. */
+  base: { type: 'timing', duration: durations.base, easing: 'ease-out' },
+  /** Slower, more deliberate movement (sheets, drawers). */
+  slow: { type: 'timing', duration: durations.slow, easing: 'ease-out' },
+  /** Crisp interaction feedback — the default for press/active states. */
+  springSnappy: { type: 'spring', damping: 18, stiffness: 240, mass: 1 },
+  /** Gentle, settling movement. */
+  springSoft: { type: 'spring', damping: 20, stiffness: 120, mass: 1 },
+  /** Playful overshoot. */
+  springBouncy: { type: 'spring', damping: 10, stiffness: 260, mass: 1 },
+} satisfies Record<string, MotionTransition>;
+
+const SPRING_SNAPPY: MotionTransition = transitions.springSnappy;
 const TIMING_FAST: MotionTransition = { type: 'timing', duration: 180, easing: 'ease-out' };
 
 /**
@@ -258,11 +301,16 @@ function resolveAnimate(animate: AnimateProp | undefined, fallback: AnimateProp 
   const value = animate === undefined ? fallback : animate;
   if (value === undefined || value === false) return { config: undefined as AnimateConfig | undefined, loop: undefined as LoopKind | undefined };
   if (typeof value === 'string') {
-    const p = presetFor(value);
-    return {
-      config: { initial: p.initial, to: p.to, exit: p.exit, transition: p.transition } as AnimateConfig,
-      loop: p.loop,
-    };
+    // Single preset name resolves directly; anything with whitespace/prefixes is a utility string.
+    if (value in motionPresets) {
+      const p = presetFor(value as MotionPresetName);
+      return {
+        config: { initial: p.initial, to: p.to, exit: p.exit, transition: p.transition } as AnimateConfig,
+        loop: p.loop,
+      };
+    }
+    const parsed = parseMotionString(value);
+    return { config: parsed.animate, loop: undefined };
   }
   return { config: value, loop: undefined };
 }
@@ -272,11 +320,20 @@ function resolveActive(activeAnimate: ActiveAnimateProp | undefined, fallback: A
   if (value === undefined || value === false) return undefined;
 
   if (typeof value === 'string') {
-    const p = presetFor(value);
-    return { simple: p.active ?? p.to, transition: p.transition, states: undefined } as {
-      simple?: MotionTarget;
-      transition?: MotionTransition;
-      states?: ActiveAnimateConfig['states'];
+    if (value in motionPresets) {
+      const p = presetFor(value as MotionPresetName);
+      return { simple: p.active ?? p.to, transition: p.transition, states: undefined } as {
+        simple?: MotionTarget;
+        transition?: MotionTransition;
+        states?: ActiveAnimateConfig['states'];
+      };
+    }
+    // Utility string: bare transforms become the simple target, prefixed ones become states.
+    const parsed = parseMotionString(value);
+    return {
+      simple: parsed.animate?.to,
+      transition: parsed.active?.transition ?? parsed.animate?.transition,
+      states: parsed.active?.states,
     };
   }
   // MotionTarget vs ActiveAnimateConfig: config has `to`/`states`/`transition`.
@@ -763,10 +820,11 @@ export function MotionView({
   motionActive,
   reduceMotion,
   style,
+  ref,
   ...props
-}: WithMotion<ViewProps>) {
+}: WithMotion<ViewProps> & { ref?: React.Ref<RNViewHost> }) {
   const { animatedStyle } = useMotion({ animate, activeAnimate, motionActive, reduceMotion });
-  return <Animated.View style={[style, animatedStyle]} {...props} />;
+  return <Animated.View ref={ref} style={[style, animatedStyle]} {...props} />;
 }
 
 /** Animated Pressable host with composed interaction handlers. */
@@ -804,10 +862,11 @@ export function MotionText({
   motionActive,
   reduceMotion,
   style,
+  ref,
   ...props
-}: WithMotion<TextProps>) {
+}: WithMotion<TextProps> & { ref?: React.Ref<RNTextHost> }) {
   const { animatedStyle } = useMotion({ animate, activeAnimate, motionActive, reduceMotion });
-  return <Animated.Text style={[style, animatedStyle]} {...props} />;
+  return <Animated.Text ref={ref} style={[style, animatedStyle]} {...props} />;
 }
 
 /** Animated TextInput host (canonical active state: focus). */
@@ -825,11 +884,305 @@ export function MotionTextInput({
   return <AnimatedTextInput ref={ref} style={[style, animatedStyle]} {...props} {...composed} />;
 }
 
+/* -------------------------------------------------------------------------------------------------
+ * MotionSlot — `asChild` support
+ * -----------------------------------------------------------------------------------------------*/
+
+/** Merge two refs so both the caller's ref and ours receive the instance. */
+function mergeRefs<T>(...refs: (React.Ref<T> | undefined)[]) {
+  return (node: T | null) => {
+    for (const ref of refs) {
+      if (!ref) continue;
+      if (typeof ref === 'function') {
+        ref(node);
+      } else {
+        (ref as React.RefObject<T | null>).current = node;
+      }
+    }
+  };
+}
+
+/** Animated wrappers are memoized per child component type — never created during render. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const animatedTypeCache = new WeakMap<object, React.ComponentType<any>>();
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function getAnimatedType(type: object): React.ComponentType<any> {
+  const cached = animatedTypeCache.get(type);
+  if (cached) return cached;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const created = Animated.createAnimatedComponent(type as any) as React.ComponentType<any>;
+  animatedTypeCache.set(type, created);
+  return created;
+}
+
+/**
+ * Render motion INTO a single child instead of adding a wrapper node.
+ *
+ * The child keeps its identity (event target, accessibility role, layout box); it receives the
+ * animated style, the composed interaction handlers, and a merged ref. Use this when the thing
+ * you want to animate is someone else's single element and an extra host would be wrong.
+ *
+ * Requirements: the child must forward `ref` and accept `style`. If it cannot, animation has
+ * nowhere to attach — we warn in development and render the child untouched.
+ */
+export function MotionSlot({
+  children,
+  animate,
+  activeAnimate,
+  motionActive,
+  reduceMotion,
+  style,
+}: SharedAnimationProps & {
+  children: React.ReactNode;
+  style?: StyleProp<ViewStyle>;
+}) {
+  const { animatedStyle, handlers } = useMotion({
+    animate,
+    activeAnimate,
+    motionActive,
+    reduceMotion,
+  });
+
+  if (!React.isValidElement(children)) {
+    if (__DEV__) {
+      console.warn(
+        '[motion] MotionSlot expects a single React element child. Rendering children unchanged.'
+      );
+    }
+    return <>{children}</>;
+  }
+
+  const child = children as React.ReactElement<Record<string, unknown>> & {
+    ref?: React.Ref<unknown>;
+  };
+  const childType = child.type;
+
+  // Host strings ('View', 'div', …) can't be turned into animated hosts from here.
+  if (typeof childType === 'string') {
+    if (__DEV__) {
+      console.warn(
+        `[motion] MotionSlot cannot animate the intrinsic element "${childType}". ` +
+          'Wrap it in <Motion> instead, or use a component that forwards ref and style.'
+      );
+    }
+    return child;
+  }
+
+  const AnimatedChild = getAnimatedType(childType as object);
+  const childProps = child.props;
+  const composed = composeMotionHandlers(childProps, handlers);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const props: any = {
+    ...childProps,
+    ...composed,
+    style: [childProps.style as StyleProp<ViewStyle>, style, animatedStyle],
+    ref: mergeRefs(child.ref as React.Ref<unknown> | undefined),
+  };
+
+  return <AnimatedChild {...props} />;
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * Stagger helper
+ * -----------------------------------------------------------------------------------------------*/
+
+/**
+ * Build a per-index `animate` config so a list enters as a sequence rather than all at once.
+ *
+ * ```tsx
+ * {items.map((item, i) => (
+ *   <Motion key={item.id} animate={stagger('slide-up', i, 60)}>…</Motion>
+ * ))}
+ * ```
+ */
+export function stagger(
+  base: MotionPresetName | AnimateConfig,
+  index: number,
+  step = 50
+): AnimateConfig {
+  const config: AnimateConfig =
+    typeof base === 'string'
+      ? {
+          initial: motionPresets[base].initial,
+          to: motionPresets[base].to,
+          exit: motionPresets[base].exit,
+          transition: motionPresets[base].transition,
+        }
+      : base;
+
+  const transition: MotionTransition = config.transition ?? transitions.base;
+  const delay = (transition.delay ?? 0) + index * step;
+
+  return { ...config, transition: { ...transition, delay } };
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * Utility strings — sugar that COMPILES TO the object model above
+ * -----------------------------------------------------------------------------------------------*/
+
+const STRING_TRANSITIONS: Record<string, MotionTransition> = {
+  'spring-soft': transitions.springSoft,
+  'spring-snappy': transitions.springSnappy,
+  'spring-bouncy': transitions.springBouncy,
+};
+
+const EASING_TOKENS: Record<string, 'linear' | 'ease-in' | 'ease-out' | 'ease-in-out'> = {
+  'ease-linear': 'linear',
+  'ease-in': 'in',
+  'ease-out': 'out',
+  'ease-in-out': 'in-out',
+} as never;
+
+const STATE_PREFIXES = ['press', 'hover', 'focus', 'checked', 'selected', 'open', 'expanded'] as const;
+
+/** `scale-95` → 0.95, `opacity-50` → 0.5, `translate-x-4` → 4, `rotate-45` → '45deg'. */
+function numericToken(kind: string, raw: string): [keyof MotionTarget, number | `${number}deg`] | null {
+  const negative = raw.startsWith('-');
+  const n = Number(raw.replace('-', ''));
+  if (Number.isNaN(n)) return null;
+  const signed = negative ? -n : n;
+
+  switch (kind) {
+    case 'scale':
+      return ['scale', signed / 100];
+    case 'opacity':
+      return ['opacity', signed / 100];
+    case 'translate-x':
+      return ['translateX', signed];
+    case 'translate-y':
+      return ['translateY', signed];
+    case 'rotate':
+      return ['rotate', `${signed}deg`];
+    default:
+      return null;
+  }
+}
+
+type ParsedStrings = { animate?: AnimateConfig; active?: ActiveAnimateConfig };
+
+/**
+ * Parse a bounded utility-string vocabulary into the canonical object config.
+ *
+ * Supported: presets (`fade-in`, `slide-up`, `zoom-in`, `pop`, `spin`, `pulse`, …),
+ * transforms (`scale-*`, `translate-x-*`, `translate-y-*`, `rotate-*`, `opacity-*`),
+ * transitions (`duration-*`, `delay-*`, `ease-*`, `spring-soft|snappy|bouncy`) and state
+ * prefixes (`press:`, `hover:`, `focus:`, `checked:`, `selected:`, `open:`, `expanded:`).
+ *
+ * Unknown tokens warn in development and are ignored — they never reach a native view.
+ */
+export function parseMotionString(input: string): ParsedStrings {
+  const out: ParsedStrings = {};
+  const idle: AnimateConfig = {};
+  const states: NonNullable<ActiveAnimateConfig['states']> = {};
+  let transition: MotionTransition | undefined;
+  let delay: number | undefined;
+
+  for (const rawToken of input.trim().split(/\s+/).filter(Boolean)) {
+    // State-prefixed token → goes to activeAnimate.states
+    const colon = rawToken.indexOf(':');
+    if (colon > 0) {
+      const prefix = rawToken.slice(0, colon);
+      const token = rawToken.slice(colon + 1);
+      if (!(STATE_PREFIXES as readonly string[]).includes(prefix)) {
+        if (__DEV__) console.warn(`[motion] Unknown state prefix "${prefix}:" in "${input}".`);
+        continue;
+      }
+      const match = token.match(/^(scale|opacity|translate-x|translate-y|rotate)-(-?\d+)$/);
+      if (!match) {
+        if (__DEV__) console.warn(`[motion] Unsupported state token "${rawToken}".`);
+        continue;
+      }
+      const parsed = numericToken(match[1], match[2]);
+      if (!parsed) continue;
+      const key = prefix as (typeof STATE_PREFIXES)[number];
+      const existing = states[key]?.to ?? {};
+      states[key] = { to: { ...existing, [parsed[0]]: parsed[1] } };
+      continue;
+    }
+
+    // Preset
+    if (rawToken in motionPresets) {
+      const preset = motionPresets[rawToken as MotionPresetName];
+      if (preset.initial) idle.initial = { ...idle.initial, ...preset.initial };
+      if (preset.to) idle.to = { ...idle.to, ...preset.to };
+      if (preset.exit) idle.exit = { ...idle.exit, ...preset.exit };
+      if (preset.transition && !transition) transition = preset.transition;
+      continue;
+    }
+
+    // Named spring
+    if (rawToken in STRING_TRANSITIONS) {
+      transition = STRING_TRANSITIONS[rawToken];
+      continue;
+    }
+
+    // duration-*/delay-*
+    const timing = rawToken.match(/^(duration|delay)-(\d+)$/);
+    if (timing) {
+      const value = Number(timing[2]);
+      if (timing[1] === 'duration') {
+        transition = { type: 'timing', duration: value, easing: 'ease-out' };
+      } else {
+        delay = value;
+      }
+      continue;
+    }
+
+    // ease-*
+    if (rawToken.startsWith('ease-')) {
+      const easing = rawToken === 'ease-linear' ? 'linear' : (rawToken as 'ease-in' | 'ease-out' | 'ease-in-out');
+      transition = {
+        type: 'timing',
+        duration: transition && transition.type === 'timing' ? transition.duration ?? durations.base : durations.base,
+        easing,
+      };
+      continue;
+    }
+
+    // Bare transform → idle target
+    const transform = rawToken.match(/^(scale|opacity|translate-x|translate-y|rotate)-(-?\d+)$/);
+    if (transform) {
+      const parsed = numericToken(transform[1], transform[2]);
+      if (parsed) idle.to = { ...idle.to, [parsed[0]]: parsed[1] };
+      continue;
+    }
+
+    if (__DEV__) console.warn(`[motion] Unknown animate token "${rawToken}" in "${input}".`);
+  }
+
+  if (transition || delay !== undefined) {
+    const base = transition ?? transitions.base;
+    idle.transition = delay !== undefined ? { ...base, delay } : base;
+  }
+
+  if (Object.keys(idle).length > 0) out.animate = idle;
+  if (Object.keys(states).length > 0) {
+    out.active = { states, ...(idle.transition ? { transition: idle.transition } : {}) };
+  }
+
+  return out;
+}
+
 /**
  * `Motion` — standalone host for user-owned content. Defaults to a View host.
- * On web it renders identically (Reanimated drives the same styles).
+ * Pass `asChild` to merge the animation into a single child instead of adding a node.
  */
-export function Motion(props: WithMotion<ViewProps>) {
+export function Motion({ asChild, ...props }: WithMotion<ViewProps> & { asChild?: boolean }) {
+  if (asChild) {
+    const { animate, activeAnimate, motionActive, reduceMotion, style, children } = props;
+    return (
+      <MotionSlot
+        animate={animate}
+        activeAnimate={activeAnimate}
+        motionActive={motionActive}
+        reduceMotion={reduceMotion}
+        style={style}>
+        {children}
+      </MotionSlot>
+    );
+  }
   return <MotionView {...props} />;
 }
 

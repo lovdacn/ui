@@ -10,3 +10,30 @@
   --font-rounded: 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif;
   --font-serif: Georgia, 'Times New Roman', serif;
 }
+/* -------------------------------------------------------------------------------------------------
+ * Reduced motion (web)
+ *
+ * The motion engine handles JS-driven animation via the OS setting, but class-driven animation
+ * (tailwindcss-animate nimate-in/nimate-out, nimate-pulse, nimate-spin, and CSS
+ * transitions) is owned by CSS — so it must be neutralised here.
+ *
+ * Motion is removed, never information: final states, colours, and focus affordances are kept.
+ * ----------------------------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Continuous loaders settle instead of running forever. */
+  .animate-pulse,
+  .animate-spin,
+  .animate-bounce,
+  .animate-ping {
+    animation: none !important;
+  }
+}

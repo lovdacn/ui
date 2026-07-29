@@ -5,15 +5,9 @@ import { cn } from '@/lib/utils';
 import * as ContextMenuPrimitive from '@rn-primitives/context-menu';
 import { Check, ChevronDown, ChevronRight, ChevronUp } from 'lucide-react-native';
 import * as React from 'react';
-import {
-  Platform,
-  type StyleProp,
-  StyleSheet,
-  Text,
-  View,
-  type ViewStyle,
-} from 'react-native';
-import { FadeIn } from 'react-native-reanimated';
+import { durations, Text, View } from '@/components/ui/primitives';
+import { Platform, type StyleProp, StyleSheet, type ViewStyle } from 'react-native';
+import { FadeIn, FadeOut } from 'react-native-reanimated';
 import { FullWindowOverlay as RNFullWindowOverlay } from 'react-native-screens';
 
 const ContextMenu = ContextMenuPrimitive.Root;
@@ -65,7 +59,7 @@ function ContextMenuSubContent({
   ...props
 }: React.ComponentProps<typeof ContextMenuPrimitive.SubContent>) {
   return (
-    <NativeOnlyAnimatedView entering={FadeIn}>
+    <NativeOnlyAnimatedView entering={FadeIn.duration(durations.base)} exiting={FadeOut.duration(durations.fast)}>
       <ContextMenuPrimitive.SubContent
         className={cn(
           'border-border overflow-hidden shadow-black/5 bg-popover text-popover-foreground min-w-32 rounded-2xl border p-1 shadow-lg',
@@ -107,7 +101,7 @@ function ContextMenuContent({
               : StyleSheet.absoluteFill,
           })}
           className={overlayClassName}>
-          <NativeOnlyAnimatedView entering={FadeIn}>
+          <NativeOnlyAnimatedView entering={FadeIn.duration(durations.base)} exiting={FadeOut.duration(durations.fast)}>
             <TextClassContext.Provider value="text-popover-foreground">
               <ContextMenuPrimitive.Content
                 className={cn(

@@ -6,16 +6,9 @@ import * as MenubarPrimitive from '@rn-primitives/menubar';
 import { Portal } from '@rn-primitives/portal';
 import { Check, ChevronDown, ChevronRight, ChevronUp } from 'lucide-react-native';
 import * as React from 'react';
-import {
-  Platform,
-  Pressable,
-  type StyleProp,
-  StyleSheet,
-  Text,
-  View,
-  type ViewStyle,
-} from 'react-native';
-import { FadeIn } from 'react-native-reanimated';
+import { durations, Pressable, Text, View } from '@/components/ui/primitives';
+import { Platform, type StyleProp, StyleSheet, type ViewStyle } from 'react-native';
+import { FadeIn, FadeOut } from 'react-native-reanimated';
 import { FullWindowOverlay as RNFullWindowOverlay } from 'react-native-screens';
 
 const MenubarMenu = MenubarPrimitive.Menu;
@@ -140,7 +133,7 @@ function MenubarSubContent({
   ...props
 }: React.ComponentProps<typeof MenubarPrimitive.SubContent>) {
   return (
-    <NativeOnlyAnimatedView entering={FadeIn}>
+    <NativeOnlyAnimatedView entering={FadeIn.duration(durations.base)} exiting={FadeOut.duration(durations.fast)}>
       <MenubarPrimitive.SubContent
         className={cn(
           'border-border overflow-hidden border shadow-black/5 bg-popover text-popover-foreground ring-foreground/5 min-w-32 rounded-2xl p-1 shadow-2xl ring-1',
@@ -169,7 +162,8 @@ function MenubarContent({
     <MenubarPrimitive.Portal hostName={portalHost}>
       <FullWindowOverlay>
         <NativeOnlyAnimatedView
-          entering={FadeIn}
+          entering={FadeIn.duration(durations.base)}
+          exiting={FadeOut.duration(durations.fast)}
           style={StyleSheet.absoluteFill}
           pointerEvents="box-none">
           <TextClassContext.Provider value="text-popover-foreground">

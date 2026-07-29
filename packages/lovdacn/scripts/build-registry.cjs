@@ -41,7 +41,10 @@ const STYLES = [
 const ENGINES = ['nativewind', 'uniwind'];
 
 const WORKSPACE_ROOT = path.resolve(__dirname, '../../../../');
-const REUSABLES_SRC = path.join(WORKSPACE_ROOT, 'react-native-reusables/packages/registry/src');
+// Canonical in-repo registry source (Phase 0). Previously this pointed at a sibling
+// `react-native-reusables` checkout that does not exist here, which made the build silently
+// rebuild from its OWN generated output in `public/r/styles/<engine>/default`.
+const REUSABLES_SRC = path.join(WORKSPACE_ROOT, 'lvcn/packages/lovdacn/registry-src');
 const DEST_REGISTRY = path.join(WORKSPACE_ROOT, 'lvcn/apps/v2/public/r/styles');
 
 // Packages that are always present in Expo projects and should not be
@@ -770,6 +773,16 @@ function buildEngine(engine) {
   const libDir = path.join(srcDir, 'lib');
 
   const hasUpstreamSource = fs.existsSync(uiDir);
+
+  if (!hasUpstreamSource) {
+    // Phase 0 contract: the canonical source is required. Falling back to the generated
+    // output silently reintroduces preview/registry drift, so fail loudly instead.
+    throw new Error(
+      `Canonical registry source missing for engine "${engine}": ${uiDir}\n` +
+        `Expected sources at packages/lovdacn/registry-src/<engine>/components/ui/*.tsx.\n` +
+        `Refusing to rebuild from generated output in public/r/styles.`
+    );
+  }
 
   let utilsItem = null;
   const components = [];

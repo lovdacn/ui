@@ -1,4 +1,5 @@
 import { Icon } from '@/components/ui/icon';
+import { Pressable, type SharedAnimationProps } from '@/components/ui/primitives';
 import { TextClassContext } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
 import * as TogglePrimitive from '@rn-primitives/toggle';
@@ -41,8 +42,28 @@ function Toggle({
   className,
   variant,
   size,
+  animate,
+  activeAnimate,
+  motionActive,
+  reduceMotion,
   ...props
-}: React.ComponentProps<typeof TogglePrimitive.Root> & VariantProps<typeof toggleVariants>) {
+}: React.ComponentProps<typeof TogglePrimitive.Root> &
+  SharedAnimationProps &
+  VariantProps<typeof toggleVariants>) {
+  const rootProps = {
+    className: cn(
+      toggleVariants({ variant, size }),
+      props.disabled && 'opacity-50',
+      props.pressed && 'bg-accent',
+      className
+    ),
+    ...props,
+  };
+
+  // Toggle's canonical active state is the primitive's `pressed` (i.e. selected).
+  const hasMotion =
+    animate !== undefined || activeAnimate !== undefined || motionActive !== undefined;
+
   return (
     <TextClassContext.Provider
       value={cn(
@@ -52,15 +73,18 @@ function Toggle({
           : Platform.select({ web: 'group-hover:text-muted-foreground' }),
         className
       )}>
-      <TogglePrimitive.Root
-        className={cn(
-          toggleVariants({ variant, size }),
-          props.disabled && 'opacity-50',
-          props.pressed && 'bg-accent',
-          className
-        )}
-        {...props}
-      />
+      {hasMotion ? (
+        <TogglePrimitive.Root {...rootProps} asChild>
+          <Pressable
+            animate={animate}
+            activeAnimate={activeAnimate}
+            motionActive={motionActive ?? props.pressed}
+            reduceMotion={reduceMotion}
+          />
+        </TogglePrimitive.Root>
+      ) : (
+        <TogglePrimitive.Root {...rootProps} />
+      )}
     </TextClassContext.Provider>
   );
 }

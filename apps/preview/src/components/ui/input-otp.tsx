@@ -1,7 +1,8 @@
+import { Pressable, TextInput, View } from '@/components/ui/primitives';
 import { Text } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
 import * as React from 'react';
-import { Platform, Pressable, TextInput, View } from 'react-native';
+import { Platform } from 'react-native';
 
 type InputOTPContextValue = {
   value: string;

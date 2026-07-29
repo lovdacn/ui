@@ -4,7 +4,8 @@ import { cn } from '@/lib/utils';
 import * as DialogPrimitive from '@rn-primitives/dialog';
 import { X } from 'lucide-react-native';
 import * as React from 'react';
-import { Platform, Text, View, type GestureResponderEvent, type ViewProps } from 'react-native';
+import { durations, Text, View } from '@/components/ui/primitives';
+import { Platform, type GestureResponderEvent, type ViewProps } from 'react-native';
 import { FadeIn, FadeOut, SlideInDown, SlideOutDown } from 'react-native-reanimated';
 import { FullWindowOverlay as RNFullWindowOverlay } from 'react-native-screens';
 
@@ -45,7 +46,7 @@ function BottomSheetOverlay({
         {...props}
         onPress={Platform.select({ web: onOverlayPress, native: onPress })}
         asChild={Platform.OS !== 'web'}>
-        <NativeOnlyAnimatedView entering={FadeIn.duration(200)} exiting={FadeOut.duration(150)}>
+        <NativeOnlyAnimatedView entering={FadeIn.duration(durations.base)} exiting={FadeOut.duration(durations.fast)}>
           <>{children}</>
         </NativeOnlyAnimatedView>
       </DialogPrimitive.Overlay>
@@ -76,7 +77,7 @@ function BottomSheetContent({
           )}
           asChild={Platform.OS !== 'web'}
           {...props}>
-          <NativeOnlyAnimatedView entering={SlideInDown.duration(250)} exiting={SlideOutDown.duration(200)} className="w-full flex-col">
+          <NativeOnlyAnimatedView entering={SlideInDown.duration(durations.slow)} exiting={SlideOutDown.duration(durations.base)} className="w-full flex-col">
             {/* Drag Handle */}
             <View className="w-12 h-1 bg-muted rounded-full self-center mb-4" />
             

@@ -1,9 +1,9 @@
 import { Icon } from '@/components/ui/icon';
+import { View } from '@/components/ui/primitives';
 import { Text, TextClassContext } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
 import type { LucideIcon } from 'lucide-react-native';
 import * as React from 'react';
-import { View } from 'react-native';
 
 function Alert({
   className,
