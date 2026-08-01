@@ -392,7 +392,7 @@ function SidebarMenuButton({
   const collapsed = state === 'collapsed' && !isMobile;
   // On the collapsed icon rail, drop text labels so a single icon stays
   // centered instead of a clipped icon + label peeking out of the rail.
-  const content = collapsed
+  const content = collapsed && typeof children !== 'function'
     ? React.Children.toArray(children).filter(
         (child) => !(React.isValidElement(child) && child.type === Text)
       )

@@ -1,5 +1,7 @@
 import type { Metadata } from "next"
+import { expoPreviewOrigin } from "@/lib/preview"
 import { CreateCustomizer } from "./customizer"
+import { DEFAULT_CONFIG, decodePreset } from "./preset-data"
 
 const title = "Create Custom UI Theme & Components"
 const description =
@@ -24,10 +26,20 @@ export const metadata: Metadata = {
   },
 }
 
-export default function CreatePage() {
+export default async function CreatePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ preset?: string | string[] }>
+}) {
+  const requestedPreset = (await searchParams).preset
+  const preset = Array.isArray(requestedPreset) ? requestedPreset[0] : requestedPreset
+  const initialConfig = (preset && decodePreset(preset)) || DEFAULT_CONFIG
+
   return (
     <div className="flex-1 flex flex-col min-h-0 w-full bg-background">
-      <CreateCustomizer />
+      <link rel="dns-prefetch" href={expoPreviewOrigin} />
+      <link rel="preconnect" href={expoPreviewOrigin} crossOrigin="anonymous" />
+      <CreateCustomizer initialConfig={initialConfig} />
     </div>
   )
 }

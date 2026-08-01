@@ -24,6 +24,7 @@ function AlertDialogOverlay({
   ...props
 }: Omit<React.ComponentProps<typeof AlertDialogPrimitive.Overlay>, 'asChild'> & {
   children?: React.ReactNode;
+  onPress?: (event: GestureResponderEvent) => void;
 }) {
   const { onOpenChange } = AlertDialogPrimitive.useRootContext();
 
@@ -45,7 +46,9 @@ function AlertDialogOverlay({
           className
         )}
         {...props}
-        onPress={Platform.select({ web: onOverlayPress, native: onPress })}>
+        {...({
+          onPress: Platform.select({ web: onOverlayPress, native: onPress }),
+        } as unknown as React.ComponentProps<typeof AlertDialogPrimitive.Overlay>)}>
         <NativeOnlyAnimatedView
           entering={FadeIn.duration(durations.base).delay(50)}
           exiting={FadeOut.duration(durations.fast)}>

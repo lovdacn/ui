@@ -59,7 +59,7 @@ const RadiusIcon = (
 
 import { useTheme } from "next-themes"
 import { cn } from "@/lib/utils"
-import { expoPreviewOrigin, getExpoPreviewUrl } from "@/lib/preview"
+import { expoPreviewOrigin, getExpoCustomizerPreviewUrl } from "@/lib/preview"
 import { Picker } from "./picker"
 import {
   PRESET_STYLES,
@@ -70,7 +70,6 @@ import {
   PRESET_ICON_LIBRARIES,
   PRESET_RADII,
   encodePreset,
-  decodePreset,
   randomizeConfig,
   DEFAULT_CONFIG,
   FONT_FAMILIES,
@@ -115,15 +114,36 @@ const RADIUS_OPTIONS = PRESET_RADII.map((r) => ({
   hint: RADIUS_VALUES[r],
 }))
 
-export function CreateCustomizer() {
+function PreviewLoadingSkeleton() {
+  return (
+    <div
+      className="pointer-events-none absolute inset-0 grid grid-cols-1 gap-5 overflow-hidden bg-background p-6 md:grid-cols-3"
+      role="status"
+      aria-label="Loading preview"
+    >
+      {[0, 1, 2].map((column) => (
+        <div key={column} className="space-y-5 animate-pulse">
+          {[0, 1, 2].map((card) => (
+            <div key={card} className="rounded-xl border border-border/70 bg-card p-5 shadow-sm">
+              <div className="h-4 w-2/5 rounded bg-muted" />
+              <div className="mt-2 h-3 w-3/4 rounded bg-muted/70" />
+              <div className="mt-5 space-y-3">
+                <div className="h-9 rounded-md bg-muted/60" />
+                <div className="h-9 rounded-md bg-muted/60" />
+                <div className="h-8 w-1/2 rounded-md bg-muted" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ))}
+      <span className="sr-only">Loading preview</span>
+    </div>
+  )
+}
+
+export function CreateCustomizer({ initialConfig }: { initialConfig: PresetConfig }) {
   const { resolvedTheme } = useTheme()
-  const [mounted, setMounted] = React.useState(false)
-
-  React.useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  const [config, setConfig] = React.useState<PresetConfig>(DEFAULT_CONFIG)
+  const [config, setConfig] = React.useState<PresetConfig>(initialConfig)
   const [selectedEngine, setSelectedEngine] = React.useState<"nativewind" | "uniwind">("nativewind")
   const [expoVersion, setExpoVersion] = React.useState<ExpoVersion>("57")
   const [packageManager, setPackageManager] = React.useState<PackageManager>("npm")
@@ -134,58 +154,74 @@ export function CreateCustomizer() {
   const [target, setTarget] = React.useState<"new" | "existing">("new")
 
   const presetCode = React.useMemo(() => encodePreset(config), [config])
-  const colorScheme = React.useMemo(() => {
-    if (resolvedTheme) return resolvedTheme
+  const colorScheme = React.useMemo<"light" | "dark">(() => {
+    if (resolvedTheme === "dark" || resolvedTheme === "light") return resolvedTheme
     if (typeof window !== "undefined") {
       return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
     }
     return "light"
   }, [resolvedTheme])
 
-  // The iframe src is intentionally *not* reactive to the preset. Putting the
-  // preset in the URL made every swatch click and every shuffle reload the whole
-  // Expo app. `present.tsx` already listens for `lvcn:preset` and applies the
-  // theme as CSS custom properties, so updates are pushed over postMessage and
-  // the preview never remounts.
+  // Keep the first URL fully configured, like shadcn's preview route, but never
+  // change it after mount. Live changes travel over postMessage so shuffle does
+  // not reload the Expo application.
+  const initialPresetCode = React.useRef(encodePreset(initialConfig)).current
   const webPreviewUrl = React.useMemo(
-    () =>
-      getExpoPreviewUrl({
-        component: "dashboard",
-        chrome: "web",
-      }),
-    []
+    () => getExpoCustomizerPreviewUrl({ preset: initialPresetCode }),
+    [initialPresetCode]
   )
 
   const previewRef = React.useRef<HTMLIFrameElement>(null)
-  const [previewReady, setPreviewReady] = React.useState(false)
+  const sentRevisionRef = React.useRef(0)
+  const latestSentRef = React.useRef({
+    revision: 0,
+    preset: presetCode,
+    colorScheme,
+  })
+  const [readySignal, signalReady] = React.useReducer((count: number) => count + 1, 0)
   const [previewVisible, setPreviewVisible] = React.useState(false)
 
-  // Only trust the "ready" ping from our own frame.
+  // The frame acknowledges only after its layout effect has applied the exact
+  // preset and color scheme. This avoids revealing a default-theme frame.
   React.useEffect(() => {
-    function onMessage(e: MessageEvent) {
-      if (e.source !== previewRef.current?.contentWindow) return
-      if ((e.data as { type?: string })?.type === "lvcn:ready") {
-        setPreviewReady(true)
+    function onMessage(event: MessageEvent) {
+      if (event.source !== previewRef.current?.contentWindow) return
+      const data = event.data as {
+        type?: string
+        preset?: string
+        colorScheme?: string
+        revision?: number
+      }
+
+      if (data?.type === "lvcn:ready") {
+        signalReady()
+        return
+      }
+
+      if (data?.type !== "lvcn:applied") return
+      const expected = latestSentRef.current
+      if (
+        data.revision === expected.revision &&
+        data.preset === expected.preset &&
+        data.colorScheme === expected.colorScheme
+      ) {
+        setPreviewVisible(true)
       }
     }
+
     window.addEventListener("message", onMessage)
     return () => window.removeEventListener("message", onMessage)
   }, [])
 
-  // Push the preset + color scheme once the presenter is mounted, and on every
-  // change after that. The presenter applies them in a layout effect, so the
-  // frame is only revealed on the frame after the first message lands — that way
-  // the default (unthemed) dashboard is never visible.
   React.useEffect(() => {
-    if (!previewReady) return
+    if (readySignal === 0) return
+    const revision = ++sentRevisionRef.current
+    latestSentRef.current = { revision, preset: presetCode, colorScheme }
     previewRef.current?.contentWindow?.postMessage(
-      { type: "lvcn:preset", preset: presetCode, colorScheme },
+      { type: "lvcn:preset", preset: presetCode, colorScheme, revision },
       expoPreviewOrigin
     )
-    if (previewVisible) return
-    const id = requestAnimationFrame(() => setPreviewVisible(true))
-    return () => cancelAnimationFrame(id)
-  }, [previewReady, previewVisible, presetCode, colorScheme])
+  }, [readySignal, presetCode, colorScheme])
 
   const command = React.useMemo(() => {
     const runner = {
@@ -198,16 +234,6 @@ export function CreateCustomizer() {
       ? `${runner} init --preset ${presetCode} --engine ${selectedEngine} --expo-version ${expoVersion}`
       : `${runner} apply ${presetCode}`
   }, [packageManager, selectedEngine, expoVersion, presetCode, target])
-
-  // Read preset from URL on mount
-  React.useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const preset = params.get("preset")
-    if (preset) {
-      const decoded = decodePreset(preset)
-      if (decoded) setConfig(decoded)
-    }
-  }, [])
 
   // Sync preset to URL
   React.useEffect(() => {
@@ -443,14 +469,11 @@ export function CreateCustomizer() {
           {viewMode === "web" ? (
             /* Desktop preview - iframe pinned to fill the container (overrides UA 150px height) */
             <div className="relative z-10 flex-1 min-h-0 overflow-hidden animate-in fade-in duration-300">
-              {!previewVisible && (
-                <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-sm text-muted-foreground">
-                  Loading preview…
-                </div>
-              )}
+              {!previewVisible && <PreviewLoadingSkeleton />}
               <iframe
                 ref={previewRef}
                 src={webPreviewUrl}
+                onLoad={() => signalReady()}
                 className={cn(
                   "absolute inset-0 h-full w-full border-0 select-none bg-background transition-opacity duration-300",
                   previewVisible ? "opacity-100" : "opacity-0"

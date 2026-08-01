@@ -1,5 +1,7 @@
 import * as React from 'react';
 import { View, ScrollView, StyleSheet, Pressable, useColorScheme, Platform } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { PortalHost } from '@rn-primitives/portal';
 import { useLocalSearchParams, Link } from 'expo-router';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { cn } from '@/lib/utils';
@@ -1527,7 +1529,7 @@ const StatusBar = () => {
 
 const PREVIEW_MESSAGE = 'lvcn:preset';
 
-export default function PresentPage() {
+function PresentPageContent() {
   const params = useLocalSearchParams<{
     component: string;
     preset?: string;
@@ -1746,6 +1748,15 @@ export default function PresentPage() {
         <Renderer />
       </ToastProvider>
     </CenteredStage>
+  );
+}
+
+export default function PresentPage() {
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <PresentPageContent />
+      <PortalHost />
+    </GestureHandlerRootView>
   );
 }
 
