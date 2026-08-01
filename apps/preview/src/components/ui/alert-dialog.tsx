@@ -4,7 +4,8 @@ import { TextClassContext } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
 import * as AlertDialogPrimitive from '@rn-primitives/alert-dialog';
 import * as React from 'react';
-import { Platform, View, type GestureResponderEvent, type ViewProps } from 'react-native';
+import { durations, View } from '@/components/ui/primitives';
+import { Platform, type GestureResponderEvent, type ViewProps } from 'react-native';
 import { FadeIn, FadeOut } from 'react-native-reanimated';
 import { FullWindowOverlay as RNFullWindowOverlay } from 'react-native-screens';
 
@@ -23,6 +24,7 @@ function AlertDialogOverlay({
   ...props
 }: Omit<React.ComponentProps<typeof AlertDialogPrimitive.Overlay>, 'asChild'> & {
   children?: React.ReactNode;
+  onPress?: (event: GestureResponderEvent) => void;
 }) {
   const { onOpenChange } = AlertDialogPrimitive.useRootContext();
 
@@ -44,10 +46,12 @@ function AlertDialogOverlay({
           className
         )}
         {...props}
-        onPress={Platform.select({ web: onOverlayPress, native: onPress })}>
+        {...({
+          onPress: Platform.select({ web: onOverlayPress, native: onPress }),
+        } as unknown as React.ComponentProps<typeof AlertDialogPrimitive.Overlay>)}>
         <NativeOnlyAnimatedView
-          entering={FadeIn.duration(200).delay(50)}
-          exiting={FadeOut.duration(150)}>
+          entering={FadeIn.duration(durations.base).delay(50)}
+          exiting={FadeOut.duration(durations.fast)}>
           <>{children}</>
         </NativeOnlyAnimatedView>
       </AlertDialogPrimitive.Overlay>

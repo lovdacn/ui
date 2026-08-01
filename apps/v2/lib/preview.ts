@@ -10,3 +10,8 @@ export const expoPreviewOrigin = (
 export function getExpoPreviewUrl(params: Record<string, string>) {
   return `${expoPreviewOrigin}/present?${new URLSearchParams(params).toString()}`
 }
+
+
+export function getExpoCustomizerPreviewUrl(params: Record<string, string>) {
+  return `${expoPreviewOrigin}/customizer-preview?${new URLSearchParams(params).toString()}`
+}

@@ -1,8 +1,9 @@
+import { View } from '@/components/ui/primitives';
 import { TextClassContext } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
 import { Slot } from '@rn-primitives/slot';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { Platform, View } from 'react-native';
+import { Platform } from 'react-native';
 
 const badgeVariants = cva(cn('h-5 gap-1 rounded-4xl border border-transparent px-2 py-0.5 transition-all','','','','','','','',
     'group shrink-0 flex-row items-center justify-center overflow-hidden h-5 gap-1 rounded-4xl border border-transparent px-2 py-0.5 transition-all',

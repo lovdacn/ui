@@ -1,34 +1,16 @@
-import { DarkTheme, DefaultTheme, ThemeProvider, Stack } from 'expo-router';
-import { PortalHost } from '@rn-primitives/portal';
-import * as SplashScreen from 'expo-splash-screen';
-import { useColorScheme } from 'react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Stack } from 'expo-router';
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
+import '../global.css';
 
-import "../global.css";
-
-SplashScreen.preventAutoHideAsync();
-
+// The web layout supplies its optimized theme wrapper. This universal fallback
+// stays dependency-light because `/present` owns gesture/portal providers while
+// the customizer route does not need them.
 export default function RootLayout() {
-  let colorScheme = useColorScheme();
-  if (typeof window !== 'undefined') {
-    const params = new URLSearchParams(window.location.search);
-    const themeParam = params.get('colorScheme');
-    if (themeParam === 'dark' || themeParam === 'light') {
-      colorScheme = themeParam as 'light' | 'dark';
-    }
-  }
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <AnimatedSplashOverlay />
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="index" />
-          <Stack.Screen name="present" />
-        </Stack>
-        <PortalHost />
-      </ThemeProvider>
-    </GestureHandlerRootView>
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="index" />
+      <Stack.Screen name="present" />
+      <Stack.Screen name="customizer-preview" />
+    </Stack>
   );
 }

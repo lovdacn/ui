@@ -1,8 +1,9 @@
+import { Text as RNText } from '@/components/ui/primitives';
 import { cn } from '@/lib/utils';
 import { Slot } from '@rn-primitives/slot';
 import { cva, type VariantProps } from 'class-variance-authority';
 import * as React from 'react';
-import { Platform, Text as RNText, type Role } from 'react-native';
+import { Platform, type Role } from 'react-native';
 
 const textVariants = cva(
   cn(

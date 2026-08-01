@@ -1857,6 +1857,36 @@ ${fontVariables}`;
   }
 }
 
+const REDUCED_MOTION_CSS = `
+/* -------------------------------------------------------------------------------------------------
+ * Reduced motion (web)
+ *
+ * The motion engine respects the OS setting for JS-driven animation, but class-driven animation
+ * (tailwindcss-animate \`animate-in\`/\`animate-out\`, \`animate-pulse\`, \`animate-spin\`, and CSS
+ * transitions) is owned by CSS — so it is neutralised here.
+ *
+ * Motion is removed, never information: final states, colours and focus affordances are kept.
+ * ----------------------------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Continuous loaders settle instead of running forever. */
+  .animate-pulse,
+  .animate-spin,
+  .animate-bounce,
+  .animate-ping {
+    animation: none !important;
+  }
+}
+`
+
 async function configureGlobalCss(projectPath: string, styleEngine: "nativewind" | "uniwind", cssRelativePath: string, style: string, baseColor: string, theme?: string, chartColor?: string, font?: string, radius?: string) {
   const cssPath = path.join(projectPath, cssRelativePath)
   fs.ensureDirSync(path.dirname(cssPath))
@@ -1872,6 +1902,7 @@ async function configureGlobalCss(projectPath: string, styleEngine: "nativewind"
   }
 
   content += "\n" + getStyleVars(style, styleEngine, baseColor, theme, chartColor, font, radius) + "\n"
+  content += REDUCED_MOTION_CSS
 
   fs.writeFileSync(cssPath, content, "utf8")
   console.log(pc.green(`✔ Configured global CSS for style ${pc.cyan(style)}`))

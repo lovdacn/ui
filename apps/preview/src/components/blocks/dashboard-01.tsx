@@ -261,7 +261,6 @@ export function Dashboard01({ topPad = 0 }: { topPad?: number }) {
                 <Input
                   placeholder="Search…"
                   className="native:pl-8 h-9 w-44 pl-8"
-                  readOnly
                 />
               </View>
             </View>

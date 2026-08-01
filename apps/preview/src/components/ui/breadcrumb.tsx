@@ -4,7 +4,8 @@ import { cn } from '@/lib/utils';
 import { Slot } from '@rn-primitives/slot';
 import { ChevronRight, MoreHorizontal } from 'lucide-react-native';
 import * as React from 'react';
-import { Platform, Pressable, View } from 'react-native';
+import { Pressable, View } from '@/components/ui/primitives';
+import { Platform } from 'react-native';
 
 function Breadcrumb({ ...props }: React.ComponentProps<typeof View>) {
   return <View accessibilityLabel="breadcrumb" {...props} />;

@@ -1,6 +1,7 @@
 import { cn } from '@/lib/utils';
 import * as ProgressPrimitive from '@rn-primitives/progress';
-import { Platform, View } from 'react-native';
+import { View } from '@/components/ui/primitives';
+import { Platform } from 'react-native';
 import Animated, {
   Extrapolation,
   interpolate,
@@ -54,16 +55,22 @@ function WebIndicator({ value, className }: IndicatorProps) {
 }
 
 function NativeIndicator({ value, className }: IndicatorProps) {
-  const progress = useDerivedValue(() => value ?? 0);
+  // The spring is started HERE, in a derived value that re-runs only when `value` changes.
+  // `useAnimatedStyle` below just reads it — allocating a new spring inside the style callback
+  // would restart the animation on every evaluation.
+  const width = useDerivedValue(
+    () =>
+      withSpring(interpolate(value ?? 0, [0, 100], [1, 100], Extrapolation.CLAMP), {
+        overshootClamping: true,
+      }),
+    [value]
+  );
 
   const indicator = useAnimatedStyle(() => {
     return {
-      width: withSpring(
-        `${interpolate(progress.value, [0, 100], [1, 100], Extrapolation.CLAMP)}%`,
-        { overshootClamping: true }
-      ),
+      width: `${width.value}%`,
     };
-  }, [value]);
+  });
 
   if (Platform.OS === 'web') {
     return null;

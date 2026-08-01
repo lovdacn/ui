@@ -4,7 +4,8 @@ import { cn } from '@/lib/utils';
 import * as DialogPrimitive from '@rn-primitives/dialog';
 import { X } from 'lucide-react-native';
 import * as React from 'react';
-import { Platform, Text, View, type GestureResponderEvent, type ViewProps } from 'react-native';
+import { durations, Text, View } from '@/components/ui/primitives';
+import { Platform, type GestureResponderEvent, type ViewProps } from 'react-native';
 import { FadeIn, FadeOut } from 'react-native-reanimated';
 import { FullWindowOverlay as RNFullWindowOverlay } from 'react-native-screens';
 
@@ -48,8 +49,8 @@ function DialogOverlay({
         {...props}
         onPress={Platform.select({ web: onOverlayPress, native: onPress })}
         asChild={Platform.OS !== 'web'}>
-        <NativeOnlyAnimatedView entering={FadeIn.duration(200)} exiting={FadeOut.duration(150)}>
-          <NativeOnlyAnimatedView entering={FadeIn.delay(50)} exiting={FadeOut.duration(150)}>
+        <NativeOnlyAnimatedView entering={FadeIn.duration(durations.base)} exiting={FadeOut.duration(durations.fast)}>
+          <NativeOnlyAnimatedView entering={FadeIn.delay(50)} exiting={FadeOut.duration(durations.fast)}>
             <>{children}</>
           </NativeOnlyAnimatedView>
         </NativeOnlyAnimatedView>

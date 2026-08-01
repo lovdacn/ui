@@ -5,15 +5,9 @@ import { Text, TextClassContext } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { PanelLeft } from 'lucide-react-native';
+import { Pressable, View } from '@/components/ui/primitives';
 import * as React from 'react';
-import {
-  Animated,
-  Platform,
-  Pressable,
-  ScrollView,
-  useWindowDimensions,
-  View,
-} from 'react-native';
+import { Animated, Platform, ScrollView, useWindowDimensions } from 'react-native';
 
 const SIDEBAR_WIDTH = 256;
 const SIDEBAR_WIDTH_MOBILE = 288;
@@ -398,7 +392,7 @@ function SidebarMenuButton({
   const collapsed = state === 'collapsed' && !isMobile;
   // On the collapsed icon rail, drop text labels so a single icon stays
   // centered instead of a clipped icon + label peeking out of the rail.
-  const content = collapsed
+  const content = collapsed && typeof children !== 'function'
     ? React.Children.toArray(children).filter(
         (child) => !(React.isValidElement(child) && child.type === Text)
       )

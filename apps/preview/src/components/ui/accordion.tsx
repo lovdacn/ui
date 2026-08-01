@@ -3,7 +3,8 @@ import { TextClassContext } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
 import * as AccordionPrimitive from '@rn-primitives/accordion';
 import { ChevronDown } from 'lucide-react-native';
-import { Platform, Pressable, View } from 'react-native';
+import { durations, Pressable, View } from '@/components/ui/primitives';
+import { Platform } from 'react-native';
 import Animated, {
   FadeOutUp,
   LayoutAnimationConfig,
@@ -23,7 +24,7 @@ function Accordion({
       <AccordionPrimitive.Root
         {...(props as AccordionPrimitive.RootProps)}
         asChild={Platform.OS !== 'web'}>
-        <Animated.View layout={LinearTransition.duration(200)}>{children}</Animated.View>
+        <Animated.View layout={LinearTransition.duration(durations.base)}>{children}</Animated.View>
       </AccordionPrimitive.Root>
     </LayoutAnimationConfig>
   );
@@ -47,7 +48,7 @@ function AccordionItem({
       {...props}>
       <Animated.View
         className="native:overflow-hidden"
-        layout={Platform.select({ native: LinearTransition.duration(200) })}>
+        layout={Platform.select({ native: LinearTransition.duration(durations.base) })}>
         {children}
       </Animated.View>
     </AccordionPrimitive.Item>
@@ -129,7 +130,7 @@ function AccordionContent({
         )}
         {...props}>
         <Animated.View
-          exiting={Platform.select({ native: FadeOutUp.duration(200) })}
+          exiting={Platform.select({ native: FadeOutUp.duration(durations.base) })}
           className={cn('pb-4', className)}>
           {children}
         </Animated.View>

@@ -4,7 +4,8 @@ import { cn } from '@/lib/utils';
 import * as DialogPrimitive from '@rn-primitives/dialog';
 import { X } from 'lucide-react-native';
 import * as React from 'react';
-import { Platform, Text, View, type GestureResponderEvent, type ViewProps } from 'react-native';
+import { durations, Text, View } from '@/components/ui/primitives';
+import { Platform, type GestureResponderEvent, type ViewProps } from 'react-native';
 import { FadeIn, FadeOut, SlideInLeft, SlideInRight, SlideOutLeft, SlideOutRight } from 'react-native-reanimated';
 import { FullWindowOverlay as RNFullWindowOverlay } from 'react-native-screens';
 
@@ -49,7 +50,7 @@ function SheetOverlay({
         {...props}
         onPress={Platform.select({ web: onOverlayPress, native: onPress })}
         asChild={Platform.OS !== 'web'}>
-        <NativeOnlyAnimatedView entering={FadeIn.duration(200)} exiting={FadeOut.duration(150)}>
+        <NativeOnlyAnimatedView entering={FadeIn.duration(durations.base)} exiting={FadeOut.duration(durations.fast)}>
           <>{children}</>
         </NativeOnlyAnimatedView>
       </DialogPrimitive.Overlay>
@@ -71,16 +72,16 @@ function SheetContent({
 }: SheetContentProps) {
   const enteringAnimation =
     side === 'left'
-      ? SlideInLeft.duration(250)
+      ? SlideInLeft.duration(durations.slow)
       : side === 'right'
-      ? SlideInRight.duration(250)
+      ? SlideInRight.duration(durations.slow)
       : undefined;
 
   const exitingAnimation =
     side === 'left'
-      ? SlideOutLeft.duration(200)
+      ? SlideOutLeft.duration(durations.base)
       : side === 'right'
-      ? SlideOutRight.duration(200)
+      ? SlideOutRight.duration(durations.base)
       : undefined;
 
   const sideStyles = {

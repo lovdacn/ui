@@ -140,14 +140,52 @@ Preset names resolve to the same object model.
 <Motion animate="spin" /> {/* continuous; stops under reduced motion */}
 ```
 
+### Utility strings
+
+Strings are sugar that compile to the same object config — there is no second engine.
+
+```tsx
+<Button animate="fade-in slide-up duration-200" activeAnimate="press:scale-95 spring-snappy" />
+<Motion animate="scale-95 rotate-45 delay-100" />
+```
+
+Supported tokens: presets (`fade-in`, `slide-up`, `zoom-in`, `pop`, `spin`, `pulse`, …),
+transforms (`scale-*`, `opacity-*`, `translate-x-*`, `translate-y-*`, `rotate-*`), transitions
+(`duration-*`, `delay-*`, `ease-*`, `spring-soft|snappy|bouncy`) and state prefixes
+(`press:`, `hover:`, `focus:`, `checked:`, `selected:`, `open:`, `expanded:`). Unknown tokens
+warn in development and are ignored.
+
+### `asChild` — animate someone else's element
+
+`Motion` normally renders its own host. With `asChild` it merges the animated style, composed
+handlers and ref *into* a single child instead, so no extra layout node is added.
+
+```tsx
+<Motion asChild animate="fade-in">
+  <MyTile />          {/* must forward `ref` and accept `style` */}
+</Motion>
+```
+
+### Staggering a list
+
+```tsx
+import { Motion, stagger } from '@/components/ui/motion';
+
+{items.map((item, i) => (
+  <Motion key={item.id} animate={stagger('slide-up', i, 60)}>
+    <Card>{item.title}</Card>
+  </Motion>
+))}
+```
+
 ## API
 
 Every visual host accepts `SharedAnimationProps`:
 
 | Prop            | Type                                                | Description                                                                 |
 | --------------- | --------------------------------------------------- | --------------------------------------------------------------------------- |
-| `animate`       | `false \| MotionPresetName \| AnimateConfig`        | Idle / mount / loop animation. `false` disables it.                         |
-| `activeAnimate` | `false \| MotionPresetName \| MotionTarget \| ActiveAnimateConfig` | Motion while the component's semantic active state is true.   |
+| `animate`       | `false \| MotionPresetName \| string \| AnimateConfig` | Idle / mount / loop animation. `false` disables it.                      |
+| `activeAnimate` | `false \| MotionPresetName \| string \| MotionTarget \| ActiveAnimateConfig` | Motion while the component's semantic active state is true. |
 | `motionActive`  | `boolean`                                           | Explicit active-state override for static hosts (Card, Text, …).            |
 | `reduceMotion`  | `"system" \| "always" \| "never"`                   | Reduced-motion policy. Defaults to `system`.                                |
 
@@ -169,10 +207,18 @@ With `reduceMotion="system"` (the default), motion snaps to its final accessible
 instead of animating when the OS "Reduce Motion" setting is on, and continuous loops stop.
 Essential state (checked indicators, open content, focus affordances) is always preserved.
 
+Class-driven animation on web (`animate-in`, `animate-pulse`, CSS transitions) is owned by CSS,
+not the engine, so `lovdacn init` also writes a `@media (prefers-reduced-motion: reduce)` block
+into your global stylesheet that neutralises it. One owner per property, both systems covered.
+
 ## Beta scope
 
-- **Available:** object `animate` / `activeAnimate`, `Motion` / `MotionView` /
-  `MotionPressable` / `MotionText` / `MotionTextInput`, `useMotion`, presets, reduced
-  motion, and the reference `Button` integration.
-- **Planned:** utility-string syntax, and automatic `motion` wiring for every component in
-  the registry (today, add `motion` explicitly or use a `Motion` host).
+- **Available:** object *and* utility-string `animate` / `activeAnimate` on every component that
+  renders its host through the seam, `Motion` (including `asChild`), `MotionView` /
+  `MotionPressable` / `MotionText` / `MotionTextInput`, `useMotion`, `useMotionState`,
+  `motionPresets`, the shared `durations` / `transitions` tokens, `stagger()`, and reduced
+  motion on both the engine and CSS paths.
+- **Known gaps:** `Popover`, `Tooltip` and `HoverCard` content renders inside the primitive's own
+  animated wrapper, so it keeps its built-in enter/exit animation and does not expose `animate`
+  yet — wrap those in `<Motion>` if you need custom motion. The API may still change before the
+  stable release.

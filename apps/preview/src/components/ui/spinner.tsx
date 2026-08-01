@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { ActivityIndicator, Platform, View } from 'react-native';
+import { View } from '@/components/ui/primitives';
+import { ActivityIndicator, Platform } from 'react-native';
 import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react-native';
 import Animated, {
