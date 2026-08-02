@@ -16,7 +16,8 @@
   ],
   "meta": {
     "engine": "nativewind",
-    "style": "lyra"
+    "style": "lyra",
+    "legacy": false
   },
   "type": "registry:ui"
 }

@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Text } from '@/components/ui/text';
 import { Link } from 'expo-router';
-import { Apple, GalleryVerticalEnd, GitFork, Mail } from 'lucide-react-native';
+import { Apple, GalleryVerticalEnd, GitFork, Mail } from '@/components/ui/semantic-icon';
 import * as React from 'react';
 import { View } from 'react-native';
 

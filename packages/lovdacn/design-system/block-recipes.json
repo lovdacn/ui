@@ -1,0 +1,10 @@
+{
+  "luma": { "page": "px-6 py-8", "grid": "gap-7", "column": "gap-7", "section": "gap-5", "fieldGroup": "gap-4" },
+  "lyra": { "page": "px-4 py-5", "grid": "gap-4", "column": "gap-4", "section": "gap-3", "fieldGroup": "gap-3" },
+  "maia": { "page": "px-8 py-10", "grid": "gap-8", "column": "gap-8", "section": "gap-6", "fieldGroup": "gap-5" },
+  "mira": { "page": "px-4 py-4", "grid": "gap-3", "column": "gap-3", "section": "gap-2", "fieldGroup": "gap-2" },
+  "nova": { "page": "px-5 py-6", "grid": "gap-4", "column": "gap-4", "section": "gap-3", "fieldGroup": "gap-3" },
+  "rhea": { "page": "px-6 py-8", "grid": "gap-6", "column": "gap-6", "section": "gap-5", "fieldGroup": "gap-4" },
+  "sera": { "page": "px-8 py-12", "grid": "gap-8", "column": "gap-8", "section": "gap-6", "fieldGroup": "gap-5" },
+  "vega": { "page": "px-6 py-8", "grid": "gap-6", "column": "gap-6", "section": "gap-4", "fieldGroup": "gap-4" }
+}

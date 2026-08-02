@@ -2,8 +2,9 @@
   "name": "login-03",
   "type": "registry:block",
   "description": "A branded sign-in card with social providers, email login, account links, and a mobile-safe route.",
-  "dependencies": ["lucide-react-native"],
+  "dependencies": [],
   "registryDependencies": [
+    "semantic-icon",
     "card",
     "input",
     "label",

@@ -1,12 +1,12 @@
 {
   "$schema": "https://lovdacn.vercel.app/schema.json",
-  "style": "new-york",
+  "style": "vega",
   "styleEngine": "uniwind",
   "tsx": true,
   "tailwind": {
     "config": "tailwind.config.js",
     "css": "./global.css",
-    "baseColor": "taupe"
+    "baseColor": "neutral"
   },
   "aliases": {
     "components": "@/components",
@@ -14,10 +14,10 @@
     "ui": "@/components/ui"
   },
   "components": [],
-  "baseColor": "taupe",
-  "chartColor": "green",
-  "theme": "indigo",
-  "font": "instrument-serif",
+  "baseColor": "neutral",
+  "theme": "cyan",
+  "chartColor": "teal",
+  "font": "space-grotesk",
   "iconLibrary": "lucide",
-  "radius": "small"
+  "radius": "medium"
 }

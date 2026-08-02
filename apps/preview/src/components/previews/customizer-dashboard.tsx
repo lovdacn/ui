@@ -8,13 +8,26 @@ import {
 } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 
+import {
+  getFontFace,
+  usePreviewDesignSystem,
+} from '@/components/design-system/preview-design-system';
+import { SemanticIcon } from '@/components/design-system/semantic-icon';
 import { cn } from '@/lib/utils';
 
 const TextClassContext = React.createContext('');
 
-function Text({ className, ...props }: React.ComponentProps<typeof NativeText>) {
+function Text({ className, style, ...props }: React.ComponentProps<typeof NativeText>) {
   const inheritedClassName = React.useContext(TextClassContext);
-  return <NativeText className={cn(inheritedClassName, className)} {...props} />;
+  const { fontFaces, recipe } = usePreviewDesignSystem();
+  const resolvedClassName = cn(recipe.typography.body, inheritedClassName, className);
+  return (
+    <NativeText
+      className={resolvedClassName}
+      style={[style, { fontFamily: getFontFace(resolvedClassName, fontFaces), fontWeight: 'normal' }]}
+      {...props}
+    />
+  );
 }
 
 type ButtonProps = Omit<React.ComponentProps<typeof Pressable>, 'children'> & {
@@ -24,21 +37,30 @@ type ButtonProps = Omit<React.ComponentProps<typeof Pressable>, 'children'> & {
 };
 
 function Button({ className, variant = 'default', size = 'default', children, ...props }: ButtonProps) {
-  const textClassName = variant === 'default' ? 'text-primary-foreground' : 'text-foreground';
+  const { recipe } = usePreviewDesignSystem();
+  const textClassName = cn(
+    variant === 'default' ? 'text-primary-foreground' : 'text-foreground',
+    recipe.typography.button,
+    recipe.components.button.text,
+    size === 'sm' && recipe.components.button.smallText
+  );
   return (
     <TextClassContext.Provider value={textClassName}>
       <Pressable
         role="button"
+        hitSlop={10}
         className={cn(
-          'flex-row items-center justify-center rounded-4xl border shadow-sm shadow-black/5 transition-colors',
-          size === 'sm' ? 'h-8 px-3' : 'h-9 px-3',
+          'flex-row items-center justify-center border shadow-sm shadow-black/5 transition-colors',
+          className,
+          recipe.components.button.container,
           variant === 'outline'
-            ? 'border-border bg-input/30 hover:bg-accent'
-            : 'border-transparent bg-primary hover:bg-primary/90',
-          className
+            ? recipe.components.button.outline
+            : recipe.components.button.default,
+          size === 'sm' && recipe.components.button.small
         )}
         {...props}
       >
+        <SemanticIcon name={variant === 'outline' ? 'arrow-right' : 'check'} />
         {children}
       </Pressable>
     </TextClassContext.Provider>
@@ -46,11 +68,14 @@ function Button({ className, variant = 'default', size = 'default', children, ..
 }
 
 function Card({ className, ...props }: React.ComponentProps<typeof View>) {
+  const { recipe } = usePreviewDesignSystem();
   return (
     <View
       className={cn(
-        'border-border flex flex-col gap-6 overflow-hidden rounded-2xl border bg-card py-6 text-card-foreground shadow-sm shadow-black/5 ring-1 ring-foreground/10',
-        className
+        'border-border flex flex-col overflow-hidden border bg-card py-6 text-card-foreground shadow-sm shadow-black/5',
+        className,
+        recipe.layout.stackLg,
+        recipe.components.card.shell
       )}
       {...props}
     />
@@ -58,43 +83,101 @@ function Card({ className, ...props }: React.ComponentProps<typeof View>) {
 }
 
 function CardHeader({ className, ...props }: React.ComponentProps<typeof View>) {
-  return <View className={cn('flex flex-col gap-2 rounded-t-xl px-6', className)} {...props} />;
-}
-
-function CardContent({ className, ...props }: React.ComponentProps<typeof View>) {
-  return <View className={cn('px-6', className)} {...props} />;
-}
-
-function CardTitle({ className, ...props }: React.ComponentProps<typeof Text>) {
-  return <Text role="heading" className={cn('text-base font-medium text-card-foreground', className)} {...props} />;
-}
-
-function CardDescription({ className, ...props }: React.ComponentProps<typeof Text>) {
-  return <Text className={cn('text-sm text-muted-foreground', className)} {...props} />;
-}
-
-function Input({ id, className, ...props }: React.ComponentProps<typeof TextInput> & { id?: string }) {
+  const { recipe } = usePreviewDesignSystem();
   return (
-    <TextInput
-      nativeID={id}
+    <View
       className={cn(
-        'border-input bg-input/30 text-foreground h-9 w-full min-w-0 rounded-4xl border px-3 py-1 text-sm shadow-sm shadow-black/5 outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50',
-        className
+        'flex flex-col px-6',
+        className,
+        recipe.layout.stackSm,
+        recipe.components.card.header
       )}
       {...props}
     />
   );
 }
 
+function CardContent({ className, ...props }: React.ComponentProps<typeof View>) {
+  const { recipe } = usePreviewDesignSystem();
+  return (
+    <View
+      className={cn('px-6', className, recipe.layout.stackMd, recipe.components.card.content)}
+      {...props}
+    />
+  );
+}
+
+function CardTitle({ className, ...props }: React.ComponentProps<typeof Text>) {
+  const { recipe } = usePreviewDesignSystem();
+  return (
+    <Text
+      role="heading"
+      className={cn(
+        'text-card-foreground',
+        className,
+        recipe.components.card.title,
+        recipe.typography.cardTitle
+      )}
+      {...props}
+    />
+  );
+}
+
+function CardDescription({ className, ...props }: React.ComponentProps<typeof Text>) {
+  const { recipe } = usePreviewDesignSystem();
+  return (
+    <Text
+      className={cn(
+        'text-muted-foreground',
+        className,
+        recipe.components.card.description,
+        recipe.typography.caption
+      )}
+      {...props}
+    />
+  );
+}
+
+function Input({ id, className, style, ...props }: React.ComponentProps<typeof TextInput> & { id?: string }) {
+  const { fontFaces, recipe } = usePreviewDesignSystem();
+  const resolvedClassName = cn(
+    'text-foreground w-full min-w-0 shadow-sm shadow-black/5 outline-none placeholder:text-muted-foreground',
+    className,
+    recipe.typography.body,
+    recipe.components.input
+  );
+  return (
+    <TextInput
+      nativeID={id}
+      className={resolvedClassName}
+      style={[style, { fontFamily: getFontFace(resolvedClassName, fontFaces), fontWeight: 'normal' }]}
+      {...props}
+    />
+  );
+}
+
 function Label({ htmlFor: _htmlFor, className, ...props }: React.ComponentProps<typeof Text> & { htmlFor?: string }) {
-  return <Text className={cn('text-sm font-medium text-foreground', className)} {...props} />;
+  const { recipe } = usePreviewDesignSystem();
+  return (
+    <Text
+      className={cn('text-foreground', className, recipe.components.label, recipe.typography.label)}
+      {...props}
+    />
+  );
 }
 
 function Badge({ className, ...props }: React.ComponentProps<typeof View> & { variant?: 'outline' }) {
+  const { recipe } = usePreviewDesignSystem();
   return (
-    <TextClassContext.Provider value="text-foreground text-xs font-medium">
+    <TextClassContext.Provider
+      value={cn('text-foreground', recipe.components.badge.text, recipe.typography.badge)}
+    >
       <View
-        className={cn('border-border flex-row items-center rounded-full border px-2 py-0.5', className)}
+        className={cn(
+          'border-border flex-row items-center border',
+          className,
+          recipe.components.badge.shell
+        )}
         {...props}
       />
     </TextClassContext.Provider>
@@ -108,31 +191,41 @@ function Checkbox({
   checked: boolean;
   onCheckedChange: (checked: boolean) => void;
 }) {
+  const { recipe } = usePreviewDesignSystem();
   return (
     <Pressable
       role="checkbox"
       aria-checked={checked}
+      hitSlop={14}
       onPress={() => onCheckedChange(!checked)}
       className={cn(
-        'border-input size-4 shrink-0 items-center justify-center rounded-[4px] border shadow-sm shadow-black/5',
+        'shrink-0 items-center justify-center shadow-sm shadow-black/5',
+        recipe.components.checkbox,
         checked && 'border-primary bg-primary'
       )}
     >
-      {checked ? <NativeText className="text-[11px] font-bold leading-none text-primary-foreground">✓</NativeText> : null}
+      {checked ? (
+        <SemanticIcon name="check" size={11} className="text-primary-foreground" />
+      ) : null}
     </Pressable>
   );
 }
 
 function Progress({ value }: { value: number }) {
+  const { recipe } = usePreviewDesignSystem();
   return (
-    <View className="bg-primary/20 h-2 w-full overflow-hidden rounded-full">
-      <View className="bg-primary h-full rounded-full" style={{ width: `${value}%` }} />
+    <View className={cn('w-full overflow-hidden', recipe.components.progress)}>
+      <View
+        className={cn('h-full', recipe.components.progressIndicator)}
+        style={{ width: `${value}%` }}
+      />
     </View>
   );
 }
 
 function Separator() {
-  return <View className="bg-border h-px w-full shrink-0" />;
+  const { recipe } = usePreviewDesignSystem();
+  return <View className={cn('h-px w-full shrink-0', recipe.components.separator)} />;
 }
 
 const CHART_BG = ['bg-chart-1', 'bg-chart-2', 'bg-chart-3', 'bg-chart-4', 'bg-chart-5'] as const;
@@ -301,6 +394,7 @@ function AreaLineChart({
 }
 
 export function CustomizerDashboard({ topPad = 24 }: { topPad?: number }) {
+  const { recipe } = usePreviewDesignSystem();
   const [checked1, setChecked1] = React.useState(true);
   const [checked2, setChecked2] = React.useState(true);
   const [checked3, setChecked3] = React.useState(false);
@@ -319,28 +413,24 @@ export function CustomizerDashboard({ topPad = 24 }: { topPad?: number }) {
       className="flex-1 bg-background w-full"
       contentContainerStyle={{
         paddingTop: topPad,
-        paddingBottom: 48,
-        paddingHorizontal: 24,
+        paddingBottom: recipe.layout.pagePaddingBottom,
+        paddingHorizontal: recipe.layout.pagePaddingX,
       }}
     >
-      <View className="flex-row flex-wrap -mx-3 gap-y-6">
-        <View className="w-full lg:w-1/3 px-3 gap-6">
+      <View className={cn('flex-row flex-wrap', recipe.layout.grid)}>
+        <View className={cn('w-full lg:w-1/3', recipe.layout.column)}>
           <Card>
             <CardHeader>
               <CardTitle className="text-lg font-bold">Account Access</CardTitle>
               <CardDescription>Update your credentials or re-authenticate.</CardDescription>
             </CardHeader>
             <CardContent className="gap-4">
-              <View className="gap-1.5">
-                <Label htmlFor="email">
-                  <Text className="text-xs font-semibold">Email Address</Text>
-                </Label>
+              <View className={recipe.layout.field}>
+                <Label htmlFor="email">Email Address</Label>
                 <Input id="email" placeholder="artist@studio.inc" defaultValue="artist@studio.inc" />
               </View>
-              <View className="gap-1.5">
-                <Label htmlFor="password">
-                  <Text className="text-xs font-semibold">Current Password</Text>
-                </Label>
+              <View className={recipe.layout.field}>
+                <Label htmlFor="password">Current Password</Label>
                 <Input id="password" secureTextEntry defaultValue="hunter2hunter2" />
               </View>
               <Button>
@@ -399,22 +489,16 @@ export function CustomizerDashboard({ topPad = 24 }: { topPad?: number }) {
               <CardDescription>Move money between accounts.</CardDescription>
             </CardHeader>
             <CardContent className="gap-4">
-              <View className="gap-1.5">
-                <Label>
-                  <Text className="text-xs font-semibold">Amount to Transfer</Text>
-                </Label>
+              <View className={recipe.layout.field}>
+                <Label >Amount to Transfer</Label>
                 <Input placeholder="$ 1,200.00" defaultValue="$ 1,200.00" keyboardType="decimal-pad" />
               </View>
-              <View className="gap-1.5">
-                <Label>
-                  <Text className="text-xs font-semibold">From Account</Text>
-                </Label>
+              <View className={recipe.layout.field}>
+                <Label >From Account</Label>
                 <Input defaultValue="Main Checking (•8402) — $12,450.00" />
               </View>
-              <View className="gap-1.5">
-                <Label>
-                  <Text className="text-xs font-semibold">To Account</Text>
-                </Label>
+              <View className={recipe.layout.field}>
+                <Label >To Account</Label>
                 <Input defaultValue="High Yield Savings (•1192) — $42,100.00" />
               </View>
               <Separator />
@@ -439,23 +523,19 @@ export function CustomizerDashboard({ topPad = 24 }: { topPad?: number }) {
           </Card>
         </View>
 
-        <View className="w-full lg:w-1/3 px-3 gap-6">
+        <View className={cn('w-full lg:w-1/3', recipe.layout.column)}>
           <Card>
             <CardHeader>
               <CardTitle className="text-lg font-bold">Receiving Method</CardTitle>
               <CardDescription>Set how you receive payout transfers.</CardDescription>
             </CardHeader>
             <CardContent className="gap-4">
-              <View className="gap-1.5">
-                <Label>
-                  <Text className="text-xs font-semibold">Account Holder Name</Text>
-                </Label>
+              <View className={recipe.layout.field}>
+                <Label >Account Holder Name</Label>
                 <Input defaultValue="Synthetic Horizons Music LLC" />
               </View>
-              <View className="gap-1.5">
-                <Label>
-                  <Text className="text-xs font-semibold">IBAN / Account Number</Text>
-                </Label>
+              <View className={recipe.layout.field}>
+                <Label >IBAN / Account Number</Label>
                 <Input defaultValue="DE89 3704 0044 •••• ••" />
               </View>
               <Button className="w-full">
@@ -507,7 +587,7 @@ export function CustomizerDashboard({ topPad = 24 }: { topPad?: number }) {
                   <Text className="text-sm font-semibold text-green-600">+1.2 kW</Text>
                 </View>
               </View>
-              <View className="gap-1.5">
+              <View className={recipe.layout.field}>
                 <View className="flex-row justify-between">
                   <Text className="text-xs text-muted-foreground">Battery Level</Text>
                   <Text className="text-xs font-semibold text-foreground">{powerProgress}%</Text>
@@ -550,7 +630,7 @@ export function CustomizerDashboard({ topPad = 24 }: { topPad?: number }) {
           </Card>
         </View>
 
-        <View className="w-full lg:w-1/3 px-3 gap-6">
+        <View className={cn('w-full lg:w-1/3', recipe.layout.column)}>
           <Card>
             <CardHeader>
               <CardTitle className="text-lg font-bold">Stock Performance</CardTitle>
@@ -612,23 +692,17 @@ export function CustomizerDashboard({ topPad = 24 }: { topPad?: number }) {
               <CardDescription>Define your financial target.</CardDescription>
             </CardHeader>
             <CardContent className="gap-4">
-              <View className="gap-1.5">
-                <Label>
-                  <Text className="text-xs font-semibold">Goal Name</Text>
-                </Label>
+              <View className={recipe.layout.field}>
+                <Label >Goal Name</Label>
                 <Input placeholder="e.g. New Car, Home Downpayment" />
               </View>
               <View className="flex-row gap-2">
                 <View className="flex-1 gap-1.5">
-                  <Label>
-                    <Text className="text-xs font-semibold">Target Amount</Text>
-                  </Label>
+                  <Label >Target Amount</Label>
                   <Input placeholder="$15,000" keyboardType="decimal-pad" />
                 </View>
                 <View className="flex-1 gap-1.5">
-                  <Label>
-                    <Text className="text-xs font-semibold">Target Date</Text>
-                  </Label>
+                  <Label >Target Date</Label>
                   <Input placeholder="Dec 2025" />
                 </View>
               </View>

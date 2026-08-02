@@ -1,3 +1,4 @@
+import { getLvcnFontStyle } from '@/lib/lvcn-fonts';
 import { cn } from '@/lib/utils';
 import { Slot } from '@rn-primitives/slot';
 import { cva, type VariantProps } from 'class-variance-authority';
@@ -84,12 +85,13 @@ function Text({
   }) {
   const textClass = React.useContext(TextClassContext);
   const Component = asChild ? Slot : RNText;
+  const resolvedClassName = cn(textVariants({ variant }), textClass, className);
   return (
     <Component
-      className={cn(textVariants({ variant }), textClass, className)}
+      className={resolvedClassName}
       role={variant ? ROLE[variant] : undefined}
       aria-level={variant ? ARIA_LEVEL[variant] : undefined}
-      style={[textStyle, style]}
+      style={[textStyle, style, getLvcnFontStyle(resolvedClassName)]}
       {...props}
     />
   );

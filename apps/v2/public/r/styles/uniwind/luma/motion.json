@@ -22,7 +22,8 @@
   ],
   "meta": {
     "engine": "uniwind",
-    "style": "luma"
+    "style": "luma",
+    "legacy": false
   },
   "type": "registry:ui"
 }

@@ -31,24 +31,22 @@ import {
 } from '@/components/ui/sidebar';
 import { Text } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
-import {
-  Activity,
-  Bell,
-  ChevronsUpDown,
-  Command,
-  CreditCard,
-  DollarSign,
-  Home,
-  LayoutDashboard,
-  LifeBuoy,
-  Package,
-  Search,
-  Settings,
-  ShoppingCart,
-  TrendingUp,
-  User,
-  Users,
-} from 'lucide-react-native';
+import { Activity,
+Bell,
+ChevronsUpDown,
+Command,
+CreditCard,
+DollarSign,
+Home,
+LayoutDashboard,
+LifeBuoy,
+Package,
+Search,
+Settings,
+ShoppingCart,
+TrendingUp,
+User,
+Users, } from '@/components/ui/semantic-icon';
 import * as React from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

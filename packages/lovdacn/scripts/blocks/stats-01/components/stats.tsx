@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/card';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
-import { TrendingDown, TrendingUp } from 'lucide-react-native';
+import { TrendingDown, TrendingUp } from '@/components/ui/semantic-icon';
 import * as React from 'react';
 import { View } from 'react-native';
 

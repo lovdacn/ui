@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Text } from '@/components/ui/text';
 import { Link } from 'expo-router';
-import { GalleryVerticalEnd } from 'lucide-react-native';
+import { GalleryVerticalEnd } from '@/components/ui/semantic-icon';
 import * as React from 'react';
 import { View } from 'react-native';
 

@@ -10,12 +10,15 @@ import { z } from "zod"
 
 import { REGISTRY_URL } from "../config.js"
 import {
-  decodePreset,
+  decodePresetWithWarnings,
   isPresetCode,
+  normalizePreset,
   FONT_FAMILIES,
   FONT_PACKAGES,
   ICON_PACKAGES,
   RADIUS_VALUES,
+  STYLE_LABELS,
+  PRESET_STYLES,
   getFontCategory,
   PRESET_CHART_COLORS,
   DEFAULT_PRESET_CONFIG,
@@ -23,6 +26,8 @@ import {
 } from "../preset/index.js"
 import { DEFAULT_PRESETS } from "../preset/defaults.js"
 import { getThemePrimary, getChartRamp } from "../preset/colors.js"
+import { normalizeLvcnConfig } from "../utils/normalize-config.js"
+import { configureProjectFont } from "../utils/project-fonts.js"
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -209,34 +214,45 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
   let styleEngine: "nativewind" | "uniwind" = "nativewind"
   let expoVersion: TemplateExpoVersion =
     options.expoVersion || DEFAULT_TEMPLATE_EXPO_VERSION
-  let style: string = "new-york"
-  let baseColor: string = "zinc"
+  let style: string = DEFAULT_PRESET_CONFIG.style
+  let baseColor: string = DEFAULT_PRESET_CONFIG.baseColor
   let chartColor: string = DEFAULT_PRESET_CONFIG.chartColor
   let presetConfig: PresetConfig | null = null
 
-  // Resolve --preset if provided
+  // Resolve --preset if provided.
   if (options.preset) {
-    const namedPreset = DEFAULT_PRESETS[options.preset]
+    const namedPreset = DEFAULT_PRESETS[options.preset as keyof typeof DEFAULT_PRESETS]
+    let warnings: string[] = []
     if (namedPreset) {
       const { title, description, ...config } = namedPreset
       presetConfig = config
     } else if (isPresetCode(options.preset)) {
-      presetConfig = decodePreset(options.preset)
-      if (!presetConfig) {
+      const decoded = decodePresetWithWarnings(options.preset)
+      if (!decoded) {
         console.error(pc.red(`Invalid preset code: ${options.preset}`))
         process.exit(1)
       }
+      presetConfig = decoded.config
+      warnings = decoded.warnings
+    } else if (
+      (PRESET_STYLES as readonly string[]).includes(options.preset) ||
+      options.preset === "default" ||
+      options.preset === "new-york"
+    ) {
+      const normalized = normalizePreset({ style: options.preset })
+      presetConfig = DEFAULT_PRESETS[normalized.config.style]
+      warnings = normalized.warnings
     } else {
       console.error(pc.red(`Unknown preset: ${options.preset}`))
       console.error(pc.dim(`Available: ${Object.keys(DEFAULT_PRESETS).join(", ")}, or a preset code.`))
       process.exit(1)
     }
 
-    // Apply preset values
     style = presetConfig.style
     baseColor = presetConfig.baseColor
     chartColor = presetConfig.chartColor
     console.log(pc.blue(`Using preset: ${pc.cyan(options.preset)}`))
+    for (const warning of warnings) console.log(pc.yellow(`⚠ ${warning}`))
     console.log(pc.dim(`  style: ${style}, base: ${baseColor}, theme: ${presetConfig.theme}, chart: ${presetConfig.chartColor}, font: ${FONT_FAMILIES[presetConfig.font]}, icons: ${presetConfig.iconLibrary}, radius: ${RADIUS_VALUES[presetConfig.radius]}`))
   }
 
@@ -288,8 +304,8 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
       projectName = projectName || "nativewind-app"
       packageManager = packageManager || getPackageManager(cwd)
       styleEngine = options.engine || "nativewind"
-      style = presetConfig ? presetConfig.style : "new-york"
-      baseColor = presetConfig ? presetConfig.baseColor : "zinc"
+      style = presetConfig ? presetConfig.style : DEFAULT_PRESET_CONFIG.style
+      baseColor = presetConfig ? presetConfig.baseColor : DEFAULT_PRESET_CONFIG.baseColor
     } else {
       const detectedPM = getPackageManager(cwd)
       const questions: prompts.PromptObject[] = []
@@ -325,19 +341,8 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
           type: "select",
           name: "style",
           message: "Which style would you like to use?",
-          choices: [
-            { title: "Default", value: "default" },
-            { title: "New York", value: "new-york" },
-            { title: "Luma", value: "luma" },
-            { title: "Lyra", value: "lyra" },
-            { title: "Maia", value: "maia" },
-            { title: "Mira", value: "mira" },
-            { title: "Nova", value: "nova" },
-            { title: "Rhea", value: "rhea" },
-            { title: "Sera", value: "sera" },
-            { title: "Vega", value: "vega" }
-          ],
-          initial: 1
+          choices: PRESET_STYLES.map((value) => ({ title: STYLE_LABELS[value], value })),
+          initial: (PRESET_STYLES as readonly string[]).indexOf(DEFAULT_PRESET_CONFIG.style)
         })
 
         questions.push({
@@ -474,7 +479,11 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
       }
     }
     try {
-      existingLvcnConfig = fs.readJsonSync(lvcnJsonPath)
+      const normalization = normalizeLvcnConfig(fs.readJsonSync(lvcnJsonPath))
+      existingLvcnConfig = normalization.config
+      for (const warning of normalization.warnings) {
+        console.log(pc.yellow(`⚠ ${warning}`))
+      }
     } catch {
       // Ignore read errors
     }
@@ -487,7 +496,7 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
     // style already set from preset
     style = presetConfig.style
   } else if (options.yes) {
-    style = "new-york"
+    style = DEFAULT_PRESET_CONFIG.style
   } else if (!hasPackageJson) {
     // Style was already prompted in new project mode prompts
   } else {
@@ -495,19 +504,8 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
       type: "select",
       name: "style",
       message: "Which style would you like to use?",
-      choices: [
-        { title: "Default", value: "default" },
-        { title: "New York", value: "new-york" },
-        { title: "Luma", value: "luma" },
-        { title: "Lyra", value: "lyra" },
-        { title: "Maia", value: "maia" },
-        { title: "Mira", value: "mira" },
-        { title: "Nova", value: "nova" },
-        { title: "Rhea", value: "rhea" },
-        { title: "Sera", value: "sera" },
-        { title: "Vega", value: "vega" }
-      ],
-      initial: 1
+      choices: PRESET_STYLES.map((value) => ({ title: STYLE_LABELS[value], value })),
+      initial: (PRESET_STYLES as readonly string[]).indexOf(DEFAULT_PRESET_CONFIG.style)
     })
     if (!styleResponse.style) {
       process.exit(0)
@@ -522,7 +520,7 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
     // baseColor already set from preset
     baseColor = presetConfig.baseColor
   } else if (options.yes) {
-    baseColor = "zinc"
+    baseColor = DEFAULT_PRESET_CONFIG.baseColor
   } else if (!hasPackageJson) {
     // baseColor was already prompted in new project mode prompts
   } else {
@@ -572,6 +570,22 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
     }
     chartColor = chartColorResponse.chartColor
   }
+
+  const selectedStyleDefaults =
+    DEFAULT_PRESETS[style as keyof typeof DEFAULT_PRESETS] ?? DEFAULT_PRESETS[DEFAULT_PRESET_CONFIG.style]
+  const selected = normalizePreset({
+    ...selectedStyleDefaults,
+    style,
+    baseColor,
+    chartColor,
+    ...(existingLvcnConfig || {}),
+    ...(presetConfig || {}),
+  })
+  presetConfig = selected.config
+  style = presetConfig.style
+  baseColor = presetConfig.baseColor
+  chartColor = presetConfig.chartColor
+  for (const warning of selected.warnings) console.log(pc.yellow(`⚠ ${warning}`))
 
   // Materialize the template locally: use LOVDA_TEMPLATE_DIR for local
   // development, otherwise sparse-clone it from GitHub (shadcn-style).
@@ -709,6 +723,11 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
     fs.writeJsonSync(lvcnJsonPath, mergedConfig, { spaces: 2 })
   }
 
+  const fontResource = configureProjectFont(projectPath, presetConfig.font)
+  console.log(
+    pc.green(`✔ Configured ${pc.cyan(path.relative(projectPath, fontResource.loaderPath))} for ${FONT_FAMILIES[presetConfig.font]}`)
+  )
+
   console.log(pc.blue(`Installing dependencies using ${pc.cyan(packageManager!)}...`))
 
   // Install dependencies: in existing project we install only style-engine specific packages, otherwise run full install
@@ -728,36 +747,20 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
     })
   }
 
-  // Install preset-specific packages (font + icons)
-  if (presetConfig) {
-    const presetDeps: string[] = []
-
-    // Font package
-    const fontPkg = FONT_PACKAGES[presetConfig.font]
-    if (fontPkg) {
-      presetDeps.push(fontPkg)
-    }
-
-    // Icon library package (skip @expo/vector-icons as it's built-in)
-    if (presetConfig.iconLibrary !== "expo") {
-      const iconPkg = ICON_PACKAGES[presetConfig.iconLibrary]
-      if (iconPkg) {
-        presetDeps.push(iconPkg)
-        presetDeps.push("react-native-svg")
-      }
-    }
-
-    if (presetDeps.length > 0) {
-      console.log(pc.blue(`Installing preset packages: ${pc.cyan(presetDeps.join(", "))}...`))
-      try {
-        await execa(packageManager!, ["install", ...presetDeps], {
-          cwd: projectPath,
-          stdio: "inherit",
-        })
-      } catch {
-        console.log(pc.yellow(`⚠ Could not install some preset packages. Install manually: ${presetDeps.join(" ")}`))
-      }
-    }
+  // Install exact selected font + icon packages for every initialization path.
+  const presetDeps = [
+    FONT_PACKAGES[presetConfig.font],
+    ICON_PACKAGES[presetConfig.iconLibrary],
+    "react-native-svg",
+  ]
+  console.log(pc.blue(`Installing design-system packages: ${pc.cyan(presetDeps.join(", "))}...`))
+  try {
+    await execa(packageManager!, ["install", ...presetDeps], {
+      cwd: projectPath,
+      stdio: "inherit",
+    })
+  } catch {
+    console.log(pc.yellow(`⚠ Could not install some design-system packages. Install manually: ${presetDeps.join(" ")}`))
   }
 
   // Initialize a git repository with an initial commit for newly
@@ -1721,7 +1724,7 @@ const STYLE_CONFIGS: Record<string, StyleConfig> = {
 };
 
 function getStyleVars(style: string, styleEngine: "nativewind" | "uniwind", baseColor: string, theme?: string, chartColor?: string, fontKey?: string, radiusKey?: string): string {
-  const styleConfig: StyleConfig = STYLE_CONFIGS[style] ?? STYLE_CONFIGS["new-york"]!;
+  const styleConfig: StyleConfig = STYLE_CONFIGS[style] ?? STYLE_CONFIGS[DEFAULT_PRESET_CONFIG.style]!;
 
   let resolvedColor: "zinc" | "slate" | "stone" | "gray" | "neutral" | "taupe" | "mauve" | "olive" | "mist" = "zinc";
   if (baseColor in THEME_COLORS) {

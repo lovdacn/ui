@@ -1,3 +1,4 @@
+import { getLvcnFontStyle } from '@/lib/lvcn-fonts';
 import { cn } from '@/lib/utils';
 import { TextInput } from '@/components/ui/primitives';
 import { Platform } from 'react-native';
@@ -5,6 +6,7 @@ import { Platform } from 'react-native';
 function Input({
   className,
   placeholderClassName,
+  style,
   ...props
 }: React.ComponentProps<typeof TextInput> & React.RefAttributes<TextInput>) {
   return (
@@ -25,6 +27,7 @@ function Input({
         }),
         className
       )}
+      style={[style, getLvcnFontStyle(className)]}
       {...props}
     />
   );

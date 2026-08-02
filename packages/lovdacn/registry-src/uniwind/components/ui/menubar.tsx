@@ -4,7 +4,7 @@ import { TextClassContext } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
 import * as MenubarPrimitive from '@rn-primitives/menubar';
 import { Portal } from '@rn-primitives/portal';
-import { Check, ChevronDown, ChevronRight, ChevronUp } from 'lucide-react-native';
+import { Check, ChevronDown, ChevronRight, ChevronUp } from '@/components/ui/semantic-icon';
 import * as React from 'react';
 import { Pressable, Text, View } from '@/components/ui/primitives';
 import { Platform, type StyleProp, StyleSheet, type ViewStyle } from 'react-native';

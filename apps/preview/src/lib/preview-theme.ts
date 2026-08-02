@@ -1,48 +1,20 @@
+import {
+  DEFAULT_PRESET_CONFIG,
+  FONT_MANIFEST,
+  RADIUS_VALUES,
+  decodePresetWithWarnings,
+  type PresetConfig,
+  type PresetNormalization,
+} from '@/lib/generated/preset-catalog';
+
 export type PreviewColorScheme = 'light' | 'dark';
 
-const PRESET_STYLES = ['new-york', 'default', 'luma', 'lyra', 'maia', 'mira', 'nova', 'rhea', 'sera', 'vega'] as const;
-const PRESET_BASE_COLORS = ['zinc', 'slate', 'stone', 'gray', 'neutral', 'taupe', 'mauve', 'olive', 'mist'] as const;
-const PRESET_THEMES = ['zinc', 'slate', 'stone', 'gray', 'neutral', 'red', 'orange', 'amber', 'yellow', 'lime', 'green', 'emerald', 'teal', 'cyan', 'sky', 'blue', 'indigo', 'violet', 'purple', 'fuchsia', 'pink', 'rose'] as const;
-const PRESET_FONTS = ['inter', 'dm-sans', 'nunito-sans', 'figtree', 'outfit', 'manrope', 'space-grotesk', 'montserrat', 'roboto', 'raleway', 'public-sans', 'source-sans-3', 'lora', 'merriweather', 'playfair-display', 'jetbrains-mono', 'space-mono', 'fira-code', 'noto-serif', 'roboto-slab', 'instrument-sans', 'instrument-serif', 'geist'] as const;
-const PRESET_ICON_LIBRARIES = ['lucide', 'phosphor', 'tabler', 'expo', 'heroicons'] as const;
-const PRESET_RADII = ['default', 'none', 'small', 'medium', 'large', 'full'] as const;
-
-const PRESET_FIELDS_V1 = [
-  { key: 'style', values: PRESET_STYLES, bits: 4 },
-  { key: 'baseColor', values: PRESET_BASE_COLORS, bits: 4 },
-  { key: 'theme', values: PRESET_THEMES, bits: 5 },
-  { key: 'chartColor', values: PRESET_THEMES, bits: 5 },
-  { key: 'font', values: PRESET_FONTS, bits: 5 },
-  { key: 'iconLibrary', values: PRESET_ICON_LIBRARIES, bits: 3 },
-  { key: 'radius', values: PRESET_RADII, bits: 3 },
-] as const;
-
-const BASE62 = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-
-function fromBase62(value: string) {
-  let result = 0;
-  for (const character of value) {
-    const index = BASE62.indexOf(character);
-    if (index === -1) return -1;
-    result = result * 62 + index;
-  }
-  return result;
+export function decodePreviewPreset(code: string): PresetConfig | null {
+  return decodePresetWithWarnings(code)?.config ?? null;
 }
 
-export function decodePreviewPreset(code: string) {
-  if (!code || code.length < 2 || code.charAt(0) !== 'a') return null;
-  const bits = fromBase62(code.slice(1));
-  if (bits < 0) return null;
-
-  const result: Record<string, string> = {};
-  let offset = 0;
-  for (const field of PRESET_FIELDS_V1) {
-    const index = Math.floor(bits / 2 ** offset) % 2 ** field.bits;
-    const values = field.values as readonly string[];
-    result[field.key] = index < values.length ? values[index]! : values[0]!;
-    offset += field.bits;
-  }
-  return result;
+export function decodePreviewPresetWithWarnings(code: string): PresetNormalization | null {
+  return decodePresetWithWarnings(code);
 }
 
 type ColorSet = {
@@ -119,41 +91,6 @@ const THEME_ACCENTS: Record<string, AccentSet> = {
   rose: { light: { primary: '346.8 77.2% 49.8%', foreground: '355.6 100% 99.7%' }, dark: { primary: '346.8 77.2% 49.8%', foreground: '355.6 100% 99.7%' } },
 };
 
-const RADIUS_VALUES: Record<string, string> = {
-  default: '0.5rem',
-  none: '0rem',
-  small: '0.125rem',
-  medium: '0.625rem',
-  large: '0.75rem',
-  full: '1.5rem',
-};
-
-const FONT_NAMES: Record<string, string> = {
-  inter: 'Inter',
-  'dm-sans': 'DM Sans',
-  'nunito-sans': 'Nunito Sans',
-  figtree: 'Figtree',
-  outfit: 'Outfit',
-  manrope: 'Manrope',
-  'space-grotesk': 'Space Grotesk',
-  montserrat: 'Montserrat',
-  roboto: 'Roboto',
-  raleway: 'Raleway',
-  'public-sans': 'Public Sans',
-  'source-sans-3': 'Source Sans 3',
-  lora: 'Lora',
-  merriweather: 'Merriweather',
-  'playfair-display': 'Playfair Display',
-  'jetbrains-mono': 'JetBrains Mono',
-  'space-mono': 'Space Mono',
-  'fira-code': 'Fira Code',
-  'noto-serif': 'Noto Serif',
-  'roboto-slab': 'Roboto Slab',
-  'instrument-sans': 'Instrument Sans',
-  'instrument-serif': 'Instrument Serif',
-  geist: 'Geist',
-};
-
 function chartRampFromHsl(hsl: string, isDark: boolean) {
   const match = hsl.trim().match(/^([\d.]+)\s+([\d.]+)%\s+([\d.]+)%$/);
   if (!match) return [hsl, hsl, hsl, hsl, hsl];
@@ -161,59 +98,41 @@ function chartRampFromHsl(hsl: string, isDark: boolean) {
   return stops.map((lightness) => `${match[1]} ${match[2]}% ${lightness}%`);
 }
 
-let pendingFontName = '';
-
-function loadFontAfterFirstPaint(fontName: string) {
-  pendingFontName = fontName;
-  const load = () => {
-    if (pendingFontName !== fontName) return;
-    let link = document.getElementById('google-font-customizer') as HTMLLinkElement | null;
-    if (!link) {
-      link = document.createElement('link');
-      link.id = 'google-font-customizer';
-      link.rel = 'stylesheet';
-      document.head.appendChild(link);
-    }
-    const href = `https://fonts.googleapis.com/css2?family=${fontName.replace(/ /g, '+')}:wght@400;500;700&display=swap`;
-    if (link.href !== href) link.href = href;
-  };
-
-  window.requestAnimationFrame(() => {
-    window.setTimeout(load, 0);
-  });
-}
-
-export function applyPreviewTheme(preset: string | undefined, colorScheme: PreviewColorScheme) {
+export function applyPreviewTheme(
+  preset: string | undefined,
+  colorScheme: PreviewColorScheme
+): PresetNormalization | null {
   const root = document.documentElement;
   const isDark = colorScheme === 'dark';
   root.classList.toggle('dark', isDark);
   root.style.colorScheme = colorScheme;
 
-  const config = preset ? decodePreviewPreset(preset) : null;
-  if (!config) return false;
+  const normalization = preset
+    ? decodePreviewPresetWithWarnings(preset)
+    : { config: DEFAULT_PRESET_CONFIG, warnings: [] };
+  if (!normalization) return null;
+  const { config } = normalization;
 
-  const baseColors = BASE_COLORS_HSL[config.baseColor] ?? BASE_COLORS_HSL.zinc;
+  const baseColors = BASE_COLORS_HSL[config.baseColor] ?? BASE_COLORS_HSL.neutral;
   const activeColors = isDark ? baseColors.dark : baseColors.light;
   for (const [key, value] of Object.entries(activeColors)) {
     root.style.setProperty(`--${key}`, value);
   }
 
-  const theme = THEME_ACCENTS[config.theme] ?? THEME_ACCENTS.zinc;
+  const theme = THEME_ACCENTS[config.theme] ?? THEME_ACCENTS.cyan;
   const activeTheme = isDark ? theme.dark : theme.light;
   root.style.setProperty('--primary', activeTheme.primary);
   root.style.setProperty('--primary-foreground', activeTheme.foreground);
   root.style.setProperty('--ring', activeTheme.primary);
 
-  const chartTheme = THEME_ACCENTS[config.chartColor] ?? THEME_ACCENTS.blue;
+  const chartTheme = THEME_ACCENTS[config.chartColor] ?? THEME_ACCENTS.teal;
   const activeChart = isDark ? chartTheme.dark : chartTheme.light;
   chartRampFromHsl(activeChart.primary, isDark).forEach((color, index) => {
     root.style.setProperty(`--chart-${index + 1}`, color);
   });
 
-  root.style.setProperty('--radius', RADIUS_VALUES[config.radius] ?? RADIUS_VALUES.default);
-
-  const fontName = FONT_NAMES[config.font] ?? FONT_NAMES.inter;
-  root.style.setProperty('--font-sans', `'${fontName}', ui-sans-serif, system-ui, sans-serif`);
-  loadFontAfterFirstPaint(fontName);
-  return true;
+  root.style.setProperty('--radius', RADIUS_VALUES[config.radius]);
+  const font = FONT_MANIFEST[config.font];
+  root.style.setProperty('--font-sans', `'${font.family}', ${font.fallback}`);
+  return normalization;
 }

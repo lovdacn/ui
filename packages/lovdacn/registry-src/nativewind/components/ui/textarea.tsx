@@ -1,3 +1,4 @@
+import { getLvcnFontStyle } from '@/lib/lvcn-fonts';
 import { cn } from '@/lib/utils';
 import { TextInput } from '@/components/ui/primitives';
 import { Platform } from 'react-native';
@@ -7,6 +8,7 @@ function Textarea({
   multiline = true,
   numberOfLines = Platform.select({ web: 2, native: 8 }), // On web, numberOfLines also determines initial height. On native, it determines the maximum height.
   placeholderClassName,
+  style,
   ...props
 }: React.ComponentProps<typeof TextInput> & React.RefAttributes<TextInput>) {
   return (
@@ -22,6 +24,7 @@ function Textarea({
       multiline={multiline}
       numberOfLines={numberOfLines}
       textAlignVertical="top"
+      style={[style, getLvcnFontStyle(className)]}
       {...props}
     />
   );

@@ -22,7 +22,8 @@
   ],
   "meta": {
     "engine": "nativewind",
-    "style": "rhea"
+    "style": "rhea",
+    "legacy": false
   },
   "type": "registry:ui"
 }
