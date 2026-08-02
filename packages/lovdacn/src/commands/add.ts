@@ -8,6 +8,8 @@ import pc from "picocolors"
 import { z } from "zod"
 
 import { REGISTRY_URL } from "../config.js"
+import { normalizeLvcnConfig } from "../utils/normalize-config.js"
+import { configureProjectFont } from "../utils/project-fonts.js"
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -165,7 +167,15 @@ export async function runAdd(options: z.infer<typeof addOptionsSchema>) {
     )
   }
 
-  const lvcnConfig = fs.readJsonSync(lvcnPath)
+  const rawLvcnConfig = fs.readJsonSync(lvcnPath)
+  const normalized = normalizeLvcnConfig(rawLvcnConfig)
+  const lvcnConfig = normalized.config
+  if (normalized.changed) {
+    fs.writeJsonSync(lvcnPath, lvcnConfig, { spaces: 2 })
+  }
+  for (const warning of normalized.warnings) {
+    console.log(pc.yellow(`⚠ ${warning}`))
+  }
   let componentsToAdd = options.components || []
 
   if (componentsToAdd.length === 0) {
@@ -185,7 +195,8 @@ export async function runAdd(options: z.infer<typeof addOptionsSchema>) {
     componentsToAdd = response.components
   }
 
-  const style = lvcnConfig.style || "default"
+  const style = lvcnConfig.style
+  const iconLibrary = lvcnConfig.iconLibrary
   const styleEngine = lvcnConfig.styleEngine || "nativewind"
   const packageManager = options.packageManager || getPackageManager(cwd)
 
@@ -205,7 +216,7 @@ export async function runAdd(options: z.infer<typeof addOptionsSchema>) {
     // Fetch registry item
     let registryItem: any
     try {
-      registryItem = await fetchRegistryItem(componentName, style, styleEngine)
+      registryItem = await fetchRegistryItem(componentName, style, styleEngine, iconLibrary)
     } catch (error: any) {
       throw new Error(
         `Component '${componentName}' not found in registry under style '${style}' and engine '${styleEngine}': ${error.message}`
@@ -232,6 +243,14 @@ export async function runAdd(options: z.infer<typeof addOptionsSchema>) {
     if (registryItem.files) {
       filesToWrite.push(...registryItem.files)
     }
+  }
+
+  const needsFontResource = filesToWrite.some((file) =>
+    typeof file.content === "string" && file.content.includes("/lib/lvcn-fonts")
+  )
+  if (needsFontResource) {
+    const fontResource = configureProjectFont(cwd, lvcnConfig.font)
+    npmDependencies.add(fontResource.packageSpecifier)
   }
 
   if (Array.from(resolvedComponents).some((componentName) => PORTAL_COMPONENTS.has(componentName))) {
@@ -356,8 +375,8 @@ export async function runAdd(options: z.infer<typeof addOptionsSchema>) {
       if (oldComp === newComp) continue
 
       try {
-        const oldItem = await fetchRegistryItem(oldComp, style, styleEngine)
-        const newItem = await fetchRegistryItem(newComp, style, styleEngine)
+        const oldItem = await fetchRegistryItem(oldComp, style, styleEngine, iconLibrary)
+        const newItem = await fetchRegistryItem(newComp, style, styleEngine, iconLibrary)
 
         if (oldItem?.type === "registry:block" && newItem?.type === "registry:block") {
           const oldTargets = new Set(
@@ -619,37 +638,36 @@ function getRegistryUrl(): string {
   return REGISTRY_URL
 }
 
-async function fetchRegistryItem(name: string, style: string, styleEngine: string): Promise<any> {
+async function fetchRegistryItem(
+  name: string,
+  style: string,
+  styleEngine: string,
+  iconLibrary: string
+): Promise<any> {
   const registryUrl = getRegistryUrl()
-
-  // Components are resolved per style/engine. Style-agnostic "blocks" (composed
-  // sections that just import components) live once in a shared `blocks/`
-  // namespace, so we try the per-style path first and fall back to blocks.
-  const stylePath = `styles/${styleEngine}/${style}/${name}.json`
-  const blockPath = `blocks/${name}.json`
+  const candidates =
+    name === "semantic-icon"
+      ? [`icons/${styleEngine}/${iconLibrary}/semantic-icon.json`]
+      : [
+          `styles/${styleEngine}/${style}/${name}.json`,
+          `blocks/${style}/${name}.json`,
+          `blocks/${name}.json`,
+        ]
 
   if (registryUrl.startsWith("file://") || !registryUrl.startsWith("http")) {
     const cleanPath = registryUrl.replace("file://", "")
-    const styleItemPath = path.resolve(cleanPath, stylePath)
-    if (fs.existsSync(styleItemPath)) {
-      return await fs.readJson(styleItemPath)
+    for (const candidate of candidates) {
+      const itemPath = path.resolve(cleanPath, candidate)
+      if (fs.existsSync(itemPath)) return await fs.readJson(itemPath)
     }
-    const blockItemPath = path.resolve(cleanPath, blockPath)
-    if (fs.existsSync(blockItemPath)) {
-      return await fs.readJson(blockItemPath)
-    }
-    // Neither exists — read the per-style path so the thrown error matches a
-    // missing component (preserves prior behavior/messaging).
-    return await fs.readJson(styleItemPath)
-  } else {
-    const response = await fetch(`${registryUrl}/${stylePath}`)
-    if (response.ok) {
-      return await response.json()
-    }
-    const blockResponse = await fetch(`${registryUrl}/${blockPath}`)
-    if (blockResponse.ok) {
-      return await blockResponse.json()
-    }
-    throw new Error(`Failed to fetch component from registry: ${response.statusText}`)
+    return await fs.readJson(path.resolve(cleanPath, candidates[0]!))
   }
+
+  let lastStatus = "not found"
+  for (const candidate of candidates) {
+    const response = await fetch(`${registryUrl}/${candidate}`)
+    if (response.ok) return await response.json()
+    lastStatus = response.statusText || String(response.status)
+  }
+  throw new Error(`Failed to fetch component from registry: ${lastStatus}`)
 }

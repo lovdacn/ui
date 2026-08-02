@@ -22,7 +22,8 @@
   ],
   "meta": {
     "engine": "nativewind",
-    "style": "mira"
+    "style": "mira",
+    "legacy": false
   },
   "type": "registry:ui"
 }

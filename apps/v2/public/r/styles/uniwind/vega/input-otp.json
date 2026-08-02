@@ -16,7 +16,8 @@
   ],
   "meta": {
     "engine": "uniwind",
-    "style": "vega"
+    "style": "vega",
+    "legacy": false
   },
   "type": "registry:ui"
 }

@@ -2,8 +2,9 @@
   "name": "signup-02",
   "type": "registry:block",
   "description": "A detailed responsive registration screen with confirmation, GitHub signup, and a decorative panel hidden on compact devices.",
-  "dependencies": ["lucide-react-native"],
+  "dependencies": [],
   "registryDependencies": [
+    "semantic-icon",
     "input",
     "label",
     "button",

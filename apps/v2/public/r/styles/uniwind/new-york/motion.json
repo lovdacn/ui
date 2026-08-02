@@ -22,7 +22,8 @@
   ],
   "meta": {
     "engine": "uniwind",
-    "style": "new-york"
+    "style": "new-york",
+    "legacy": true
   },
   "type": "registry:ui"
 }

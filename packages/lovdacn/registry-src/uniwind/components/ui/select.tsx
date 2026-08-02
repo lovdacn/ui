@@ -3,7 +3,7 @@ import { NativeOnlyAnimatedView } from '@/components/ui/native-only-animated-vie
 import { TextClassContext } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
 import * as SelectPrimitive from '@rn-primitives/select';
-import { Check, ChevronDown, ChevronDownIcon, ChevronUpIcon } from 'lucide-react-native';
+import { Check, ChevronDown, ChevronDownIcon, ChevronUpIcon } from '@/components/ui/semantic-icon';
 import * as React from 'react';
 import { View } from '@/components/ui/primitives';
 import { Platform, ScrollView, StyleSheet } from 'react-native';

@@ -1,0 +1,42 @@
+{
+  "luma": {
+    "layout": { "pagePaddingX": 24, "pagePaddingBottom": 56, "grid": "-mx-3 gap-y-7", "column": "px-3 gap-7", "stackXs": "gap-1.5", "stackSm": "gap-2", "stackMd": "gap-4", "stackLg": "gap-6", "field": "gap-2", "inline": "gap-2", "section": "gap-5" },
+    "typography": { "display": "text-3xl font-bold tracking-tight", "heading": "text-xl font-semibold tracking-tight", "cardTitle": "text-lg font-semibold tracking-tight", "dialogTitle": "text-lg font-semibold", "body": "text-sm leading-relaxed", "label": "text-sm font-medium", "caption": "text-xs leading-relaxed", "metric": "text-2xl font-bold tracking-tight", "menuItem": "text-sm font-medium", "badge": "text-xs font-medium", "button": "text-sm font-medium", "code": "text-xs font-medium" },
+    "icon": { "size": 16, "strokeWidth": 2, "weight": "regular" }
+  },
+  "lyra": {
+    "layout": { "pagePaddingX": 18, "pagePaddingBottom": 40, "grid": "-mx-2 gap-y-4", "column": "px-2 gap-4", "stackXs": "gap-1", "stackSm": "gap-1.5", "stackMd": "gap-3", "stackLg": "gap-4", "field": "gap-1", "inline": "gap-1.5", "section": "gap-3" },
+    "typography": { "display": "text-2xl font-semibold tracking-tight", "heading": "text-base font-semibold tracking-tight", "cardTitle": "text-sm font-semibold tracking-tight", "dialogTitle": "text-sm font-semibold", "body": "text-xs leading-relaxed", "label": "text-xs font-medium", "caption": "text-[10px] leading-relaxed", "metric": "text-xl font-semibold tracking-tight", "menuItem": "text-xs font-medium", "badge": "text-[10px] font-medium uppercase tracking-wide", "button": "text-xs font-medium", "code": "text-xs font-medium" },
+    "icon": { "size": 14, "strokeWidth": 1.75, "weight": "regular" }
+  },
+  "maia": {
+    "layout": { "pagePaddingX": 28, "pagePaddingBottom": 64, "grid": "-mx-4 gap-y-8", "column": "px-4 gap-8", "stackXs": "gap-2", "stackSm": "gap-3", "stackMd": "gap-5", "stackLg": "gap-8", "field": "gap-2.5", "inline": "gap-2.5", "section": "gap-6" },
+    "typography": { "display": "text-4xl font-semibold tracking-tight", "heading": "text-2xl font-semibold tracking-tight", "cardTitle": "text-lg font-medium tracking-tight", "dialogTitle": "text-lg font-medium", "body": "text-sm leading-relaxed", "label": "text-sm font-medium", "caption": "text-xs leading-relaxed", "metric": "text-3xl font-semibold tracking-tight", "menuItem": "text-sm font-medium", "badge": "text-xs font-medium", "button": "text-sm font-medium", "code": "text-xs font-medium" },
+    "icon": { "size": 17, "strokeWidth": 1.8, "weight": "regular" }
+  },
+  "mira": {
+    "layout": { "pagePaddingX": 16, "pagePaddingBottom": 36, "grid": "-mx-1.5 gap-y-3", "column": "px-1.5 gap-3", "stackXs": "gap-0.5", "stackSm": "gap-1", "stackMd": "gap-2", "stackLg": "gap-3", "field": "gap-1", "inline": "gap-1", "section": "gap-2" },
+    "typography": { "display": "text-xl font-semibold tracking-tight", "heading": "text-base font-medium tracking-tight", "cardTitle": "text-sm font-medium", "dialogTitle": "text-sm font-medium", "body": "text-xs leading-relaxed", "label": "text-xs font-medium", "caption": "text-[10px] leading-relaxed", "metric": "text-xl font-semibold tracking-tight", "menuItem": "text-xs font-medium", "badge": "text-[10px] font-medium", "button": "text-xs font-medium", "code": "text-[10px] font-medium" },
+    "icon": { "size": 14, "strokeWidth": 1.75, "weight": "regular" }
+  },
+  "nova": {
+    "layout": { "pagePaddingX": 20, "pagePaddingBottom": 44, "grid": "-mx-2 gap-y-4", "column": "px-2 gap-4", "stackXs": "gap-1", "stackSm": "gap-1.5", "stackMd": "gap-3", "stackLg": "gap-4", "field": "gap-1.5", "inline": "gap-1.5", "section": "gap-3" },
+    "typography": { "display": "text-2xl font-semibold tracking-tight", "heading": "text-lg font-semibold tracking-tight", "cardTitle": "text-base font-medium tracking-tight", "dialogTitle": "text-base font-medium", "body": "text-sm leading-snug", "label": "text-xs font-medium", "caption": "text-xs leading-snug", "metric": "text-2xl font-semibold tracking-tight", "menuItem": "text-xs font-medium", "badge": "text-xs font-medium", "button": "text-xs font-medium", "code": "text-xs font-medium" },
+    "icon": { "size": 15, "strokeWidth": 2, "weight": "regular" }
+  },
+  "rhea": {
+    "layout": { "pagePaddingX": 24, "pagePaddingBottom": 56, "grid": "-mx-3 gap-y-6", "column": "px-3 gap-6", "stackXs": "gap-1.5", "stackSm": "gap-2", "stackMd": "gap-4", "stackLg": "gap-6", "field": "gap-2", "inline": "gap-2", "section": "gap-5" },
+    "typography": { "display": "text-3xl font-bold tracking-tight", "heading": "text-xl font-semibold tracking-tight", "cardTitle": "text-lg font-semibold tracking-tight", "dialogTitle": "text-lg font-semibold", "body": "text-sm leading-relaxed", "label": "text-sm font-semibold", "caption": "text-xs leading-relaxed", "metric": "text-2xl font-bold tracking-tight", "menuItem": "text-sm font-medium", "badge": "text-xs font-semibold", "button": "text-sm font-semibold", "code": "text-xs font-medium" },
+    "icon": { "size": 16, "strokeWidth": 2.25, "weight": "bold" }
+  },
+  "sera": {
+    "layout": { "pagePaddingX": 32, "pagePaddingBottom": 72, "grid": "-mx-4 gap-y-8", "column": "px-4 gap-8", "stackXs": "gap-2", "stackSm": "gap-3", "stackMd": "gap-5", "stackLg": "gap-8", "field": "gap-2.5", "inline": "gap-3", "section": "gap-6" },
+    "typography": { "display": "text-4xl font-semibold uppercase tracking-widest", "heading": "text-2xl font-semibold uppercase tracking-wider", "cardTitle": "text-lg font-semibold uppercase tracking-wider", "dialogTitle": "text-lg font-semibold uppercase tracking-wider", "body": "text-sm leading-relaxed", "label": "text-xs font-semibold uppercase tracking-wide", "caption": "text-xs leading-relaxed", "metric": "text-3xl font-semibold tracking-tight", "menuItem": "text-xs font-semibold uppercase tracking-wide", "badge": "text-[10px] font-semibold uppercase tracking-widest", "button": "text-xs font-semibold uppercase tracking-widest", "code": "text-xs font-semibold tracking-wide" },
+    "icon": { "size": 15, "strokeWidth": 1.5, "weight": "regular" }
+  },
+  "vega": {
+    "layout": { "pagePaddingX": 24, "pagePaddingBottom": 52, "grid": "-mx-3 gap-y-6", "column": "px-3 gap-6", "stackXs": "gap-1.5", "stackSm": "gap-2", "stackMd": "gap-4", "stackLg": "gap-6", "field": "gap-1.5", "inline": "gap-2", "section": "gap-4" },
+    "typography": { "display": "text-3xl font-semibold tracking-tight", "heading": "text-xl font-semibold tracking-tight", "cardTitle": "text-lg font-semibold tracking-tight", "dialogTitle": "text-lg font-semibold", "body": "text-sm leading-relaxed", "label": "text-sm font-medium", "caption": "text-xs leading-relaxed", "metric": "text-2xl font-semibold tracking-tight", "menuItem": "text-sm font-medium", "badge": "text-xs font-medium", "button": "text-sm font-medium", "code": "text-xs font-medium" },
+    "icon": { "size": 16, "strokeWidth": 2, "weight": "regular" }
+  }
+}

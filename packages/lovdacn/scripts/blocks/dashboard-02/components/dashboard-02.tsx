@@ -27,23 +27,21 @@ import {
 } from '@/components/ui/sidebar';
 import { Text } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
-import {
-  Bell,
-  Bot,
-  BookOpen,
-  ChevronDown,
-  ChevronRight,
-  Command,
-  Frame,
-  Home,
-  MoreHorizontal,
-  PieChart,
-  Plus,
-  Search,
-  Settings2,
-  SquareTerminal,
-  User,
-} from 'lucide-react-native';
+import { Bell,
+Bot,
+BookOpen,
+ChevronDown,
+ChevronRight,
+Command,
+Frame,
+Home,
+MoreHorizontal,
+PieChart,
+Plus,
+Search,
+Settings2,
+SquareTerminal,
+User, } from '@/components/ui/semantic-icon';
 import * as React from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

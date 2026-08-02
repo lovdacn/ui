@@ -1,0 +1,41 @@
+{
+  "version": "a",
+  "base62": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
+  "fields": [
+    {
+      "key": "style",
+      "bits": 4,
+      "values": ["new-york", "default", "luma", "lyra", "maia", "mira", "nova", "rhea", "sera", "vega"]
+    },
+    {
+      "key": "baseColor",
+      "bits": 4,
+      "values": ["zinc", "slate", "stone", "gray", "neutral", "taupe", "mauve", "olive", "mist"]
+    },
+    {
+      "key": "theme",
+      "bits": 5,
+      "values": ["zinc", "slate", "stone", "gray", "neutral", "red", "orange", "amber", "yellow", "lime", "green", "emerald", "teal", "cyan", "sky", "blue", "indigo", "violet", "purple", "fuchsia", "pink", "rose"]
+    },
+    {
+      "key": "chartColor",
+      "bits": 5,
+      "values": ["zinc", "slate", "stone", "gray", "neutral", "red", "orange", "amber", "yellow", "lime", "green", "emerald", "teal", "cyan", "sky", "blue", "indigo", "violet", "purple", "fuchsia", "pink", "rose"]
+    },
+    {
+      "key": "font",
+      "bits": 5,
+      "values": ["inter", "dm-sans", "nunito-sans", "figtree", "outfit", "manrope", "space-grotesk", "montserrat", "roboto", "raleway", "public-sans", "source-sans-3", "lora", "merriweather", "playfair-display", "jetbrains-mono", "space-mono", "fira-code", "noto-serif", "roboto-slab", "instrument-sans", "instrument-serif", "geist"]
+    },
+    {
+      "key": "iconLibrary",
+      "bits": 3,
+      "values": ["lucide", "phosphor", "tabler", "expo", "heroicons"]
+    },
+    {
+      "key": "radius",
+      "bits": 3,
+      "values": ["default", "none", "small", "medium", "large", "full"]
+    }
+  ]
+}

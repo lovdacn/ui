@@ -137,7 +137,7 @@ describe("runAdd", () => {
     // Verify npm dependencies installation command was called with all collected packages
     expect(execa).toHaveBeenCalledWith(
       expect.any(String),
-      ["install", "class-variance-authority", "@rn-primitives/slot", "clsx", "tailwind-merge"],
+      ["install", "class-variance-authority", "@rn-primitives/slot", "clsx", "tailwind-merge", "@expo-google-fonts/space-grotesk@0.4.1"],
       {
         cwd: tempCwd,
         stdio: "inherit",
@@ -188,7 +188,7 @@ describe("runAdd", () => {
     // `npm install`, so native modules resolve to the SDK-compatible versions.
     expect(execa).toHaveBeenCalledWith(
       "npx",
-      ["expo", "install", "class-variance-authority", "@rn-primitives/slot", "clsx", "tailwind-merge"],
+      ["expo", "install", "class-variance-authority", "@rn-primitives/slot", "clsx", "tailwind-merge", "@expo-google-fonts/space-grotesk@0.4.1"],
       {
         cwd: tempCwd,
         stdio: "inherit",
@@ -243,6 +243,7 @@ export default function Layout() {
         "class-variance-authority",
         "clsx",
         "tailwind-merge",
+        "@expo-google-fonts/space-grotesk@0.4.1",
         "react-native-gesture-handler",
       ],
       {
@@ -321,6 +322,40 @@ export default function Layout() {
     const buttonContent = await readFile(buttonPath, "utf8")
     expect(buttonContent).toContain("text-xs/relaxed")
     expect(buttonContent).not.toContain("rounded-full")
+  })
+
+  it("resolves semantic icons from the selected library namespace", async () => {
+    const lvcnConfig = {
+      $schema: "https://lovdacn.vercel.app/schema.json",
+      style: "mira",
+      baseColor: "neutral",
+      theme: "cyan",
+      chartColor: "teal",
+      font: "inter",
+      iconLibrary: "phosphor",
+      radius: "medium",
+      styleEngine: "nativewind",
+      tsx: true,
+      tailwind: { config: "tailwind.config.js", css: "global.css" },
+      aliases: {
+        components: "@/components",
+        utils: "@/lib/utils",
+        ui: "@/components/ui",
+      },
+      components: [],
+    }
+    await writeFile(path.join(tempCwd, "lvcn.json"), JSON.stringify(lvcnConfig, null, 2), "utf8")
+
+    await runAdd({ components: ["semantic-icon"], cwd: tempCwd, yes: true, overwrite: true })
+
+    const adapter = await readFile(path.join(tempCwd, "components/ui/semantic-icon.tsx"), "utf8")
+    expect(adapter).toContain('from "phosphor-react-native"')
+    expect(adapter).not.toContain('from "lucide-react-native"')
+    expect(execa).toHaveBeenCalledWith(
+      expect.any(String),
+      ["install", "phosphor-react-native@3.0.6", "react-native-svg"],
+      { cwd: tempCwd, stdio: "inherit" }
+    )
   })
 
   it("should install a block as Expo Router routes via file `target`", async () => {

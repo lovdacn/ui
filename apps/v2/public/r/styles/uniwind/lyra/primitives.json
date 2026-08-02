@@ -12,7 +12,8 @@
   ],
   "meta": {
     "engine": "uniwind",
-    "style": "lyra"
+    "style": "lyra",
+    "legacy": false
   },
   "type": "registry:ui"
 }

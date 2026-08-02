@@ -35,6 +35,16 @@
 
 const fs = require('fs-extra');
 const path = require('path');
+const { twMerge } = require('tailwind-merge');
+
+const DESIGN_ROOT = path.join(__dirname, '../design-system');
+const DESIGN_CATALOG = fs.readJsonSync(path.join(DESIGN_ROOT, 'catalog.json'));
+const BLOCK_RECIPES = fs.readJsonSync(path.join(DESIGN_ROOT, 'block-recipes.json'));
+const ACTIVE_STYLES = DESIGN_CATALOG.styles.map(({ name, label, description }) => ({
+  name,
+  label,
+  description,
+}));
 
 const BLOCKS_SRC = path.join(__dirname, 'blocks');
 const REGISTRY_ROOT = path.resolve(
@@ -55,6 +65,39 @@ function normalizeContent(content) {
   return content
     .replace(/@\/registry\/(?:nativewind|uniwind)\//g, '@/')
     .replace(/\r\n/g, '\n');
+}
+
+/** Compile shared block composition into a selected style's static layout roles. */
+function applyBlockRecipe(content, recipe) {
+  return content.replace(/className="([^"]+)"/g, (attribute, originalClasses) => {
+    let classes = originalClasses;
+    const hasLargeGap = /\bgap-(?:5|6|8|10|12)\b/.test(classes);
+    const hasFieldGap = /\bgap-(?:3|4)\b/.test(classes);
+
+    if (/\bjustify-center\b/.test(classes) && /\b(?:p-4|sm:p-6|md:p-10)\b/.test(classes)) {
+      classes = classes.replace(/\b(?:p-4|sm:p-6|md:p-10)\b/g, '');
+      classes = twMerge(classes, recipe.page);
+    } else if (/\bgap-4\b/.test(classes) && /\bp-4\b/.test(classes)) {
+      classes = classes.replace(/\bgap-4\b|\bp-4\b/g, '');
+      classes = twMerge(classes, recipe.page, recipe.grid);
+    }
+
+    if (/\bflex-row\b/.test(classes) && /\bflex-wrap\b/.test(classes)) {
+      classes = classes.replace(/\bgap-(?:3|4|5|6|8|10|12)\b/g, '');
+      classes = twMerge(classes, recipe.grid);
+    } else if (/\bflex-1\b/.test(classes) && hasLargeGap) {
+      classes = classes.replace(/\bgap-(?:5|6|8|10|12)\b/g, '');
+      classes = twMerge(classes, recipe.column);
+    } else if (hasLargeGap) {
+      classes = classes.replace(/\bgap-(?:5|6|8|10|12)\b/g, '');
+      classes = twMerge(classes, recipe.section);
+    } else if (hasFieldGap) {
+      classes = classes.replace(/\bgap-(?:3|4)\b/g, '');
+      classes = twMerge(classes, recipe.fieldGroup);
+    }
+
+    return `className="${classes.trim().replace(/\s+/g, ' ')}"`;
+  });
 }
 
 /** Load every block from scripts/blocks/<name>/block.json. */
@@ -88,7 +131,7 @@ function loadBlocks() {
   return blocks.sort((a, b) => a.manifest.name.localeCompare(b.manifest.name));
 }
 
-function toItem(manifest, files) {
+function toItem(manifest, files, style, legacy = false) {
   return {
     $schema: SCHEMA,
     name: manifest.name,
@@ -96,7 +139,11 @@ function toItem(manifest, files) {
     description: manifest.description || '',
     dependencies: manifest.dependencies || [],
     registryDependencies: manifest.registryDependencies || [],
-    files: files.map((f) => ({ ...f })),
+    files: files.map((file) => ({
+      ...file,
+      content: applyBlockRecipe(file.content, BLOCK_RECIPES[style]),
+    })),
+    meta: { style, legacy },
   };
 }
 
@@ -109,25 +156,33 @@ function buildBlocks() {
 
   fs.ensureDirSync(BLOCKS_DEST);
 
-  for (const { manifest, files } of blocks) {
-    const item = toItem(manifest, files);
-    fs.writeJsonSync(path.join(BLOCKS_DEST, `${manifest.name}.json`), item, {
-      spaces: 2,
-    });
+  for (const style of ACTIVE_STYLES) {
+    const styleDir = path.join(BLOCKS_DEST, style.name);
+    fs.emptyDirSync(styleDir);
+    for (const { manifest, files } of blocks) {
+      const item = toItem(manifest, files, style.name);
+      fs.writeJsonSync(path.join(styleDir, `${manifest.name}.json`), item, { spaces: 2 });
+    }
   }
 
-  // Lightweight catalog (parallel to styles/index.json) for docs/tooling.
+  // Preserve the historical shared path as a Vega compatibility fallback.
+  for (const { manifest, files } of blocks) {
+    const item = toItem(manifest, files, 'vega', true);
+    fs.writeJsonSync(path.join(BLOCKS_DEST, `${manifest.name}.json`), item, { spaces: 2 });
+  }
+
   const index = blocks.map(({ manifest }) => ({
     name: manifest.name,
     type: manifest.type || 'registry:block',
     description: manifest.description || '',
     dependencies: manifest.dependencies || [],
     registryDependencies: manifest.registryDependencies || [],
+    styles: ACTIVE_STYLES.map(({ name }) => name),
   }));
   fs.writeJsonSync(path.join(BLOCKS_DEST, 'index.json'), index, { spaces: 2 });
 
   console.log(
-    `✔  blocks: ${blocks.length} shared block items → ${path.relative(REGISTRY_ROOT, BLOCKS_DEST)}/`
+    `✔  blocks: ${blocks.length} items × ${ACTIVE_STYLES.length} styles + Vega compatibility → ${path.relative(REGISTRY_ROOT, BLOCKS_DEST)}/`
   );
 }
 

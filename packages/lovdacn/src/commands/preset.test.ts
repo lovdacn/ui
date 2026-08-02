@@ -82,3 +82,48 @@ describe("getInstalledComponents — filesystem + tracked reconciliation", () =>
     expect(result).toEqual(["card"])
   })
 })
+
+
+
+describe("immutable v1 preset decoding + active normalization", () => {
+  it("decodes frozen historical values without reordering the wire arrays", async () => {
+    const { decodeWirePresetV1 } = await import("../preset/index")
+    expect(decodeWirePresetV1("aPM8AL")).toEqual({
+      style: "default",
+      baseColor: "mist",
+      theme: "rose",
+      chartColor: "lime",
+      font: "instrument-serif",
+      iconLibrary: "heroicons",
+      radius: "full",
+    })
+    expect(decodeWirePresetV1("a6X1Oi")).toEqual({
+      style: "sera",
+      baseColor: "taupe",
+      theme: "amber",
+      chartColor: "amber",
+      font: "space-mono",
+      iconLibrary: "expo",
+      radius: "none",
+    })
+  })
+
+  it("normalizes legacy decoded values while reporting every migration", async () => {
+    const { decodePresetWithWarnings } = await import("../preset/index")
+    const result = decodePresetWithWarnings("aPM8AL")
+    expect(result?.config).toEqual({
+      style: "vega",
+      baseColor: "mist",
+      theme: "rose",
+      chartColor: "lime",
+      // Every historical font is now supported directly, so it survives decoding intact.
+      font: "instrument-serif",
+      iconLibrary: "lucide",
+      radius: "full",
+    })
+    expect(result?.warnings).toHaveLength(2)
+    expect(result?.warnings.join("\n")).toContain('style "default"')
+    expect(result?.warnings.join("\n")).toContain('icon library "heroicons"')
+    expect(result?.warnings.join("\n")).not.toContain("font")
+  })
+})

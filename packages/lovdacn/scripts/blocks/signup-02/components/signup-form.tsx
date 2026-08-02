@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Text } from '@/components/ui/text';
 import { Link } from 'expo-router';
-import { GalleryVerticalEnd, GitFork } from 'lucide-react-native';
+import { GalleryVerticalEnd, GitFork } from '@/components/ui/semantic-icon';
 import * as React from 'react';
 import { View } from 'react-native';
 

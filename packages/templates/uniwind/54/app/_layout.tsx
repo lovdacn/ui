@@ -8,6 +8,7 @@ import { useColorScheme } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
+import { useLvcnFonts } from '@/lib/lvcn-fonts';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -17,6 +18,8 @@ export const unstable_settings = {
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+  const lvcnFontsReady = useLvcnFonts();
+  if (!lvcnFontsReady) return null;
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

@@ -2,7 +2,7 @@ import { Icon } from '@/components/ui/icon';
 import { TextClassContext } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
 import * as AccordionPrimitive from '@rn-primitives/accordion';
-import { ChevronDown } from 'lucide-react-native';
+import { ChevronDown } from '@/components/ui/semantic-icon';
 import { Pressable, View } from '@/components/ui/primitives';
 import { Platform } from 'react-native';
 import Animated, {

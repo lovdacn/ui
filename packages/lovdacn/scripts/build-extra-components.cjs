@@ -33,19 +33,14 @@ const REGISTRY_SRC = path.join(WORKSPACE_ROOT, 'lvcn/packages/lovdacn/registry-s
 const DEST_REGISTRY = path.join(WORKSPACE_ROOT, 'lvcn/apps/v2/public/r/styles');
 const SCHEMA = 'https://lovdacn.vercel.app/schema/registry-item.json';
 
+const DESIGN_ROOT = path.join(__dirname, '../design-system');
+const DESIGN_CATALOG = fs.readJsonSync(path.join(DESIGN_ROOT, 'catalog.json'));
+const DESIGN_ALIASES = fs.readJsonSync(path.join(DESIGN_ROOT, 'aliases.json'));
 const STYLES = [
-  'default',
-  'new-york',
-  'luma',
-  'lyra',
-  'maia',
-  'mira',
-  'nova',
-  'rhea',
-  'sera',
-  'vega',
+  ...DESIGN_CATALOG.styles.map(({ name }) => name),
+  ...Object.keys(DESIGN_ALIASES.styles),
 ];
-const ENGINES = ['nativewind', 'uniwind'];
+const ENGINES = DESIGN_CATALOG.engines;
 
 /** Components emitted by this script, with their declared dependencies. */
 const COMPONENTS = [
@@ -121,6 +116,7 @@ const COMPONENTS = [
 function normalizeContent(content) {
   return content
     .replace(/@\/registry\/(?:nativewind|uniwind)\//g, '@/')
+    .replace(/from ['"]lucide-react-native['"]/g, "from '@/components/ui/semantic-icon'")
     .replace(/\r\n/g, '\n');
 }
 
@@ -168,6 +164,14 @@ function buildExtraComponents() {
         type: 'registry:ui',
       }));
 
+      const usesSemanticIcons = files.some((file) =>
+        file.content.includes('@/components/ui/semantic-icon')
+      );
+      const dependencies = comp.dependencies.filter((dependency) => dependency !== 'lucide-react-native');
+      const registryDependencies = usesSemanticIcons
+        ? [...new Set(['semantic-icon', ...comp.registryDependencies])]
+        : comp.registryDependencies;
+
       for (const style of STYLES) {
         const destDir = path.join(DEST_REGISTRY, engine, style);
         fs.ensureDirSync(destDir);
@@ -175,10 +179,14 @@ function buildExtraComponents() {
         const item = {
           $schema: SCHEMA,
           name: comp.name,
-          dependencies: comp.dependencies,
-          registryDependencies: comp.registryDependencies,
+          dependencies,
+          registryDependencies,
           files,
-          meta: { engine, style },
+          meta: {
+            engine,
+            style,
+            legacy: Object.prototype.hasOwnProperty.call(DESIGN_ALIASES.styles, style),
+          },
           type: 'registry:ui',
         };
 

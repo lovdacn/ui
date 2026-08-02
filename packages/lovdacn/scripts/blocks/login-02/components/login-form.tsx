@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Text } from '@/components/ui/text';
-import { Apple, Mail } from 'lucide-react-native';
+import { Apple, Mail } from '@/components/ui/semantic-icon';
 import * as React from 'react';
 import { View } from 'react-native';
 

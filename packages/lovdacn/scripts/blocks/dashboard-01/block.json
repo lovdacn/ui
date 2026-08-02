@@ -2,8 +2,11 @@
   "name": "dashboard-01",
   "type": "registry:block",
   "description": "A full application dashboard built around the sidebar — a navigation sidebar, a top bar, KPI cards, an overview chart, and a recent-activity list.",
-  "dependencies": ["lucide-react-native", "react-native-safe-area-context"],
+  "dependencies": [
+    "react-native-safe-area-context"
+  ],
   "registryDependencies": [
+    "semantic-icon",
     "sidebar",
     "card",
     "button",

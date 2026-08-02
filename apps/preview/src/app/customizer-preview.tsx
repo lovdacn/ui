@@ -1,11 +1,12 @@
 import * as React from 'react';
 import { Platform, View, useColorScheme } from 'react-native';
 
-import { CustomizerDashboard } from '@/components/previews/customizer-dashboard';
 import {
-  applyPreviewTheme,
-  type PreviewColorScheme,
-} from '@/lib/preview-theme';
+  PreviewDesignSystemProvider,
+} from '@/components/design-system/preview-design-system';
+import { CustomizerDashboard } from '@/components/previews/customizer-dashboard';
+import type { PresetConfig } from '@/lib/generated/preset-catalog';
+import type { PreviewColorScheme } from '@/lib/preview-theme';
 
 const PRESET_MESSAGE = 'lvcn:preset';
 const READY_MESSAGE = 'lvcn:ready';
@@ -53,7 +54,6 @@ export default function CustomizerPreviewPage() {
   const [design, setDesign] = React.useState<PreviewDesign>(() =>
     readInitialDesign(systemColorScheme)
   );
-  const [themeReady, setThemeReady] = React.useState(Platform.OS !== 'web');
 
   React.useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -86,38 +86,35 @@ export default function CustomizerPreviewPage() {
     return () => window.removeEventListener('message', onMessage);
   }, []);
 
-  React.useLayoutEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    applyPreviewTheme(design.preset, design.colorScheme);
-    setThemeReady(true);
-
-    const frame = window.requestAnimationFrame(() => {
+  const handleApplied = React.useCallback(
+    ({ config, warnings }: { config: PresetConfig; warnings: readonly string[] }) => {
+      if (typeof window === 'undefined') return;
       postToParent({
         type: APPLIED_MESSAGE,
+        // Keep these three values exact: the parent reveals the frame only on a raw match.
         preset: design.preset,
         colorScheme: design.colorScheme,
         revision: design.revision,
+        normalizedConfig: config,
+        warnings,
       });
-    });
-    return () => window.cancelAnimationFrame(frame);
-  }, [design]);
-
-  if (!themeReady) {
-    return (
-      <View
-        className="flex-1 bg-background w-full"
-        style={Platform.OS === 'web' ? ({ minHeight: '100vh' } as any) : undefined}
-      />
-    );
-  }
+    },
+    [design]
+  );
 
   return (
-    <View
-      className="flex-1 bg-background w-full"
-      style={Platform.OS === 'web' ? ({ height: '100vh' } as any) : undefined}
+    <PreviewDesignSystemProvider
+      preset={design.preset}
+      colorScheme={design.colorScheme}
+      revision={design.revision}
+      onApplied={handleApplied}
     >
-      <CustomizerDashboard topPad={24} />
-    </View>
+      <View
+        className="flex-1 w-full bg-background"
+        style={Platform.OS === 'web' ? ({ height: '100vh' } as any) : undefined}
+      >
+        <CustomizerDashboard topPad={24} />
+      </View>
+    </PreviewDesignSystemProvider>
   );
 }

@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://lovdacn.vercel.app/schema.json",
   "title": "lvcn.json",
-  "description": "Configuration for a lovdaCN project. Created and maintained by the lovdacn CLI (init/add).",
+  "description": "Configuration for a lovdaCN project. Active values only; legacy values are migrated by the CLI.",
   "type": "object",
   "properties": {
     "$schema": {
@@ -11,10 +11,8 @@
     },
     "style": {
       "type": "string",
-      "description": "The visual style pack. Set at init and cannot be changed afterward without re-adding components.",
+      "description": "The active visual style recipe.",
       "enum": [
-        "default",
-        "new-york",
         "luma",
         "lyra",
         "maia",
@@ -27,28 +25,27 @@
     },
     "styleEngine": {
       "type": "string",
-      "description": "The styling runtime. Determines how theme tokens are defined and part of the registry fetch path. Defaults to nativewind.",
-      "enum": ["nativewind", "uniwind"]
+      "description": "The styling runtime.",
+      "enum": [
+        "nativewind",
+        "uniwind"
+      ]
     },
     "tsx": {
       "type": "boolean",
-      "description": "Whether components use TypeScript (.tsx/.ts) or JavaScript (.jsx/.js)."
+      "description": "Whether generated source uses TypeScript."
     },
     "tailwind": {
       "type": "object",
-      "description": "How Tailwind / NativeWind is wired up.",
       "properties": {
         "config": {
-          "type": "string",
-          "description": "Path to tailwind.config.js. NativeWind only; Uniwind projects define theme in CSS via @theme."
+          "type": "string"
         },
         "css": {
-          "type": "string",
-          "description": "Path to the global CSS file that imports Tailwind and defines the CSS variables."
+          "type": "string"
         },
         "baseColor": {
           "type": "string",
-          "description": "The neutral base palette used to generate theme tokens.",
           "enum": [
             "zinc",
             "slate",
@@ -62,37 +59,36 @@
           ]
         }
       },
-      "required": ["css"]
+      "required": [
+        "css"
+      ]
     },
     "aliases": {
       "type": "object",
-      "description": "Import aliases the CLI uses when writing component source.",
       "properties": {
         "components": {
-          "type": "string",
-          "description": "Components directory (default @/components)."
+          "type": "string"
         },
         "utils": {
-          "type": "string",
-          "description": "Where the cn helper lives (default @/lib/utils)."
+          "type": "string"
         },
         "ui": {
-          "type": "string",
-          "description": "Where UI components are installed (default @/components/ui)."
+          "type": "string"
         }
       },
-      "required": ["components", "utils"]
+      "required": [
+        "components",
+        "utils"
+      ]
     },
     "components": {
       "type": "array",
-      "description": "Component names already added to the project. The CLI appends to this automatically on add.",
       "items": {
         "type": "string"
       }
     },
     "baseColor": {
       "type": "string",
-      "description": "Neutral palette (mirrors tailwind.baseColor). Part of the resolved theme preset.",
       "enum": [
         "zinc",
         "slate",
@@ -107,26 +103,109 @@
     },
     "theme": {
       "type": "string",
-      "description": "Accent / primary color (e.g. blue, rose, emerald, neutral)."
+      "enum": [
+        "zinc",
+        "slate",
+        "stone",
+        "gray",
+        "neutral",
+        "red",
+        "orange",
+        "amber",
+        "yellow",
+        "lime",
+        "green",
+        "emerald",
+        "teal",
+        "cyan",
+        "sky",
+        "blue",
+        "indigo",
+        "violet",
+        "purple",
+        "fuchsia",
+        "pink",
+        "rose"
+      ]
     },
     "chartColor": {
       "type": "string",
-      "description": "Base color for --chart-1..5 (e.g. sky, pink, blue)."
+      "enum": [
+        "zinc",
+        "slate",
+        "stone",
+        "gray",
+        "neutral",
+        "red",
+        "orange",
+        "amber",
+        "yellow",
+        "lime",
+        "green",
+        "emerald",
+        "teal",
+        "cyan",
+        "sky",
+        "blue",
+        "indigo",
+        "violet",
+        "purple",
+        "fuchsia",
+        "pink",
+        "rose"
+      ]
     },
     "font": {
       "type": "string",
-      "description": "Font family via @expo-google-fonts (e.g. inter, dm-sans, space-grotesk, geist)."
+      "enum": [
+        "inter",
+        "dm-sans",
+        "nunito-sans",
+        "figtree",
+        "outfit",
+        "manrope",
+        "space-grotesk",
+        "montserrat",
+        "roboto",
+        "raleway",
+        "public-sans",
+        "source-sans-3",
+        "lora",
+        "merriweather",
+        "playfair-display",
+        "jetbrains-mono",
+        "space-mono",
+        "fira-code",
+        "noto-serif",
+        "roboto-slab",
+        "instrument-sans",
+        "instrument-serif",
+        "geist"
+      ]
     },
     "iconLibrary": {
       "type": "string",
-      "description": "Icon package family.",
-      "enum": ["lucide", "phosphor", "tabler", "expo", "heroicons"]
+      "enum": [
+        "lucide",
+        "phosphor",
+        "tabler"
+      ]
     },
     "radius": {
       "type": "string",
-      "description": "Border-radius scale.",
-      "enum": ["default", "none", "small", "medium", "large", "full"]
+      "enum": [
+        "default",
+        "none",
+        "small",
+        "medium",
+        "large",
+        "full"
+      ]
     }
   },
-  "required": ["style", "tailwind", "aliases"]
+  "required": [
+    "style",
+    "tailwind",
+    "aliases"
+  ]
 }

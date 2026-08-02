@@ -1,0 +1,74 @@
+{
+  "catalogVersion": "1.0.0",
+  "defaultPreset": {
+    "style": "vega",
+    "baseColor": "neutral",
+    "theme": "cyan",
+    "chartColor": "teal",
+    "font": "space-grotesk",
+    "iconLibrary": "lucide",
+    "radius": "medium"
+  },
+  "styles": [
+    {
+      "name": "luma",
+      "label": "Luma",
+      "description": "Soft, rounded, comfortable",
+      "defaults": { "baseColor": "neutral", "theme": "blue", "chartColor": "sky", "font": "inter", "iconLibrary": "lucide", "radius": "large" }
+    },
+    {
+      "name": "lyra",
+      "label": "Lyra",
+      "description": "Technical, compact, square",
+      "defaults": { "baseColor": "stone", "theme": "amber", "chartColor": "orange", "font": "jetbrains-mono", "iconLibrary": "phosphor", "radius": "small" }
+    },
+    {
+      "name": "maia",
+      "label": "Maia",
+      "description": "Spacious and strongly rounded",
+      "defaults": { "baseColor": "neutral", "theme": "violet", "chartColor": "purple", "font": "figtree", "iconLibrary": "tabler", "radius": "large" }
+    },
+    {
+      "name": "mira",
+      "label": "Mira",
+      "description": "Dense, compact controls and type",
+      "defaults": { "baseColor": "zinc", "theme": "emerald", "chartColor": "red", "font": "inter", "iconLibrary": "phosphor", "radius": "full" }
+    },
+    {
+      "name": "nova",
+      "label": "Nova",
+      "description": "Compact, restrained, tight cards",
+      "defaults": { "baseColor": "neutral", "theme": "neutral", "chartColor": "blue", "font": "inter", "iconLibrary": "lucide", "radius": "small" }
+    },
+    {
+      "name": "rhea",
+      "label": "Rhea",
+      "description": "Soft, pill-oriented, approachable",
+      "defaults": { "baseColor": "neutral", "theme": "rose", "chartColor": "pink", "font": "dm-sans", "iconLibrary": "lucide", "radius": "full" }
+    },
+    {
+      "name": "sera",
+      "label": "Sera",
+      "description": "Editorial, square, uppercase accents",
+      "defaults": { "baseColor": "taupe", "theme": "amber", "chartColor": "amber", "font": "playfair-display", "iconLibrary": "lucide", "radius": "none" }
+    },
+    {
+      "name": "vega",
+      "label": "Vega",
+      "description": "Balanced, classic default",
+      "defaults": { "baseColor": "neutral", "theme": "cyan", "chartColor": "teal", "font": "space-grotesk", "iconLibrary": "lucide", "radius": "medium" }
+    }
+  ],
+  "baseColors": ["zinc", "slate", "stone", "gray", "neutral", "taupe", "mauve", "olive", "mist"],
+  "themes": ["zinc", "slate", "stone", "gray", "neutral", "red", "orange", "amber", "yellow", "lime", "green", "emerald", "teal", "cyan", "sky", "blue", "indigo", "violet", "purple", "fuchsia", "pink", "rose"],
+  "radii": ["default", "none", "small", "medium", "large", "full"],
+  "radiusValues": {
+    "default": "0.5rem",
+    "none": "0rem",
+    "small": "0.125rem",
+    "medium": "0.625rem",
+    "large": "0.75rem",
+    "full": "1.5rem"
+  },
+  "engines": ["nativewind", "uniwind"]
+}

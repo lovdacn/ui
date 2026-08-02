@@ -2,8 +2,9 @@
   "name": "signup-03",
   "type": "registry:block",
   "description": "A compact branded registration card with responsive password fields and a mobile-safe route.",
-  "dependencies": ["lucide-react-native"],
+  "dependencies": [],
   "registryDependencies": [
+    "semantic-icon",
     "card",
     "input",
     "label",

@@ -6,8 +6,8 @@ import prompts from "prompts"
 import { execa } from "execa"
 
 import {
-  decodePreset,
-  encodePreset,
+  decodePresetWithWarnings,
+  normalizePreset,
   isPresetCode,
   PRESET_STYLES,
   FONT_PACKAGES,
@@ -20,12 +20,26 @@ import { DEFAULT_PRESETS } from "../preset/defaults.js"
 import { runAdd, getInstalledComponents, resolveAliasPath } from "./add.js"
 import { regenerateProjectCss } from "./init.js"
 import { snapshotFiles, restoreFiles } from "../utils/file-backup.js"
+import { normalizeLvcnConfig } from "../utils/normalize-config.js"
+import {
+  configureProjectFont,
+  findProjectRootLayout,
+  packageNameFromSpecifier,
+} from "../utils/project-fonts.js"
+
+/**
+ * Packages that a managed adapter may import but must never uninstall on migration.
+ * `@expo/vector-icons` is owned by the project templates (tab/navigation glyphs) and
+ * `react-native-svg` is shared by several adapters and other components, so removing
+ * either when switching libraries would break unrelated, still-referenced code.
+ */
+const PROTECTED_RUNTIME_PACKAGES = new Set(["@expo/vector-icons", "react-native-svg"])
 
 // ─── apply command ───────────────────────────────────────────────────────────
 // Apply a preset code (from the web /create page), a named preset, or a style
 // name to the project: update lvcn.json, regenerate global.css, install the
-// font, and re-install all installed components in the new style. Icons are
-// left untouched (switched manually).
+// font and icon packages, and re-install all managed source in the selected
+// style. Semantic icons are replaced from the selected single-library item.
 
 export const apply = new Command()
   .name("apply")
@@ -43,7 +57,7 @@ export const apply = new Command()
   .option("-f, --force", "proceed even if the git working tree is dirty", false)
   .option(
     "--only <parts>",
-    "apply only parts of a preset (comma-separated): theme, colors, font, radius"
+    "apply only parts of a preset (comma-separated): theme, colors, font, icons, radius"
   )
   .option(
     "-p, --package-manager <pm>",
@@ -58,34 +72,38 @@ export const apply = new Command()
       process.exit(1)
     }
 
-    // Resolve preset: named preset, preset code, or style name.
+    // Resolve preset: named preset, immutable v1 code, active style, or legacy alias.
     let presetConfig: PresetConfig
+    let presetWarnings: string[] = []
 
-    const namedPreset = DEFAULT_PRESETS[presetArg]
+    const namedPreset = DEFAULT_PRESETS[presetArg as keyof typeof DEFAULT_PRESETS]
     if (namedPreset) {
       const { title, description, ...config } = namedPreset
       presetConfig = config
     } else if (isPresetCode(presetArg)) {
-      const decoded = decodePreset(presetArg)
+      const decoded = decodePresetWithWarnings(presetArg)
       if (!decoded) {
         console.error(pc.red(`Invalid preset code: ${presetArg}`))
         process.exit(1)
       }
-      presetConfig = decoded
-    } else if ((PRESET_STYLES as readonly string[]).includes(presetArg)) {
-      // Just a style name — use its default preset if available, otherwise encode with defaults.
-      const stylePreset = DEFAULT_PRESETS[presetArg]
-      if (stylePreset) {
-        const { title, description, ...config } = stylePreset
-        presetConfig = config
-      } else {
-        presetConfig = { ...decodePreset(encodePreset({ style: presetArg as PresetConfig["style"] }))! }
-      }
+      presetConfig = decoded.config
+      presetWarnings = decoded.warnings
+    } else if (
+      (PRESET_STYLES as readonly string[]).includes(presetArg) ||
+      presetArg === "default" ||
+      presetArg === "new-york"
+    ) {
+      const normalized = normalizePreset({ style: presetArg })
+      const stylePreset = DEFAULT_PRESETS[normalized.config.style]
+      const { title, description, ...config } = stylePreset
+      presetConfig = config
+      presetWarnings = normalized.warnings
     } else {
       console.error(pc.red(`Unknown preset: ${presetArg}`))
       console.error(pc.dim(`Use a named preset (${Object.keys(DEFAULT_PRESETS).join(", ")}), a preset code, or a style name.`))
       process.exit(1)
     }
+    for (const warning of presetWarnings) console.log(pc.yellow(`⚠ ${warning}`))
 
     // ── Present the decoded preset details to the user ─────────────────────────
     console.log()
@@ -99,11 +117,16 @@ export const apply = new Command()
     console.log(`  ${pc.dim("iconLibrary:")} ${presetConfig.iconLibrary} (${ICON_PACKAGES[presetConfig.iconLibrary]})`)
     console.log(`  ${pc.dim("radius:")}       ${presetConfig.radius} (${RADIUS_VALUES[presetConfig.radius]})`)
 
-    const lvcnConfig = fs.readJsonSync(lvcnPath)
+    const rawLvcnConfig = fs.readJsonSync(lvcnPath)
+    const currentNormalization = normalizeLvcnConfig(rawLvcnConfig)
+    const lvcnConfig = currentNormalization.config
+    for (const warning of currentNormalization.warnings) {
+      console.log(pc.yellow(`⚠ ${warning}`))
+    }
     const styleEngine = lvcnConfig.styleEngine || "nativewind"
 
     // Parse --only into the set of dimensions to apply. Undefined = full apply.
-    const ONLY_PARTS = ["theme", "colors", "font", "radius"] as const
+    const ONLY_PARTS = ["theme", "colors", "font", "icons", "radius"] as const
     let only: Set<string> | undefined
     if (opts.only) {
       const parts = String(opts.only)
@@ -120,7 +143,7 @@ export const apply = new Command()
     }
 
     const wants = (part: string) => !only || only.has(part)
-    const reinstall = !only
+    const reinstall = !only || wants("icons")
 
     // Effective config: a full apply takes everything from the preset; --only
     // keeps current values except for the requested dimensions. Style is never
@@ -131,7 +154,7 @@ export const apply = new Command()
       theme: wants("theme") ? presetConfig.theme : (lvcnConfig.theme ?? presetConfig.theme),
       chartColor: wants("theme") ? presetConfig.chartColor : (lvcnConfig.chartColor ?? presetConfig.chartColor),
       font: wants("font") ? presetConfig.font : (lvcnConfig.font ?? presetConfig.font),
-      iconLibrary: lvcnConfig.iconLibrary ?? presetConfig.iconLibrary, // never changed
+      iconLibrary: wants("icons") ? presetConfig.iconLibrary : lvcnConfig.iconLibrary,
       radius: wants("radius") ? presetConfig.radius : (lvcnConfig.radius ?? presetConfig.radius),
     }
 
@@ -153,7 +176,7 @@ export const apply = new Command()
     row("theme", lvcnConfig.theme, effective.theme, "", wants("theme"))
     row("chartColor", lvcnConfig.chartColor, effective.chartColor, "", wants("theme"))
     row("font", lvcnConfig.font, effective.font, `(${FONT_FAMILIES[effective.font]})`, wants("font"))
-    console.log(`  ${pc.dim("iconLibrary:".padEnd(13))}${lvcnConfig.iconLibrary || "—"} ${pc.dim("(unchanged — switch icons manually)")}`)
+    row("iconLibrary", lvcnConfig.iconLibrary, effective.iconLibrary, `(${ICON_PACKAGES[effective.iconLibrary]})`, wants("icons"))
     row("radius", lvcnConfig.radius, effective.radius, `(${RADIUS_VALUES[effective.radius]})`, wants("radius"))
     console.log(`  ${pc.dim("engine:".padEnd(13))}${styleEngine} ${pc.dim("(unchanged)")}`)
     console.log()
@@ -206,6 +229,17 @@ export const apply = new Command()
     // Snapshot everything present may overwrite so we can roll back on failure.
     const aliases = lvcnConfig.aliases || {}
     const snapshotPaths = [lvcnPath, cssPath]
+    const fontLoaderPath = path.join(
+      cwd,
+      fs.existsSync(path.join(cwd, "src")) ? "src/lib/lvcn-fonts.ts" : "lib/lvcn-fonts.ts"
+    )
+    snapshotPaths.push(fontLoaderPath, path.join(cwd, "package.json"))
+    const rootLayoutPath = findProjectRootLayout(cwd)
+    if (rootLayoutPath) snapshotPaths.push(rootLayoutPath)
+    for (const lockfile of ["pnpm-lock.yaml", "package-lock.json", "yarn.lock", "bun.lock", "bun.lockb"]) {
+      const lockPath = path.join(cwd, lockfile)
+      if (fs.existsSync(lockPath)) snapshotPaths.push(lockPath)
+    }
     const utilsAlias = resolveAliasPath(cwd, aliases.utils || "@/lib/utils")
     snapshotPaths.push(
       utilsAlias.endsWith(".ts") || utilsAlias.endsWith(".js")
@@ -217,14 +251,17 @@ export const apply = new Command()
       for (const f of fs.readdirSync(uiDir)) snapshotPaths.push(path.join(uiDir, f))
     }
     const backup = snapshotFiles(snapshotPaths)
+    const previousFont = lvcnConfig.font
+    const previousIconLibrary = lvcnConfig.iconLibrary
 
     try {
-      // 1. Update lvcn.json (applied dimensions only; icons untouched).
+      // 1. Update lvcn.json with the normalized selected dimensions.
       lvcnConfig.style = effective.style
       lvcnConfig.baseColor = effective.baseColor
       lvcnConfig.theme = effective.theme
       lvcnConfig.chartColor = effective.chartColor
       lvcnConfig.font = effective.font
+      lvcnConfig.iconLibrary = effective.iconLibrary
       lvcnConfig.radius = effective.radius
       fs.writeJsonSync(lvcnPath, lvcnConfig, { spaces: 2 })
       console.log(pc.green(`✔ Updated lvcn.json`))
@@ -244,27 +281,61 @@ export const apply = new Command()
         })
       }
 
-      // 3. Install the font package when the font is being applied.
+      // 3. Regenerate the static font loader and install the exact selected package.
       if (wants("font")) {
+        const fontResource = configureProjectFont(cwd, effective.font)
         const fontPkg = FONT_PACKAGES[effective.font]
-        if (fontPkg) {
-          console.log(pc.blue(`Installing font: ${pc.cyan(fontPkg)}...`))
-          try {
-            await execa(packageManager, ["install", fontPkg], { cwd, stdio: "inherit" })
-          } catch {
-            console.log(pc.yellow(`⚠ Could not install ${fontPkg}. Install manually.`))
+        console.log(
+          pc.blue(`Installing font ${pc.cyan(fontPkg)} and updating ${pc.cyan(path.relative(cwd, fontResource.loaderPath))}...`)
+        )
+        await execa(packageManager, ["install", fontPkg], { cwd, stdio: "inherit" })
+        if (previousFont !== effective.font) {
+          const previousSpecifier = FONT_PACKAGES[previousFont as keyof typeof FONT_PACKAGES]
+          if (!previousSpecifier) {
+            console.log(
+              pc.yellow(
+                `⚠ Previous font "${previousFont}" is not a managed font package — leaving dependencies untouched.`
+              )
+            )
+          } else {
+            const previousPackage = packageNameFromSpecifier(previousSpecifier)
+            await execa(packageManager, ["remove", previousPackage], { cwd, stdio: "inherit" })
           }
         }
       }
 
-      // 4. Icons are intentionally left untouched — switching icon libraries is
-      //    manual. Only print a note when the preset's icon library differs.
-      const currentIconLibrary = lvcnConfig.iconLibrary || "lucide"
-      if (presetConfig.iconLibrary !== currentIconLibrary) {
-        const iconPkg = ICON_PACKAGES[presetConfig.iconLibrary]
-        console.log()
-        console.log(pc.yellow(`ℹ This preset's icon library is ${pc.cyan(presetConfig.iconLibrary)}; your project uses ${pc.cyan(currentIconLibrary)}.`))
-        console.log(pc.dim(`  Icons are left unchanged. To switch manually: install ${pc.cyan(iconPkg)} and update icon imports.`))
+      // 4. Install the selected semantic adapter package and remove the prior library.
+      if (wants("icons")) {
+        const iconPkg = ICON_PACKAGES[effective.iconLibrary]
+        console.log(pc.blue(`Installing icon library: ${pc.cyan(iconPkg)}...`))
+        await execa(packageManager, ["install", iconPkg, "react-native-svg"], {
+          cwd,
+          stdio: "inherit",
+        })
+        if (previousIconLibrary !== effective.iconLibrary) {
+          const previousSpecifier = ICON_PACKAGES[previousIconLibrary as keyof typeof ICON_PACKAGES]
+          const previousPackage = previousSpecifier
+            ? packageNameFromSpecifier(previousSpecifier)
+            : undefined
+          if (!previousPackage) {
+            console.log(
+              pc.yellow(
+                `⚠ Previous icon library "${previousIconLibrary}" is not a managed icon package — leaving dependencies untouched.`
+              )
+            )
+          } else if (PROTECTED_RUNTIME_PACKAGES.has(previousPackage)) {
+            // Shared or template-owned runtime dependencies (navigation icons, SVG host)
+            // stay installed even when the managed adapter stops importing them.
+            console.log(
+              pc.dim(`• Kept ${previousPackage} (shared runtime dependency, not managed exclusively)`)
+            )
+          } else {
+            await execa(packageManager, ["remove", previousPackage], {
+              cwd,
+              stdio: "inherit",
+            })
+          }
+        }
       }
 
       // 5. Re-install components with the new style (full apply only).

@@ -5,7 +5,8 @@
   "private": false,
   "license": "MIT",
   "files": [
-    "dist"
+    "dist",
+    "design-system"
   ],
   "publishConfig": {
     "access": "public",
@@ -28,10 +29,12 @@
     "start": "node dist/index.js",
     "clean": "rimraf dist",
     "prepack": "npm run build",
-    "registry:build": "node scripts/build-registry.cjs",
+    "design-system:generate": "node scripts/generate-design-system.cjs",
+    "design-system:check": "node scripts/generate-design-system.cjs --check",
+    "registry:build": "node scripts/generate-design-system.cjs && node scripts/build-registry.cjs",
     "blocks:build": "node scripts/build-blocks.cjs",
     "extra:build": "node scripts/build-extra-components.cjs",
-    "registry:build:all": "node scripts/build-registry.cjs && node scripts/build-blocks.cjs && node scripts/build-extra-components.cjs",
+    "registry:build:all": "node scripts/generate-design-system.cjs && node scripts/build-registry.cjs && node scripts/build-blocks.cjs && node scripts/build-extra-components.cjs",
     "version:beta": "npm version prerelease --preid=beta --no-git-tag-version",
     "release:beta": "npm publish --tag beta --access public"
   },

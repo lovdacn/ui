@@ -1,0 +1,232 @@
+{
+  "inter": {
+    "label": "Inter",
+    "family": "Inter",
+    "category": "sans",
+    "package": "@expo-google-fonts/inter",
+    "version": "0.4.2",
+    "fallback": "ui-sans-serif, system-ui, sans-serif",
+    "availableWeights": [400, 500, 600, 700],
+    "faces": { "regular": "Inter_400Regular", "medium": "Inter_500Medium", "semibold": "Inter_600SemiBold", "bold": "Inter_700Bold" }
+  },
+  "dm-sans": {
+    "label": "DM Sans",
+    "family": "DM Sans",
+    "category": "sans",
+    "package": "@expo-google-fonts/dm-sans",
+    "version": "0.4.2",
+    "fallback": "ui-sans-serif, system-ui, sans-serif",
+    "availableWeights": [400, 500, 600, 700],
+    "faces": { "regular": "DMSans_400Regular", "medium": "DMSans_500Medium", "semibold": "DMSans_600SemiBold", "bold": "DMSans_700Bold" }
+  },
+  "nunito-sans": {
+    "label": "Nunito Sans",
+    "family": "Nunito Sans",
+    "category": "sans",
+    "package": "@expo-google-fonts/nunito-sans",
+    "version": "0.4.2",
+    "fallback": "ui-sans-serif, system-ui, sans-serif",
+    "availableWeights": [400, 500, 600, 700],
+    "faces": { "regular": "NunitoSans_400Regular", "medium": "NunitoSans_500Medium", "semibold": "NunitoSans_600SemiBold", "bold": "NunitoSans_700Bold" }
+  },
+  "figtree": {
+    "label": "Figtree",
+    "family": "Figtree",
+    "category": "sans",
+    "package": "@expo-google-fonts/figtree",
+    "version": "0.4.1",
+    "fallback": "ui-sans-serif, system-ui, sans-serif",
+    "availableWeights": [400, 500, 600, 700],
+    "faces": { "regular": "Figtree_400Regular", "medium": "Figtree_500Medium", "semibold": "Figtree_600SemiBold", "bold": "Figtree_700Bold" }
+  },
+  "outfit": {
+    "label": "Outfit",
+    "family": "Outfit",
+    "category": "sans",
+    "package": "@expo-google-fonts/outfit",
+    "version": "0.4.3",
+    "fallback": "ui-sans-serif, system-ui, sans-serif",
+    "availableWeights": [400, 500, 600, 700],
+    "faces": { "regular": "Outfit_400Regular", "medium": "Outfit_500Medium", "semibold": "Outfit_600SemiBold", "bold": "Outfit_700Bold" }
+  },
+  "manrope": {
+    "label": "Manrope",
+    "family": "Manrope",
+    "category": "sans",
+    "package": "@expo-google-fonts/manrope",
+    "version": "0.4.2",
+    "fallback": "ui-sans-serif, system-ui, sans-serif",
+    "availableWeights": [400, 500, 600, 700],
+    "faces": { "regular": "Manrope_400Regular", "medium": "Manrope_500Medium", "semibold": "Manrope_600SemiBold", "bold": "Manrope_700Bold" }
+  },
+  "space-grotesk": {
+    "label": "Space Grotesk",
+    "family": "Space Grotesk",
+    "category": "sans",
+    "package": "@expo-google-fonts/space-grotesk",
+    "version": "0.4.1",
+    "fallback": "ui-sans-serif, system-ui, sans-serif",
+    "availableWeights": [400, 500, 600, 700],
+    "faces": { "regular": "SpaceGrotesk_400Regular", "medium": "SpaceGrotesk_500Medium", "semibold": "SpaceGrotesk_600SemiBold", "bold": "SpaceGrotesk_700Bold" }
+  },
+  "montserrat": {
+    "label": "Montserrat",
+    "family": "Montserrat",
+    "category": "sans",
+    "package": "@expo-google-fonts/montserrat",
+    "version": "0.4.2",
+    "fallback": "ui-sans-serif, system-ui, sans-serif",
+    "availableWeights": [400, 500, 600, 700],
+    "faces": { "regular": "Montserrat_400Regular", "medium": "Montserrat_500Medium", "semibold": "Montserrat_600SemiBold", "bold": "Montserrat_700Bold" }
+  },
+  "roboto": {
+    "label": "Roboto",
+    "family": "Roboto",
+    "category": "sans",
+    "package": "@expo-google-fonts/roboto",
+    "version": "0.4.3",
+    "fallback": "ui-sans-serif, system-ui, sans-serif",
+    "availableWeights": [400, 500, 600, 700],
+    "faces": { "regular": "Roboto_400Regular", "medium": "Roboto_500Medium", "semibold": "Roboto_600SemiBold", "bold": "Roboto_700Bold" }
+  },
+  "raleway": {
+    "label": "Raleway",
+    "family": "Raleway",
+    "category": "sans",
+    "package": "@expo-google-fonts/raleway",
+    "version": "0.4.2",
+    "fallback": "ui-sans-serif, system-ui, sans-serif",
+    "availableWeights": [400, 500, 600, 700],
+    "faces": { "regular": "Raleway_400Regular", "medium": "Raleway_500Medium", "semibold": "Raleway_600SemiBold", "bold": "Raleway_700Bold" }
+  },
+  "public-sans": {
+    "label": "Public Sans",
+    "family": "Public Sans",
+    "category": "sans",
+    "package": "@expo-google-fonts/public-sans",
+    "version": "0.4.2",
+    "fallback": "ui-sans-serif, system-ui, sans-serif",
+    "availableWeights": [400, 500, 600, 700],
+    "faces": { "regular": "PublicSans_400Regular", "medium": "PublicSans_500Medium", "semibold": "PublicSans_600SemiBold", "bold": "PublicSans_700Bold" }
+  },
+  "source-sans-3": {
+    "label": "Source Sans 3",
+    "family": "Source Sans 3",
+    "category": "sans",
+    "package": "@expo-google-fonts/source-sans-3",
+    "version": "0.4.1",
+    "fallback": "ui-sans-serif, system-ui, sans-serif",
+    "availableWeights": [400, 500, 600, 700],
+    "faces": { "regular": "SourceSans3_400Regular", "medium": "SourceSans3_500Medium", "semibold": "SourceSans3_600SemiBold", "bold": "SourceSans3_700Bold" }
+  },
+  "lora": {
+    "label": "Lora",
+    "family": "Lora",
+    "category": "serif",
+    "package": "@expo-google-fonts/lora",
+    "version": "0.4.2",
+    "fallback": "Georgia, 'Times New Roman', serif",
+    "availableWeights": [400, 500, 600, 700],
+    "faces": { "regular": "Lora_400Regular", "medium": "Lora_500Medium", "semibold": "Lora_600SemiBold", "bold": "Lora_700Bold" }
+  },
+  "merriweather": {
+    "label": "Merriweather",
+    "family": "Merriweather",
+    "category": "serif",
+    "package": "@expo-google-fonts/merriweather",
+    "version": "0.4.2",
+    "fallback": "Georgia, 'Times New Roman', serif",
+    "availableWeights": [400, 500, 600, 700],
+    "faces": { "regular": "Merriweather_400Regular", "medium": "Merriweather_500Medium", "semibold": "Merriweather_600SemiBold", "bold": "Merriweather_700Bold" }
+  },
+  "playfair-display": {
+    "label": "Playfair Display",
+    "family": "Playfair Display",
+    "category": "serif",
+    "package": "@expo-google-fonts/playfair-display",
+    "version": "0.4.2",
+    "fallback": "Georgia, 'Times New Roman', serif",
+    "availableWeights": [400, 500, 600, 700],
+    "faces": { "regular": "PlayfairDisplay_400Regular", "medium": "PlayfairDisplay_500Medium", "semibold": "PlayfairDisplay_600SemiBold", "bold": "PlayfairDisplay_700Bold" }
+  },
+  "jetbrains-mono": {
+    "label": "JetBrains Mono",
+    "family": "JetBrains Mono",
+    "category": "mono",
+    "package": "@expo-google-fonts/jetbrains-mono",
+    "version": "0.4.1",
+    "fallback": "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+    "availableWeights": [400, 500, 600, 700],
+    "faces": { "regular": "JetBrainsMono_400Regular", "medium": "JetBrainsMono_500Medium", "semibold": "JetBrainsMono_600SemiBold", "bold": "JetBrainsMono_700Bold" }
+  },
+  "space-mono": {
+    "label": "Space Mono",
+    "family": "Space Mono",
+    "category": "mono",
+    "package": "@expo-google-fonts/space-mono",
+    "version": "0.4.2",
+    "fallback": "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+    "availableWeights": [400, 700],
+    "faces": { "regular": "SpaceMono_400Regular", "medium": "SpaceMono_400Regular", "semibold": "SpaceMono_700Bold", "bold": "SpaceMono_700Bold" }
+  },
+  "fira-code": {
+    "label": "Fira Code",
+    "family": "Fira Code",
+    "category": "mono",
+    "package": "@expo-google-fonts/fira-code",
+    "version": "0.4.1",
+    "fallback": "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+    "availableWeights": [400, 500, 600, 700],
+    "faces": { "regular": "FiraCode_400Regular", "medium": "FiraCode_500Medium", "semibold": "FiraCode_600SemiBold", "bold": "FiraCode_700Bold" }
+  },
+  "noto-serif": {
+    "label": "Noto Serif",
+    "family": "Noto Serif",
+    "category": "serif",
+    "package": "@expo-google-fonts/noto-serif",
+    "version": "0.4.2",
+    "fallback": "Georgia, 'Times New Roman', serif",
+    "availableWeights": [400, 500, 600, 700],
+    "faces": { "regular": "NotoSerif_400Regular", "medium": "NotoSerif_500Medium", "semibold": "NotoSerif_600SemiBold", "bold": "NotoSerif_700Bold" }
+  },
+  "roboto-slab": {
+    "label": "Roboto Slab",
+    "family": "Roboto Slab",
+    "category": "serif",
+    "package": "@expo-google-fonts/roboto-slab",
+    "version": "0.4.2",
+    "fallback": "Georgia, 'Times New Roman', serif",
+    "availableWeights": [400, 500, 600, 700],
+    "faces": { "regular": "RobotoSlab_400Regular", "medium": "RobotoSlab_500Medium", "semibold": "RobotoSlab_600SemiBold", "bold": "RobotoSlab_700Bold" }
+  },
+  "instrument-sans": {
+    "label": "Instrument Sans",
+    "family": "Instrument Sans",
+    "category": "sans",
+    "package": "@expo-google-fonts/instrument-sans",
+    "version": "0.4.2",
+    "fallback": "ui-sans-serif, system-ui, sans-serif",
+    "availableWeights": [400, 500, 600, 700],
+    "faces": { "regular": "InstrumentSans_400Regular", "medium": "InstrumentSans_500Medium", "semibold": "InstrumentSans_600SemiBold", "bold": "InstrumentSans_700Bold" }
+  },
+  "instrument-serif": {
+    "label": "Instrument Serif",
+    "family": "Instrument Serif",
+    "category": "serif",
+    "package": "@expo-google-fonts/instrument-serif",
+    "version": "0.4.1",
+    "fallback": "Georgia, 'Times New Roman', serif",
+    "availableWeights": [400],
+    "faces": { "regular": "InstrumentSerif_400Regular", "medium": "InstrumentSerif_400Regular", "semibold": "InstrumentSerif_400Regular", "bold": "InstrumentSerif_400Regular" }
+  },
+  "geist": {
+    "label": "Geist",
+    "family": "Geist",
+    "category": "sans",
+    "package": "@expo-google-fonts/geist",
+    "version": "0.4.2",
+    "fallback": "ui-sans-serif, system-ui, sans-serif",
+    "availableWeights": [400, 500, 600, 700],
+    "faces": { "regular": "Geist_400Regular", "medium": "Geist_500Medium", "semibold": "Geist_600SemiBold", "bold": "Geist_700Bold" }
+  }
+}

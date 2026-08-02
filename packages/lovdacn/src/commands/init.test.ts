@@ -119,7 +119,7 @@ describe("runInit", () => {
     // Check lvcn.json copied
     const lvcnContent = await readFile(path.join(projectPath, "lvcn.json"), "utf8")
     const lvcn = JSON.parse(lvcnContent)
-    expect(lvcn.style).toBe("new-york")
+    expect(lvcn.style).toBe("vega")
     expect(lvcn.styleEngine).toBe("nativewind")
 
         // Check ignored files are NOT copied
@@ -407,7 +407,7 @@ describe("runInit", () => {
     const lvcnContent = await readFile(path.join(projectPath, "lvcn.json"), "utf8")
     const lvcn = JSON.parse(lvcnContent)
 
-    expect(lvcn.style).toBe("new-york") // Preserved style from existing config
+    expect(lvcn.style).toBe("vega") // Legacy new-york is normalized to the active Vega recipe
     expect(lvcn.aliases.components).toBe("~/components") // Preserved custom alias
     expect(lvcn.components).toContain("button") // Preserved installed components
     expect(lvcn.components).toContain("card") // Preserved installed components
@@ -453,7 +453,7 @@ describe("runInit", () => {
     expect(fs.existsSync(lvcnPath)).toBe(true)
 
     const lvcn = fs.readJsonSync(lvcnPath)
-    expect(lvcn.style).toBe("new-york")
+    expect(lvcn.style).toBe("vega")
     expect(lvcn.styleEngine).toBe("nativewind")
 
     // Verify that package.json was NOT overwritten or template files copied (no index.js should exist in tempCwd)
