@@ -101,7 +101,7 @@ function CardContent({ className, ...props }: React.ComponentProps<typeof View>)
   const { recipe } = usePreviewDesignSystem();
   return (
     <View
-      className={cn('px-6', className, recipe.layout.stackMd, recipe.components.card.content)}
+      className={cn('px-6', recipe.layout.stackMd, recipe.components.card.content, className)}
       {...props}
     />
   );
@@ -114,9 +114,9 @@ function CardTitle({ className, ...props }: React.ComponentProps<typeof Text>) {
       role="heading"
       className={cn(
         'text-card-foreground',
-        className,
         recipe.components.card.title,
-        recipe.typography.cardTitle
+        recipe.typography.cardTitle,
+        className
       )}
       {...props}
     />
@@ -129,9 +129,9 @@ function CardDescription({ className, ...props }: React.ComponentProps<typeof Te
     <Text
       className={cn(
         'text-muted-foreground',
-        className,
         recipe.components.card.description,
-        recipe.typography.caption
+        recipe.typography.caption,
+        className
       )}
       {...props}
     />
@@ -142,9 +142,9 @@ function Input({ id, className, style, ...props }: React.ComponentProps<typeof T
   const { fontFaces, recipe } = usePreviewDesignSystem();
   const resolvedClassName = cn(
     'text-foreground w-full min-w-0 shadow-sm shadow-black/5 outline-none placeholder:text-muted-foreground',
-    className,
     recipe.typography.body,
-    recipe.components.input
+    recipe.components.input,
+    className
   );
   return (
     <TextInput
@@ -226,6 +226,146 @@ function Progress({ value }: { value: number }) {
 function Separator() {
   const { recipe } = usePreviewDesignSystem();
   return <View className={cn('h-px w-full shrink-0', recipe.components.separator)} />;
+}
+
+function Alert({
+  variant = 'default',
+  title,
+  description,
+}: {
+  variant?: 'default' | 'destructive';
+  title: string;
+  description: string;
+}) {
+  const { recipe } = usePreviewDesignSystem();
+  return (
+    <View
+      className={cn(
+        'border flex-row items-start p-3.5 shadow-sm shadow-black/5',
+        recipe.components.card.shell,
+        recipe.layout.inline,
+        variant === 'destructive'
+          ? 'border-destructive/30 bg-destructive/10 text-destructive'
+          : 'border-border bg-muted/20 text-foreground'
+      )}
+    >
+      <SemanticIcon
+        name={variant === 'destructive' ? 'warning' : 'info'}
+        className={variant === 'destructive' ? 'text-destructive' : 'text-primary'}
+      />
+      <View className={recipe.layout.stackXs}>
+        <Text className={cn('font-semibold text-xs', variant === 'destructive' ? 'text-destructive' : 'text-foreground')}>
+          {title}
+        </Text>
+        <Text className="text-muted-foreground text-[11px]">
+          {description}
+        </Text>
+      </View>
+    </View>
+  );
+}
+
+function Switch({
+  checked,
+  onCheckedChange,
+}: {
+  checked: boolean;
+  onCheckedChange: (checked: boolean) => void;
+}) {
+  const { recipe } = usePreviewDesignSystem();
+  return (
+    <Pressable
+      role="switch"
+      aria-checked={checked}
+      hitSlop={12}
+      onPress={() => onCheckedChange(!checked)}
+      className={cn(
+        'h-5 w-9 rounded-full p-0.5 transition-colors',
+        checked ? 'bg-primary' : 'bg-muted/80',
+        recipe.components.checkbox
+      )}
+    >
+      <View
+        className={cn(
+          'size-4 rounded-full bg-background shadow-sm transition-transform',
+          checked ? 'translate-x-4' : 'translate-x-0'
+        )}
+      />
+    </Pressable>
+  );
+}
+
+function Tabs({
+  activeTab,
+  onTabChange,
+  tabs,
+}: {
+  activeTab: string;
+  onTabChange: (tab: string) => void;
+  tabs: string[];
+}) {
+  const { recipe } = usePreviewDesignSystem();
+  return (
+    <View className={cn('flex-row p-1 bg-muted/30 border border-border/50', recipe.layout.inline, recipe.components.card.shell)}>
+      {tabs.map((tab) => {
+        const isActive = tab === activeTab;
+        return (
+          <Pressable
+            key={tab}
+            onPress={() => onTabChange(tab)}
+            className={cn(
+              'flex-1 items-center justify-center py-1.5 px-3 transition-colors',
+              recipe.components.button.container,
+              isActive ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+            )}
+          >
+            <Text className={cn('text-xs font-medium', isActive ? 'text-foreground font-semibold' : 'text-muted-foreground')}>
+              {tab}
+            </Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
+function Avatar({ name: _name, fallback }: { name: string; fallback: string }) {
+  const { recipe } = usePreviewDesignSystem();
+  return (
+    <View className={cn('size-8 items-center justify-center bg-muted border border-border text-foreground font-semibold text-xs', recipe.components.card.shell)}>
+      <Text className="text-xs font-semibold text-foreground">{fallback}</Text>
+    </View>
+  );
+}
+
+function AccordionItem({
+  title,
+  children,
+  isOpen,
+  onToggle,
+}: {
+  title: string;
+  children: React.ReactNode;
+  isOpen: boolean;
+  onToggle: () => void;
+}) {
+  const { recipe } = usePreviewDesignSystem();
+  return (
+    <View className={cn('border border-border/60 overflow-hidden', recipe.components.card.shell)}>
+      <Pressable
+        onPress={onToggle}
+        className={cn('flex-row items-center justify-between p-3 bg-card', recipe.layout.inline)}
+      >
+        <Text className="text-xs font-semibold text-foreground">{title}</Text>
+        <SemanticIcon name={isOpen ? 'chevron-up' : 'chevron-down'} size={14} className="text-muted-foreground" />
+      </Pressable>
+      {isOpen ? (
+        <View className={cn('p-3 pt-0 border-t border-border/40 bg-muted/10', recipe.layout.stackSm)}>
+          {children}
+        </View>
+      ) : null}
+    </View>
+  );
 }
 
 const CHART_BG = ['bg-chart-1', 'bg-chart-2', 'bg-chart-3', 'bg-chart-4', 'bg-chart-5'] as const;
@@ -399,6 +539,10 @@ export function CustomizerDashboard({ topPad = 24 }: { topPad?: number }) {
   const [checked2, setChecked2] = React.useState(true);
   const [checked3, setChecked3] = React.useState(false);
   const [checked4, setChecked4] = React.useState(false);
+  const [switch1, setSwitch1] = React.useState(true);
+  const [switch2, setSwitch2] = React.useState(false);
+  const [activeTab, setActiveTab] = React.useState('Overview');
+  const [openAccordion, setOpenAccordion] = React.useState<string | null>('acc-1');
   const [powerProgress, setPowerProgress] = React.useState(85);
 
   React.useEffect(() => {
@@ -421,10 +565,29 @@ export function CustomizerDashboard({ topPad = 24 }: { topPad?: number }) {
         <View className={cn('w-full lg:w-1/3', recipe.layout.column)}>
           <Card>
             <CardHeader>
+              <CardTitle className="text-lg font-bold">System Status</CardTitle>
+              <CardDescription>Alerts and dynamic banner indicators.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Alert
+                variant="default"
+                title="System Update Ready"
+                description="Version 2.4 is available for download."
+              />
+              <Alert
+                variant="destructive"
+                title="Security Warning"
+                description="Unrecognized login attempt detected."
+              />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
               <CardTitle className="text-lg font-bold">Account Access</CardTitle>
               <CardDescription>Update your credentials or re-authenticate.</CardDescription>
             </CardHeader>
-            <CardContent className="gap-4">
+            <CardContent>
               <View className={recipe.layout.field}>
                 <Label htmlFor="email">Email Address</Label>
                 <Input id="email" placeholder="artist@studio.inc" defaultValue="artist@studio.inc" />
@@ -436,7 +599,7 @@ export function CustomizerDashboard({ topPad = 24 }: { topPad?: number }) {
               <Button>
                 <Text>Update Security</Text>
               </Button>
-              <View className="mt-2 p-3 rounded-lg border border-destructive/20 bg-destructive/5 gap-1">
+              <View className={cn("mt-1 p-3 border border-destructive/20 bg-destructive/5", recipe.layout.stackXs, recipe.components.card.shell)}>
                 <Text className="text-xs font-semibold text-destructive">Danger Zone</Text>
                 <Text className="text-[11px] text-muted-foreground">
                   Archive account and remove catalog.
@@ -465,9 +628,9 @@ export function CustomizerDashboard({ topPad = 24 }: { topPad?: number }) {
               <CardTitle className="text-lg font-bold">Revenue by Category</CardTitle>
               <CardDescription>Last 30 days.</CardDescription>
             </CardHeader>
-            <CardContent className="gap-3">
+            <CardContent>
               {REVENUE.map((item, index) => (
-                <View key={item.label} className="gap-1.5">
+                <View key={item.label} className={recipe.layout.stackXs}>
                   <View className="flex-row justify-between">
                     <Text className="text-xs text-muted-foreground">{item.label}</Text>
                     <Text className="text-xs font-semibold text-foreground">{item.value}</Text>
@@ -488,21 +651,21 @@ export function CustomizerDashboard({ topPad = 24 }: { topPad?: number }) {
               <CardTitle className="text-lg font-bold">Transfer Funds</CardTitle>
               <CardDescription>Move money between accounts.</CardDescription>
             </CardHeader>
-            <CardContent className="gap-4">
+            <CardContent>
               <View className={recipe.layout.field}>
-                <Label >Amount to Transfer</Label>
+                <Label>Amount to Transfer</Label>
                 <Input placeholder="$ 1,200.00" defaultValue="$ 1,200.00" keyboardType="decimal-pad" />
               </View>
               <View className={recipe.layout.field}>
-                <Label >From Account</Label>
+                <Label>From Account</Label>
                 <Input defaultValue="Main Checking (•8402) — $12,450.00" />
               </View>
               <View className={recipe.layout.field}>
-                <Label >To Account</Label>
+                <Label>To Account</Label>
                 <Input defaultValue="High Yield Savings (•1192) — $42,100.00" />
               </View>
               <Separator />
-              <View className="gap-2">
+              <View className={recipe.layout.stackSm}>
                 <View className="flex-row justify-between">
                   <Text className="text-xs text-muted-foreground">Estimated arrival</Text>
                   <Text className="text-xs font-semibold text-foreground">Today, Apr 14</Text>
@@ -526,16 +689,35 @@ export function CustomizerDashboard({ topPad = 24 }: { topPad?: number }) {
         <View className={cn('w-full lg:w-1/3', recipe.layout.column)}>
           <Card>
             <CardHeader>
+              <CardTitle className="text-lg font-bold">Navigation Tabs</CardTitle>
+              <CardDescription>Segmented views and team switchers.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Tabs
+                tabs={['Overview', 'Analytics', 'Settings']}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+              />
+              <View className={cn('p-3 bg-muted/10 border border-border/40', recipe.components.card.shell)}>
+                <Text className="text-xs text-muted-foreground">
+                  Active view: <Text className="font-semibold text-foreground">{activeTab}</Text>
+                </Text>
+              </View>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
               <CardTitle className="text-lg font-bold">Receiving Method</CardTitle>
               <CardDescription>Set how you receive payout transfers.</CardDescription>
             </CardHeader>
-            <CardContent className="gap-4">
+            <CardContent>
               <View className={recipe.layout.field}>
-                <Label >Account Holder Name</Label>
+                <Label>Account Holder Name</Label>
                 <Input defaultValue="Synthetic Horizons Music LLC" />
               </View>
               <View className={recipe.layout.field}>
-                <Label >IBAN / Account Number</Label>
+                <Label>IBAN / Account Number</Label>
                 <Input defaultValue="DE89 3704 0044 •••• ••" />
               </View>
               <Button className="w-full">
@@ -549,8 +731,8 @@ export function CustomizerDashboard({ topPad = 24 }: { topPad?: number }) {
               <CardTitle className="text-lg font-bold">Power Usage</CardTitle>
               <CardDescription>Whole Home analysis.</CardDescription>
             </CardHeader>
-            <CardContent className="gap-4">
-              <View className="gap-2 rounded-lg bg-muted/20 px-3 py-3">
+            <CardContent>
+              <View className={cn('bg-muted/20 px-3 py-3', recipe.layout.stackSm, recipe.components.card.shell)}>
                 <View className="h-24 flex-row items-end justify-between">
                   {POWER_DATA.map((item, index) => (
                     <View key={index} className="h-full flex-1 flex-row items-end justify-center gap-0.5">
@@ -567,12 +749,12 @@ export function CustomizerDashboard({ topPad = 24 }: { topPad?: number }) {
                   ))}
                 </View>
               </View>
-              <View className="flex-row gap-4">
-                <View className="flex-row items-center gap-1.5">
+              <View className={cn('flex-row', recipe.layout.inline)}>
+                <View className={cn('flex-row items-center', recipe.layout.inline)}>
                   <View className="size-2 rounded-full bg-chart-1" />
                   <Text className="text-[10px] text-muted-foreground">Usage</Text>
                 </View>
-                <View className="flex-row items-center gap-1.5">
+                <View className={cn('flex-row items-center', recipe.layout.inline)}>
                   <View className="size-2 rounded-full bg-chart-2" />
                   <Text className="text-[10px] text-muted-foreground">Solar</Text>
                 </View>
@@ -599,33 +781,28 @@ export function CustomizerDashboard({ topPad = 24 }: { topPad?: number }) {
 
           <Card className="mb-4">
             <CardHeader>
-              <CardTitle className="text-lg font-bold">Upcoming Payments</CardTitle>
-              <CardDescription>Scheduled subscription items.</CardDescription>
+              <CardTitle className="text-lg font-bold">FAQ Accordion</CardTitle>
+              <CardDescription>Collapsible questions and guides.</CardDescription>
             </CardHeader>
-            <CardContent className="gap-4">
-              <View className="flex-row justify-between items-center">
-                <View>
-                  <Text className="text-sm font-semibold text-foreground">Netflix Subscription</Text>
-                  <Text className="text-xs text-muted-foreground">Apr 15, 2024</Text>
-                </View>
-                <Text className="text-sm font-bold text-foreground">$19.99</Text>
-              </View>
-              <Separator />
-              <View className="flex-row justify-between items-center">
-                <View>
-                  <Text className="text-sm font-semibold text-foreground">Rent Payment</Text>
-                  <Text className="text-xs text-muted-foreground">Apr 1, 2024</Text>
-                </View>
-                <Text className="text-sm font-bold text-foreground">$2,400.00</Text>
-              </View>
-              <Separator />
-              <View className="flex-row justify-between items-center">
-                <View>
-                  <Text className="text-sm font-semibold text-foreground">Auto Insurance</Text>
-                  <Text className="text-xs text-muted-foreground">Apr 22, 2024</Text>
-                </View>
-                <Text className="text-sm font-bold text-foreground">$186.00</Text>
-              </View>
+            <CardContent>
+              <AccordionItem
+                title="How do payout schedules work?"
+                isOpen={openAccordion === 'acc-1'}
+                onToggle={() => setOpenAccordion(openAccordion === 'acc-1' ? null : 'acc-1')}
+              >
+                <Text className="text-xs text-muted-foreground">
+                  Payouts are processed automatically every Monday morning UTC.
+                </Text>
+              </AccordionItem>
+              <AccordionItem
+                title="Can I update my tax registration?"
+                isOpen={openAccordion === 'acc-2'}
+                onToggle={() => setOpenAccordion(openAccordion === 'acc-2' ? null : 'acc-2')}
+              >
+                <Text className="text-xs text-muted-foreground">
+                  Yes, submit your updated W-9 or W-8BEN form under Security.
+                </Text>
+              </AccordionItem>
             </CardContent>
           </Card>
         </View>
@@ -633,17 +810,47 @@ export function CustomizerDashboard({ topPad = 24 }: { topPad?: number }) {
         <View className={cn('w-full lg:w-1/3', recipe.layout.column)}>
           <Card>
             <CardHeader>
+              <CardTitle className="text-lg font-bold">Team Members</CardTitle>
+              <CardDescription>Avatars and role indicators.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <View className={cn('flex-row items-center justify-between', recipe.layout.inline)}>
+                <View className={cn('flex-row items-center', recipe.layout.inline)}>
+                  <Avatar name="Sarah Chen" fallback="SC" />
+                  <View>
+                    <Text className="text-xs font-semibold text-foreground">Sarah Chen</Text>
+                    <Text className="text-[11px] text-muted-foreground">Lead Designer</Text>
+                  </View>
+                </View>
+                <Badge variant="outline"><Text>Admin</Text></Badge>
+              </View>
+              <Separator />
+              <View className={cn('flex-row items-center justify-between', recipe.layout.inline)}>
+                <View className={cn('flex-row items-center', recipe.layout.inline)}>
+                  <Avatar name="Alex Rivera" fallback="AR" />
+                  <View>
+                    <Text className="text-xs font-semibold text-foreground">Alex Rivera</Text>
+                    <Text className="text-[11px] text-muted-foreground">Engineer</Text>
+                  </View>
+                </View>
+                <Badge variant="outline"><Text>Member</Text></Badge>
+              </View>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
               <CardTitle className="text-lg font-bold">Stock Performance</CardTitle>
               <CardDescription>6-month price history.</CardDescription>
             </CardHeader>
-            <CardContent className="gap-4">
+            <CardContent>
               <View className="flex-row justify-between items-center">
                 <Text className="text-xs text-muted-foreground">Ticker</Text>
                 <Badge variant="outline">
                   <Text>VOO</Text>
                 </Badge>
               </View>
-              <View className="rounded-lg bg-muted/20 p-2">
+              <View className={cn("bg-muted/20 p-2", recipe.components.card.shell)}>
                 <AreaLineChart
                   data={STOCK_DATA}
                   labels={STOCK_LABELS}
@@ -662,7 +869,7 @@ export function CustomizerDashboard({ topPad = 24 }: { topPad?: number }) {
               <CardTitle className="text-lg font-bold">Traffic Sources</CardTitle>
               <CardDescription>Sessions this month.</CardDescription>
             </CardHeader>
-            <CardContent className="gap-4">
+            <CardContent>
               <View className="h-3 flex-row overflow-hidden rounded-full">
                 {TRAFFIC.map((item, index) => (
                   <View
@@ -672,10 +879,10 @@ export function CustomizerDashboard({ topPad = 24 }: { topPad?: number }) {
                   />
                 ))}
               </View>
-              <View className="gap-2">
+              <View className={recipe.layout.stackXs}>
                 {TRAFFIC.map((item, index) => (
                   <View key={item.label} className="flex-row items-center justify-between">
-                    <View className="flex-row items-center gap-2">
+                    <View className={cn('flex-row items-center', recipe.layout.inline)}>
                       <View className={cn('size-2.5 rounded-full', CHART_BG[index])} />
                       <Text className="text-xs text-muted-foreground">{item.label}</Text>
                     </View>
@@ -686,58 +893,32 @@ export function CustomizerDashboard({ topPad = 24 }: { topPad?: number }) {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg font-bold">Set a milestone</CardTitle>
-              <CardDescription>Define your financial target.</CardDescription>
-            </CardHeader>
-            <CardContent className="gap-4">
-              <View className={recipe.layout.field}>
-                <Label >Goal Name</Label>
-                <Input placeholder="e.g. New Car, Home Downpayment" />
-              </View>
-              <View className="flex-row gap-2">
-                <View className="flex-1 gap-1.5">
-                  <Label >Target Amount</Label>
-                  <Input placeholder="$15,000" keyboardType="decimal-pad" />
-                </View>
-                <View className="flex-1 gap-1.5">
-                  <Label >Target Date</Label>
-                  <Input placeholder="Dec 2025" />
-                </View>
-              </View>
-              <View className="flex-row gap-2 mt-2">
-                <Button className="flex-1">
-                  <Text>Create Goal</Text>
-                </Button>
-                <Button variant="outline" className="flex-1">
-                  <Text>Cancel</Text>
-                </Button>
-              </View>
-            </CardContent>
-          </Card>
-
           <Card className="mb-4">
             <CardHeader>
-              <CardTitle className="text-lg font-bold">Notifications</CardTitle>
-              <CardDescription>Choose what you want to be notified about.</CardDescription>
+              <CardTitle className="text-lg font-bold">Preferences & Triggers</CardTitle>
+              <CardDescription>Switch controls and notification toggles.</CardDescription>
             </CardHeader>
-            <CardContent className="gap-4">
-              <View className="flex-row items-center gap-2">
+            <CardContent>
+              <View className="flex-row items-center justify-between">
+                <Text className="text-xs font-semibold text-foreground">Push Notifications</Text>
+                <Switch checked={switch1} onCheckedChange={setSwitch1} />
+              </View>
+              <View className="flex-row items-center justify-between">
+                <Text className="text-xs font-semibold text-foreground">Auto-Sync Data</Text>
+                <Switch checked={switch2} onCheckedChange={setSwitch2} />
+              </View>
+              <Separator />
+              <View className={cn('flex-row items-center', recipe.layout.inline)}>
                 <Checkbox checked={checked1} onCheckedChange={setChecked1} />
                 <Text className="text-xs font-semibold text-foreground">Transaction alerts</Text>
               </View>
-              <View className="flex-row items-center gap-2">
+              <View className={cn('flex-row items-center', recipe.layout.inline)}>
                 <Checkbox checked={checked2} onCheckedChange={setChecked2} />
                 <Text className="text-xs font-semibold text-foreground">Security alerts</Text>
               </View>
-              <View className="flex-row items-center gap-2">
+              <View className={cn('flex-row items-center', recipe.layout.inline)}>
                 <Checkbox checked={checked3} onCheckedChange={setChecked3} />
                 <Text className="text-xs font-semibold text-foreground">Goal milestones</Text>
-              </View>
-              <View className="flex-row items-center gap-2">
-                <Checkbox checked={checked4} onCheckedChange={setChecked4} />
-                <Text className="text-xs font-semibold text-foreground">Market updates</Text>
               </View>
               <Button className="w-full mt-2">
                 <Text>Save Preferences</Text>
