@@ -206,6 +206,12 @@ function buildExtraComponents() {
         written++;
       }
     }
+    for (const style of STYLES) {
+      const iconSrc = path.join(DEST_REGISTRY, '../icons', engine, 'lucide/semantic-icon.json');
+      if (fs.existsSync(iconSrc)) {
+        fs.copySync(iconSrc, path.join(DEST_REGISTRY, engine, style, 'semantic-icon.json'));
+      }
+    }
   }
 
   console.log(

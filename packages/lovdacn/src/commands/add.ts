@@ -650,9 +650,12 @@ async function fetchRegistryItem(
     name === "semantic-icon"
       ? [
           `icons/${styleEngine}/${effectiveIconLib}/semantic-icon.json`,
+          `styles/${styleEngine}/${style}/semantic-icon.json`,
           `icons/${styleEngine}/lucide/semantic-icon.json`,
           `icons/nativewind/${effectiveIconLib}/semantic-icon.json`,
           `icons/nativewind/lucide/semantic-icon.json`,
+          `styles/nativewind/${style}/semantic-icon.json`,
+          `styles/nativewind/vega/semantic-icon.json`,
         ]
       : [
           `styles/${styleEngine}/${style}/${name}.json`,
