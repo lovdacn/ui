@@ -62,6 +62,7 @@
     "expo-image": "~57.0.1",
     "expo-linking": "~57.0.3",
     "expo-router": "~57.0.7",
+    "@expo/vector-icons": "^15.0.3",
     "expo-splash-screen": "~57.0.4",
     "expo-status-bar": "~57.0.1",
     "expo-symbols": "~57.0.1",
@@ -70,6 +71,7 @@
     "lucide-react-native": "^1.24.0",
     "nativewind": "^4.2.6",
     "phosphor-react-native": "3.0.6",
+    "react-native-heroicons": "^4.0.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-native": "0.86.0",
@@ -96,6 +98,7 @@
   },
   "scripts": {
     "start": "expo start",
+    "dev": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo start --android",
     "ios": "expo start --ios",
