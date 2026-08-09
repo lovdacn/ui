@@ -148,6 +148,13 @@ export default function RootLayout({
     >
       <head>
         <script
+          // Applies the beta skin before first paint so the orange theme
+          // survives navigation and reloads without flashing the default theme.
+          dangerouslySetInnerHTML={{
+            __html: `try{if(localStorage.getItem("lovdacn-beta")==="1"){document.documentElement.classList.add("beta")}}catch(e){}`,
+          }}
+        />
+        <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdWebsite) }}
         />
