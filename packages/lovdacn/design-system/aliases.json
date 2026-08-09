@@ -3,9 +3,6 @@
     "default": { "to": "vega", "reason": "Legacy label without a distinct recipe" },
     "new-york": { "to": "vega", "reason": "Legacy label without a distinct recipe" }
   },
-  "iconLibraries": {
-    "expo": { "to": "lucide", "reason": "Umbrella package rather than one coherent icon family" },
-    "heroicons": { "to": "lucide", "reason": "Not wired through managed React Native output" }
-  },
+  "iconLibraries": {},
   "fonts": {}
 }
