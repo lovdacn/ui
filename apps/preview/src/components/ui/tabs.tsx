@@ -15,22 +15,26 @@ function Tabs({
   activeAnimate,
   motionActive,
   reduceMotion,
+  children,
   ...props
 }: React.ComponentProps<typeof TabsPrimitive.Root> & SharedAnimationProps) {
   const rootProps = { className: cn('flex flex-col gap-2', className), ...props };
 
   if (!hasMotionProps({ animate, activeAnimate, motionActive })) {
-    return <TabsPrimitive.Root {...rootProps} />;
+    return <TabsPrimitive.Root {...rootProps}>{children}</TabsPrimitive.Root>;
   }
 
+  // `asChild` replaces the primitive's host, so children must be handed to the animated host
+  // explicitly — a JSX child always wins over a spread `children` prop.
   return (
     <TabsPrimitive.Root {...rootProps} asChild>
       <View
         animate={animate}
         activeAnimate={activeAnimate}
         motionActive={motionActive}
-        reduceMotion={reduceMotion}
-      />
+        reduceMotion={reduceMotion}>
+        {children}
+      </View>
     </TabsPrimitive.Root>
   );
 }
@@ -41,6 +45,7 @@ function TabsList({
   activeAnimate,
   motionActive,
   reduceMotion,
+  children,
   ...props
 }: React.ComponentProps<typeof TabsPrimitive.List> & SharedAnimationProps) {
   const listProps = {
@@ -53,7 +58,7 @@ function TabsList({
   };
 
   if (!hasMotionProps({ animate, activeAnimate, motionActive })) {
-    return <TabsPrimitive.List {...listProps} />;
+    return <TabsPrimitive.List {...listProps}>{children}</TabsPrimitive.List>;
   }
 
   return (
@@ -62,8 +67,9 @@ function TabsList({
         animate={animate}
         activeAnimate={activeAnimate}
         motionActive={motionActive}
-        reduceMotion={reduceMotion}
-      />
+        reduceMotion={reduceMotion}>
+        {children}
+      </View>
     </TabsPrimitive.List>
   );
 }
@@ -74,6 +80,7 @@ function TabsTrigger({
   activeAnimate,
   motionActive,
   reduceMotion,
+  children,
   ...props
 }: React.ComponentProps<typeof TabsPrimitive.Trigger> & SharedAnimationProps) {
   const { value } = TabsPrimitive.useRootContext();
@@ -101,16 +108,18 @@ function TabsTrigger({
       )}>
       {hasMotionProps({ animate, activeAnimate, motionActive }) ? (
         <TabsPrimitive.Trigger {...triggerProps} asChild>
-          {/* Trigger's canonical active state is `selected`. */}
+          {/* Trigger's canonical active state is `selected`. `asChild` replaces the primitive's
+              host, so children must be handed to the animated host explicitly. */}
           <Pressable
             animate={animate}
             activeAnimate={activeAnimate}
             motionActive={motionActive ?? isSelected}
-            reduceMotion={reduceMotion}
-          />
+            reduceMotion={reduceMotion}>
+            {children}
+          </Pressable>
         </TabsPrimitive.Trigger>
       ) : (
-        <TabsPrimitive.Trigger {...triggerProps} />
+        <TabsPrimitive.Trigger {...triggerProps}>{children}</TabsPrimitive.Trigger>
       )}
     </TextClassContext.Provider>
   );

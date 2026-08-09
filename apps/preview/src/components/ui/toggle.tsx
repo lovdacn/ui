@@ -46,6 +46,7 @@ function Toggle({
   activeAnimate,
   motionActive,
   reduceMotion,
+  children,
   ...props
 }: React.ComponentProps<typeof TogglePrimitive.Root> &
   SharedAnimationProps &
@@ -74,16 +75,19 @@ function Toggle({
         className
       )}>
       {hasMotion ? (
+        // `asChild` replaces the primitive's host, so children must be handed to the animated
+        // host explicitly — a JSX child always wins over a spread `children` prop.
         <TogglePrimitive.Root {...rootProps} asChild>
           <Pressable
             animate={animate}
             activeAnimate={activeAnimate}
             motionActive={motionActive ?? props.pressed}
-            reduceMotion={reduceMotion}
-          />
+            reduceMotion={reduceMotion}>
+            {children}
+          </Pressable>
         </TogglePrimitive.Root>
       ) : (
-        <TogglePrimitive.Root {...rootProps} />
+        <TogglePrimitive.Root {...rootProps}>{children}</TogglePrimitive.Root>
       )}
     </TextClassContext.Provider>
   );
