@@ -4,6 +4,7 @@ import * as React from "react"
 import { useTheme } from "next-themes"
 import { cn } from "@/lib/utils"
 import { getExpoPreviewUrl, expoPreviewOrigin } from "@/lib/preview"
+import { usePreviewHandshake } from "@/lib/use-preview-handshake"
 
 /** Live preview frame for docs — embeds Expo Web components. */
 export function ComponentPreviewCard({
@@ -25,11 +26,9 @@ export function ComponentPreviewCard({
     "signup-03",
   ].includes(componentName ?? "")
   const { resolvedTheme } = useTheme()
-  const [readySrc, setReadySrc] = React.useState<string | null>(null)
-  const iframeRef = React.useRef<HTMLIFrameElement>(null)
 
-  const colorScheme = React.useMemo(() => {
-    if (resolvedTheme) return resolvedTheme
+  const colorScheme = React.useMemo<"light" | "dark">(() => {
+    if (resolvedTheme === "dark" || resolvedTheme === "light") return resolvedTheme
     if (typeof window !== "undefined") {
       return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
     }
@@ -43,28 +42,12 @@ export function ComponentPreviewCard({
     () => (componentName ? getExpoPreviewUrl({ component: componentName, chrome: "web" }) : ""),
     [componentName]
   )
-  const ready = readySrc === src
 
-  // Only trust the "ready" ping from this card's own iframe.
-  React.useEffect(() => {
-    function onMessage(e: MessageEvent) {
-      if (e.source !== iframeRef.current?.contentWindow) return
-      if ((e.data as { type?: string })?.type === "lvcn:ready") {
-        setReadySrc(src)
-      }
-    }
-    window.addEventListener("message", onMessage)
-    return () => window.removeEventListener("message", onMessage)
-  }, [src])
-
-  // Push the color scheme once the presenter is ready, and whenever it changes.
-  React.useEffect(() => {
-    if (!ready) return
-    iframeRef.current?.contentWindow?.postMessage(
-      { type: "lvcn:preset", colorScheme },
-      expoPreviewOrigin
-    )
-  }, [ready, colorScheme])
+  // Readiness is a session handshake (see lib/preview-protocol.ts): the request
+  // is retried, and a presenter that never answers reveals a recoverable state
+  // instead of leaving the frame at opacity 0 forever.
+  const { iframeRef, frameKey, revealed, pending, unreachable, handleLoad, retry } =
+    usePreviewHandshake({ src, childOrigin: expoPreviewOrigin, colorScheme })
 
   return (
     <div
@@ -82,16 +65,52 @@ export function ComponentPreviewCard({
         )}
       >
         {componentName ? (
-          <iframe
-            ref={iframeRef}
-            src={src}
-            className={cn(
-              "w-full border-0 transition-opacity duration-300",
-              hasTallBlockPreview ? "h-[760px]" : "h-[450px]",
-              ready ? "opacity-100" : "opacity-0"
+          <>
+            {pending && !unreachable && (
+              <div
+                className="pointer-events-none absolute inset-0 flex items-center justify-center text-sm text-muted-foreground"
+                role="status"
+              >
+                Loading preview…
+              </div>
             )}
-            title={`${title} Live Preview`}
-          />
+            {unreachable && (
+              <div
+                className="absolute inset-x-0 top-0 z-10 flex flex-wrap items-center justify-center gap-3 border-b border-border bg-muted/80 px-4 py-2 text-sm text-muted-foreground backdrop-blur-sm"
+                role="alert"
+              >
+                <span>The live preview did not respond.</span>
+                <button
+                  type="button"
+                  onClick={retry}
+                  className="rounded-md border border-border bg-background px-2 py-1 text-xs font-medium text-foreground transition-colors hover:bg-muted"
+                >
+                  Reload preview
+                </button>
+                <a
+                  href={src}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline underline-offset-4 hover:text-foreground"
+                >
+                  Open in a new tab
+                </a>
+              </div>
+            )}
+            <iframe
+              key={frameKey}
+              ref={iframeRef}
+              src={src}
+              onLoad={handleLoad}
+              data-preview-frame="true"
+              className={cn(
+                "w-full border-0",
+                hasTallBlockPreview ? "h-[760px]" : "h-[450px]",
+                revealed ? "opacity-100" : "opacity-0"
+              )}
+              title={`${title} Live Preview`}
+            />
+          </>
         ) : (
           children ?? (
             <div className="flex flex-col items-center gap-2 text-center p-8">

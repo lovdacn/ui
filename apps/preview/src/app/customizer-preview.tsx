@@ -5,31 +5,18 @@ import {
   PreviewDesignSystemProvider,
 } from '@/components/design-system/preview-design-system';
 import { CustomizerDashboard } from '@/components/previews/customizer-dashboard';
-import type { PresetConfig } from '@/lib/generated/preset-catalog';
+import {
+  createPreviewChild,
+  getReferrerOrigin,
+  type PreviewChild,
+} from '@/lib/preview-protocol';
 import type { PreviewColorScheme } from '@/lib/preview-theme';
-
-const PRESET_MESSAGE = 'lvcn:preset';
-const READY_MESSAGE = 'lvcn:ready';
-const APPLIED_MESSAGE = 'lvcn:applied';
 
 type PreviewDesign = {
   preset?: string;
   colorScheme: PreviewColorScheme;
   revision: number;
 };
-
-function getParentOrigin() {
-  if (typeof document === 'undefined' || !document.referrer) return null;
-  try {
-    return new URL(document.referrer).origin;
-  } catch {
-    return null;
-  }
-}
-
-function postToParent(message: Record<string, unknown>) {
-  window.parent?.postMessage(message, getParentOrigin() ?? '*');
-}
 
 function readInitialDesign(systemColorScheme: string | null | undefined): PreviewDesign {
   const fallbackScheme: PreviewColorScheme = systemColorScheme === 'dark' ? 'dark' : 'light';
@@ -54,53 +41,53 @@ export default function CustomizerPreviewPage() {
   const [design, setDesign] = React.useState<PreviewDesign>(() =>
     readInitialDesign(systemColorScheme)
   );
+  const childRef = React.useRef<PreviewChild | null>(null);
 
+  // Session handshake with the customizer host. Readiness is answered as often as
+  // it is requested, so a dropped message costs one retry interval instead of a
+  // permanently transparent frame.
   React.useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    function onMessage(event: MessageEvent) {
-      if (event.source !== window.parent) return;
-      const parentOrigin = getParentOrigin();
-      if (parentOrigin && event.origin !== parentOrigin) return;
+    const child = createPreviewChild({
+      subscribe: (listener) => {
+        const onMessage = (event: MessageEvent) => listener(event);
+        window.addEventListener('message', onMessage);
+        return () => window.removeEventListener('message', onMessage);
+      },
+      getParent: () => (window.parent && window.parent !== window ? window.parent : null),
+      initialParentOrigin: getReferrerOrigin(
+        typeof document === 'undefined' ? null : document.referrer
+      ),
+      onPreset: (message) => {
+        setDesign({
+          preset: message.preset,
+          colorScheme: message.colorScheme,
+          // The host's revision is authoritative: it is what the host matches the
+          // `lvcn:applied` echo against before revealing the frame.
+          revision: message.revision,
+        });
+      },
+    });
 
-      const data = event.data as {
-        type?: string;
-        preset?: string;
-        colorScheme?: string;
-        revision?: number;
-      };
-      if (!data || data.type !== PRESET_MESSAGE) return;
-
-      setDesign((current) => ({
-        preset: typeof data.preset === 'string' ? data.preset : current.preset,
-        colorScheme:
-          data.colorScheme === 'dark' || data.colorScheme === 'light'
-            ? data.colorScheme
-            : current.colorScheme,
-        revision: typeof data.revision === 'number' ? data.revision : current.revision + 1,
-      }));
-    }
-
-    window.addEventListener('message', onMessage);
-    postToParent({ type: READY_MESSAGE });
-    return () => window.removeEventListener('message', onMessage);
+    childRef.current = child;
+    child.start();
+    return () => {
+      child.destroy();
+      if (childRef.current === child) childRef.current = null;
+    };
   }, []);
 
-  const handleApplied = React.useCallback(
-    ({ config, warnings }: { config: PresetConfig; warnings: readonly string[] }) => {
-      if (typeof window === 'undefined') return;
-      postToParent({
-        type: APPLIED_MESSAGE,
-        // Keep these three values exact: the parent reveals the frame only on a raw match.
-        preset: design.preset,
-        colorScheme: design.colorScheme,
-        revision: design.revision,
-        normalizedConfig: config,
-        warnings,
-      });
-    },
-    [design]
-  );
+  const handleApplied = React.useCallback(() => {
+    if (typeof window === 'undefined') return;
+    // Keep these three values exact: the host reveals the frame only on a raw
+    // match of revision, preset, and color scheme for the current session.
+    childRef.current?.postApplied({
+      revision: design.revision,
+      colorScheme: design.colorScheme,
+      preset: design.preset,
+    });
+  }, [design]);
 
   return (
     <PreviewDesignSystemProvider

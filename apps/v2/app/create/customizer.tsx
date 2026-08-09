@@ -60,6 +60,7 @@ const RadiusIcon = (
 import { useTheme } from "next-themes"
 import { cn } from "@/lib/utils"
 import { expoPreviewOrigin, getExpoCustomizerPreviewUrl } from "@/lib/preview"
+import { usePreviewHandshake } from "@/lib/use-preview-handshake"
 import { Picker } from "./picker"
 import {
   PRESET_STYLES,
@@ -122,7 +123,7 @@ function PreviewLoadingSkeleton() {
       aria-label="Loading preview"
     >
       {[0, 1, 2].map((column) => (
-        <div key={column} className="space-y-5 animate-pulse">
+        <div key={column} className="space-y-5 animate-pulse" data-preview-skeleton="true">
           {[0, 1, 2].map((card) => (
             <div key={card} className="rounded-xl border border-border/70 bg-card p-5 shadow-sm">
               <div className="h-4 w-2/5 rounded bg-muted" />
@@ -165,63 +166,29 @@ export function CreateCustomizer({ initialConfig }: { initialConfig: PresetConfi
   // Keep the first URL fully configured, like shadcn's preview route, but never
   // change it after mount. Live changes travel over postMessage so shuffle does
   // not reload the Expo application.
-  const initialPresetCode = React.useRef(encodePreset(initialConfig)).current
+  const [initialPresetCode] = React.useState(() => encodePreset(initialConfig))
   const webPreviewUrl = React.useMemo(
     () => getExpoCustomizerPreviewUrl({ preset: initialPresetCode }),
     [initialPresetCode]
   )
 
-  const previewRef = React.useRef<HTMLIFrameElement>(null)
-  const sentRevisionRef = React.useRef(0)
-  const latestSentRef = React.useRef({
-    revision: 0,
-    preset: presetCode,
+  const {
+    iframeRef: previewFrameRef,
+    frameKey: previewFrameKey,
+    revealed: previewVisible,
+    unreachable: previewUnreachable,
+    handleLoad: onPreviewLoad,
+    retry: retryPreview,
+  } = usePreviewHandshake({
+    src: webPreviewUrl,
+    childOrigin: expoPreviewOrigin,
     colorScheme,
+    preset: presetCode,
+    // The frame is revealed only after it echoes back the exact preset and color
+    // scheme with `lvcn:applied`, so a default-theme frame is never shown. The
+    // readiness timeout still reveals a recoverable state if that never happens.
+    requireConfirmation: true,
   })
-  const [readySignal, signalReady] = React.useReducer((count: number) => count + 1, 0)
-  const [previewVisible, setPreviewVisible] = React.useState(false)
-
-  // The frame acknowledges only after its layout effect has applied the exact
-  // preset and color scheme. This avoids revealing a default-theme frame.
-  React.useEffect(() => {
-    function onMessage(event: MessageEvent) {
-      if (event.source !== previewRef.current?.contentWindow) return
-      const data = event.data as {
-        type?: string
-        preset?: string
-        colorScheme?: string
-        revision?: number
-      }
-
-      if (data?.type === "lvcn:ready") {
-        signalReady()
-        return
-      }
-
-      if (data?.type !== "lvcn:applied") return
-      const expected = latestSentRef.current
-      if (
-        data.revision === expected.revision &&
-        data.preset === expected.preset &&
-        data.colorScheme === expected.colorScheme
-      ) {
-        setPreviewVisible(true)
-      }
-    }
-
-    window.addEventListener("message", onMessage)
-    return () => window.removeEventListener("message", onMessage)
-  }, [])
-
-  React.useEffect(() => {
-    if (readySignal === 0) return
-    const revision = ++sentRevisionRef.current
-    latestSentRef.current = { revision, preset: presetCode, colorScheme }
-    previewRef.current?.contentWindow?.postMessage(
-      { type: "lvcn:preset", preset: presetCode, colorScheme, revision },
-      expoPreviewOrigin
-    )
-  }, [readySignal, presetCode, colorScheme])
 
   const command = React.useMemo(() => {
     const runner = {
@@ -470,12 +437,29 @@ export function CreateCustomizer({ initialConfig }: { initialConfig: PresetConfi
             /* Desktop preview - iframe pinned to fill the container (overrides UA 150px height) */
             <div className="relative z-10 flex-1 min-h-0 overflow-hidden animate-in fade-in duration-300">
               {!previewVisible && <PreviewLoadingSkeleton />}
+              {previewUnreachable && (
+                <div
+                  className="absolute inset-x-0 top-0 z-20 flex flex-wrap items-center justify-center gap-3 border-b border-border bg-muted/85 px-4 py-2 text-xs text-muted-foreground backdrop-blur-sm"
+                  role="alert"
+                >
+                  <span>The preview did not confirm the current theme.</span>
+                  <button
+                    type="button"
+                    onClick={retryPreview}
+                    className="rounded-md border border-border bg-background px-2 py-1 text-[11px] font-medium text-foreground transition-colors hover:bg-muted"
+                  >
+                    Reload preview
+                  </button>
+                </div>
+              )}
               <iframe
-                ref={previewRef}
+                key={previewFrameKey}
+                ref={previewFrameRef}
                 src={webPreviewUrl}
-                onLoad={() => signalReady()}
+                onLoad={onPreviewLoad}
+                data-preview-frame="true"
                 className={cn(
-                  "absolute inset-0 h-full w-full border-0 select-none bg-background transition-opacity duration-300",
+                  "absolute inset-0 h-full w-full border-0 select-none bg-background",
                   previewVisible ? "opacity-100" : "opacity-0"
                 )}
                 title="Expo Web Preview"
