@@ -7,7 +7,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { PanelLeft } from 'lucide-react-native';
 import { Pressable, View } from '@/components/ui/primitives';
 import * as React from 'react';
-import { Animated, Platform, ScrollView, useWindowDimensions } from 'react-native';
+import { AccessibilityInfo, Animated, Platform, ScrollView, useWindowDimensions } from 'react-native';
 
 const SIDEBAR_WIDTH = 256;
 const SIDEBAR_WIDTH_MOBILE = 288;
@@ -171,6 +171,43 @@ function Sidebar({
   );
 }
 
+/**
+ * Core Animated does not inherit Reanimated's system reduced-motion policy.
+ * Treat the initial async preference as reduced so the first render never starts
+ * an unwanted transition, then keep the value current while mounted.
+ */
+function useReducedMotionPreference() {
+  const [reduceMotion, setReduceMotion] = React.useState<boolean | null>(null);
+
+  React.useEffect(() => {
+    let mounted = true;
+    let receivedEvent = false;
+
+    const subscription = AccessibilityInfo.addEventListener(
+      'reduceMotionChanged',
+      (enabled) => {
+        receivedEvent = true;
+        setReduceMotion(enabled);
+      }
+    );
+
+    void AccessibilityInfo.isReduceMotionEnabled()
+      .then((enabled) => {
+        if (mounted && !receivedEvent) setReduceMotion(enabled);
+      })
+      .catch(() => {
+        if (mounted && !receivedEvent) setReduceMotion(false);
+      });
+
+    return () => {
+      mounted = false;
+      subscription?.remove();
+    };
+  }, []);
+
+  return reduceMotion !== false;
+}
+
 /** Animates the desktop sidebar column width when collapsing/expanding. */
 function SidebarDesktop({
   width,
@@ -182,14 +219,25 @@ function SidebarDesktop({
   children: React.ReactNode;
 }) {
   const animated = React.useRef(new Animated.Value(width)).current;
+  const reduceMotion = useReducedMotionPreference();
 
   React.useEffect(() => {
-    Animated.timing(animated, {
+    animated.stopAnimation();
+
+    if (reduceMotion) {
+      animated.setValue(width);
+      return;
+    }
+
+    const transition = Animated.timing(animated, {
       toValue: width,
       duration: 200,
       useNativeDriver: false,
-    }).start();
-  }, [animated, width]);
+    });
+    transition.start();
+
+    return () => transition.stop();
+  }, [animated, reduceMotion, width]);
 
   return (
     <Animated.View style={{ width: animated, overflow: 'hidden' }}>
@@ -213,14 +261,26 @@ function SidebarDrawer({
   children: React.ReactNode;
 }) {
   const progress = React.useRef(new Animated.Value(open ? 1 : 0)).current;
+  const reduceMotion = useReducedMotionPreference();
 
   React.useEffect(() => {
-    Animated.timing(progress, {
-      toValue: open ? 1 : 0,
+    progress.stopAnimation();
+    const target = open ? 1 : 0;
+
+    if (reduceMotion) {
+      progress.setValue(target);
+      return;
+    }
+
+    const transition = Animated.timing(progress, {
+      toValue: target,
       duration: 220,
       useNativeDriver: true,
-    }).start();
-  }, [open, progress]);
+    });
+    transition.start();
+
+    return () => transition.stop();
+  }, [open, progress, reduceMotion]);
 
   const offscreen = side === 'left' ? -SIDEBAR_WIDTH_MOBILE : SIDEBAR_WIDTH_MOBILE;
   const translateX = progress.interpolate({ inputRange: [0, 1], outputRange: [offscreen, 0] });
