@@ -6,7 +6,18 @@ import { X } from 'lucide-react-native';
 import * as React from 'react';
 import { durations, Text, View } from '@/components/ui/primitives';
 import { Platform, type GestureResponderEvent, type ViewProps } from 'react-native';
-import { FadeIn, FadeOut, SlideInLeft, SlideInRight, SlideOutLeft, SlideOutRight } from 'react-native-reanimated';
+import {
+  FadeIn,
+  FadeOut,
+  SlideInDown,
+  SlideInLeft,
+  SlideInRight,
+  SlideInUp,
+  SlideOutDown,
+  SlideOutLeft,
+  SlideOutRight,
+  SlideOutUp,
+} from 'react-native-reanimated';
 import { FullWindowOverlay as RNFullWindowOverlay } from 'react-native-screens';
 
 const Sheet = DialogPrimitive.Root;
@@ -70,19 +81,19 @@ function SheetContent({
   children,
   ...props
 }: SheetContentProps) {
-  const enteringAnimation =
-    side === 'left'
-      ? SlideInLeft.duration(durations.slow)
-      : side === 'right'
-      ? SlideInRight.duration(durations.slow)
-      : undefined;
+  const enteringAnimation = {
+    left: SlideInLeft,
+    right: SlideInRight,
+    top: SlideInUp,
+    bottom: SlideInDown,
+  }[side].duration(durations.slow);
 
-  const exitingAnimation =
-    side === 'left'
-      ? SlideOutLeft.duration(durations.base)
-      : side === 'right'
-      ? SlideOutRight.duration(durations.base)
-      : undefined;
+  const exitingAnimation = {
+    left: SlideOutLeft,
+    right: SlideOutRight,
+    top: SlideOutUp,
+    bottom: SlideOutDown,
+  }[side].duration(durations.base);
 
   const sideStyles = {
     left: 'left-0 h-full border-r border-border max-w-sm w-4/5',

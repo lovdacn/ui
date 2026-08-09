@@ -135,6 +135,92 @@
   --selection-foreground: oklch(0.205 0 0);
 }
 
+/*
+ * Beta skin — the orange theme applies ONLY while beta is active. It is driven by
+ * a `beta` class on <html> (set before first paint, persisted in localStorage), so
+ * every page including the docs turns orange, and the default theme stays exactly
+ * as it is in production.
+ */
+.beta {
+  --primary: oklch(0.646 0.222 41.116); /* orange-600 */
+  --primary-foreground: oklch(0.985 0.01 73);
+  --secondary: oklch(0.968 0.016 75);
+  --secondary-foreground: oklch(0.408 0.123 38.172);
+  --muted: oklch(0.97 0.014 75);
+  --muted-foreground: oklch(0.53 0.07 45);
+  --accent: oklch(0.954 0.038 75.164); /* orange-100 */
+  --accent-foreground: oklch(0.408 0.123 38.172); /* orange-900 */
+  --border: oklch(0.9 0.045 72);
+  --input: oklch(0.9 0.045 72);
+  --ring: oklch(0.705 0.213 47.604); /* orange-500 */
+  --background: oklch(0.995 0.005 75);
+  --card: oklch(0.999 0.003 75);
+  --popover: oklch(0.999 0.003 75);
+  --surface: oklch(0.977 0.012 75);
+  --code-highlight: oklch(0.954 0.038 75.164);
+  --code-number: oklch(0.56 0.06 45);
+  --sidebar: oklch(0.985 0.012 75);
+  --sidebar-primary: oklch(0.646 0.222 41.116);
+  --sidebar-primary-foreground: oklch(0.985 0.01 73);
+  --sidebar-accent: oklch(0.954 0.038 75.164);
+  --sidebar-accent-foreground: oklch(0.408 0.123 38.172);
+  --sidebar-border: oklch(0.9 0.045 72);
+  --sidebar-ring: oklch(0.705 0.213 47.604);
+  --selection: oklch(0.705 0.213 47.604);
+  --selection-foreground: oklch(0.985 0.01 73);
+}
+
+.beta.dark {
+  --primary: oklch(0.75 0.183 55.934); /* orange-400 */
+  --primary-foreground: oklch(0.22 0.06 36);
+  --secondary: oklch(0.28 0.04 40);
+  --secondary-foreground: oklch(0.9 0.076 70.697);
+  --muted: oklch(0.28 0.04 40);
+  --muted-foreground: oklch(0.74 0.065 60);
+  --accent: oklch(0.35 0.09 38);
+  --accent-foreground: oklch(0.9 0.076 70.697);
+  --border: oklch(0.75 0.183 55.934 / 16%);
+  --input: oklch(0.75 0.183 55.934 / 22%);
+  --ring: oklch(0.705 0.213 47.604);
+  --background: oklch(0.15 0.012 40);
+  --card: oklch(0.21 0.02 40);
+  --popover: oklch(0.21 0.02 40);
+  --surface: oklch(0.21 0.02 40);
+  --surface-foreground: oklch(0.74 0.065 60);
+  --code-highlight: oklch(0.28 0.04 40);
+  --code-number: oklch(0.78 0.06 60);
+  --sidebar: oklch(0.2 0.018 40);
+  --sidebar-primary: oklch(0.75 0.183 55.934);
+  --sidebar-primary-foreground: oklch(0.22 0.06 36);
+  --sidebar-accent: oklch(0.3 0.055 40);
+  --sidebar-accent-foreground: oklch(0.9 0.076 70.697);
+  --sidebar-border: oklch(0.75 0.183 55.934 / 16%);
+  --sidebar-ring: oklch(0.705 0.213 47.604);
+  --selection: oklch(0.75 0.183 55.934);
+  --selection-foreground: oklch(0.22 0.06 36);
+}
+
+/*
+ * Theme switch motion: every colour cross-fades into the new theme while the dot
+ * sweep travels, so the change lands with the animation instead of snapping on
+ * click. The class is added and removed by lib/beta.ts, so the cost of the
+ * universal selector is bounded to the transition.
+ */
+.theme-morph,
+.theme-morph *:not(canvas) {
+  transition-property: background-color, border-color, color, fill, stroke,
+    box-shadow, text-decoration-color, outline-color;
+  transition-duration: 900ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-morph,
+  .theme-morph *:not(canvas) {
+    transition-duration: 0ms;
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -257,4 +343,48 @@
 
 .docs-prose strong {
   @apply font-semibold;
+}
+
+/*
+ * Live preview frames — see lib/preview-protocol.ts.
+ *
+ * The reveal fade is decorative. The frame's opacity is driven by the readiness
+ * handshake, which also reveals on timeout, so the element is never left
+ * transparent. Declaring the transition here instead of as a utility on the
+ * element keeps a single place to neutralise it for reduced motion.
+ */
+[data-preview-frame] {
+  transition-property: opacity;
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /*
+   * Reduced motion removes the animation, never the state change: opacity still
+   * goes from 0 to 1, it just arrives immediately. Rules stay scoped to
+   * decorative motion — focus rings, hover colour feedback and open/close state
+   * are intentionally left alone.
+   */
+  [data-preview-frame] {
+    transition-duration: 0ms;
+  }
+
+  /* Viewport switcher width easing in the block gallery. */
+  [data-preview-viewport] {
+    transition-duration: 0ms;
+  }
+
+  /* Decorative entrances/exits (tw-animate-css) land on their end state at once. */
+  .animate-in,
+  .animate-out {
+    animation-duration: 1ms;
+    animation-delay: 0ms;
+  }
+
+  /* Loading placeholders stay visible; they only stop pulsing. */
+  [data-preview-skeleton],
+  .animate-pulse {
+    animation: none;
+  }
 }

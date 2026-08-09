@@ -13,6 +13,7 @@ function Avatar({
   activeAnimate,
   motionActive,
   reduceMotion,
+  children,
   ...props
 }: React.ComponentProps<typeof AvatarPrimitive.Root> & SharedAnimationProps) {
   const rootProps = {
@@ -23,17 +24,20 @@ function Avatar({
   // Primitive-owned host: motion is attached with `asChild` (one host, no extra node) and
   // only when requested, so default rendering is untouched.
   if (!hasMotionProps({ animate, activeAnimate, motionActive })) {
-    return <AvatarPrimitive.Root {...rootProps} />;
+    return <AvatarPrimitive.Root {...rootProps}>{children}</AvatarPrimitive.Root>;
   }
 
+  // `asChild` replaces the primitive's host, so children must be handed to the animated host
+  // explicitly — a JSX child always wins over a spread `children` prop.
   return (
     <AvatarPrimitive.Root {...rootProps} asChild>
       <View
         animate={animate}
         activeAnimate={activeAnimate}
         motionActive={motionActive}
-        reduceMotion={reduceMotion}
-      />
+        reduceMotion={reduceMotion}>
+        {children}
+      </View>
     </AvatarPrimitive.Root>
   );
 }
@@ -51,6 +55,7 @@ function AvatarFallback({
   activeAnimate,
   motionActive,
   reduceMotion,
+  children,
   ...props
 }: React.ComponentProps<typeof AvatarPrimitive.Fallback> & SharedAnimationProps) {
   const fallbackProps = {
@@ -62,7 +67,7 @@ function AvatarFallback({
   };
 
   if (!hasMotionProps({ animate, activeAnimate, motionActive })) {
-    return <AvatarPrimitive.Fallback {...fallbackProps} />;
+    return <AvatarPrimitive.Fallback {...fallbackProps}>{children}</AvatarPrimitive.Fallback>;
   }
 
   return (
@@ -71,8 +76,9 @@ function AvatarFallback({
         animate={animate}
         activeAnimate={activeAnimate}
         motionActive={motionActive}
-        reduceMotion={reduceMotion}
-      />
+        reduceMotion={reduceMotion}>
+        {children}
+      </View>
     </AvatarPrimitive.Fallback>
   );
 }

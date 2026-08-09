@@ -2,13 +2,14 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { MenuIcon, XIcon, Plus, Star, ExternalLink } from "lucide-react"
+import { MenuIcon, XIcon, Plus, Star, ExternalLink, Sparkles } from "lucide-react"
 import * as React from "react"
 
 import Image from "next/image"
 
 import { siteConfig } from "@/lib/config"
 import { cn } from "@/lib/utils"
+import { toggleBeta, useBeta } from "@/lib/beta"
 import { ModeSwitcher } from "@/components/mode-switcher"
 import { buttonVariants } from "@/components/ui/button"
 
@@ -41,6 +42,7 @@ function formatStars(count: number): string {
 
 export function SiteHeader() {
   const pathname = usePathname()
+  const beta = useBeta()
   const [open, setOpen] = React.useState(false)
   const [stars, setStars] = React.useState<number | null>(null)
 
@@ -99,6 +101,26 @@ export function SiteHeader() {
           </nav>
 
           <div className="ml-auto flex items-center gap-1.5">
+            <button
+              type="button"
+              aria-pressed={beta}
+              onClick={toggleBeta}
+              className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1.5 text-xs font-semibold text-orange-600 dark:text-orange-400 hover:bg-orange-500/20 transition-all active:scale-95 cursor-pointer shadow-xs"
+              title={
+                beta
+                  ? "Beta mode is on — click to go back to the default theme"
+                  : "Turn on Beta mode (orange theme across the site)"
+              }
+            >
+              <span className="relative flex h-2 w-2">
+                {beta && (
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                )}
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+              </span>
+              <Sparkles className="size-3 text-orange-500" />
+              <span>Beta</span>
+            </button>
 
             <Link
               href={siteConfig.links.github}

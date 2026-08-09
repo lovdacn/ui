@@ -23,6 +23,8 @@ const ICON_LOADERS = {
   lucide: async () => lucideIconAdapter,
   phosphor: async () => (await import('./icons/phosphor')).phosphorIconAdapter,
   tabler: async () => (await import('./icons/tabler')).tablerIconAdapter,
+  expo: async () => (await import('./icons/expo')).expoIconAdapter,
+  heroicons: async () => (await import('./icons/heroicons')).heroiconsIconAdapter,
 } as const;
 
 type PreviewDesignSystemValue = {

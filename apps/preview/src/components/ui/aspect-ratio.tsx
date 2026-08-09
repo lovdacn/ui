@@ -6,6 +6,7 @@ function AspectRatio({
   activeAnimate,
   motionActive,
   reduceMotion,
+  children,
   ...props
 }: React.ComponentProps<typeof AspectRatioPrimitive.Root> & SharedAnimationProps) {
   // Primitive-owned host: attach motion with `asChild` (no extra layout node), and only
@@ -14,17 +15,20 @@ function AspectRatio({
     animate !== undefined || activeAnimate !== undefined || motionActive !== undefined;
 
   if (!hasMotion) {
-    return <AspectRatioPrimitive.Root {...props} />;
+    return <AspectRatioPrimitive.Root {...props}>{children}</AspectRatioPrimitive.Root>;
   }
 
+  // `asChild` replaces the primitive's host, so children must be handed to the animated host
+  // explicitly — a JSX child always wins over a spread `children` prop.
   return (
     <AspectRatioPrimitive.Root {...props} asChild>
       <View
         animate={animate}
         activeAnimate={activeAnimate}
         motionActive={motionActive}
-        reduceMotion={reduceMotion}
-      />
+        reduceMotion={reduceMotion}>
+        {children}
+      </View>
     </AspectRatioPrimitive.Root>
   );
 }

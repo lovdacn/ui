@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { View } from '@/components/ui/primitives';
-import { ActivityIndicator, Platform } from 'react-native';
+import { ActivityIndicator } from 'react-native';
 import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react-native';
 import Animated, {
+  cancelAnimation,
   useAnimatedStyle,
   useSharedValue,
   withRepeat,
@@ -18,6 +19,24 @@ interface SpinnerProps extends React.ComponentPropsWithoutRef<typeof View> {
 }
 
 function Spinner({ className, size = 'small', color, nativeOnly = false, ref, ...props }: SpinnerProps & { ref?: React.Ref<View> }) {
+  if (nativeOnly) {
+    return (
+      <View ref={ref} className={cn('items-center justify-center', className)} {...props}>
+        <ActivityIndicator size={typeof size === 'number' ? 'small' : size} color={color} />
+      </View>
+    );
+  }
+
+  const iconSize = typeof size === 'number' ? size : size === 'large' ? 36 : 24;
+
+  return (
+    <View ref={ref} className={cn('items-center justify-center', className)} {...props}>
+      <AnimatedSpinnerIcon size={iconSize} color={color} />
+    </View>
+  );
+}
+
+function AnimatedSpinnerIcon({ size, color }: { size: number; color?: string }) {
   const rotation = useSharedValue(0);
 
   React.useEffect(() => {
@@ -29,30 +48,21 @@ function Spinner({ className, size = 'small', color, nativeOnly = false, ref, ..
       -1,
       false
     );
+
+    return () => {
+      cancelAnimation(rotation);
+      rotation.value = 0;
+    };
   }, [rotation]);
 
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ rotate: `${rotation.value}deg` }],
-    };
-  });
-
-  const iconSize = typeof size === 'number' ? size : size === 'large' ? 36 : 24;
-
-  if (nativeOnly) {
-    return (
-      <View ref={ref} className={cn('items-center justify-center', className)} {...props}>
-        <ActivityIndicator size={typeof size === 'number' ? 'small' : size} color={color} />
-      </View>
-    );
-  }
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${rotation.value}deg` }],
+  }));
 
   return (
-    <View ref={ref} className={cn('items-center justify-center', className)} {...props}>
-      <Animated.View style={animatedStyle}>
-        <Loader2 size={iconSize} color={color} className="text-primary" />
-      </Animated.View>
-    </View>
+    <Animated.View style={animatedStyle}>
+      <Loader2 size={size} color={color} className="text-primary" />
+    </Animated.View>
   );
 }
 

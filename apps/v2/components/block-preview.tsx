@@ -13,6 +13,7 @@ import {
 
 import type { BlockMeta } from "@/lib/blocks"
 import { expoPreviewOrigin, getExpoPreviewUrl } from "@/lib/preview"
+import { usePreviewHandshake } from "@/lib/use-preview-handshake"
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard"
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
@@ -28,16 +29,15 @@ type ViewportKey = (typeof VIEWPORTS)[number]["key"]
 /**
  * A single block entry for the gallery — a shadcn-style "view" of the block: a
  * header, a full-length install command, and a live Expo Web preview embedded
- * via an iframe (the preview app). The presenter posts `lvcn:ready`, we reply
- * with the active `colorScheme` via `lvcn:preset` so toggling dark mode never
- * reloads the frame.
+ * via an iframe (the preview app). Readiness uses the session handshake in
+ * `lib/preview-protocol.ts`, so a lost `lvcn:ready` costs one retry interval
+ * instead of leaving the frame permanently transparent, and the active
+ * `colorScheme` travels over `lvcn:preset` so toggling dark mode never reloads.
  */
 export function BlockPreview({ block }: { block: BlockMeta }) {
   const { name, title, description } = block
   const { resolvedTheme } = useTheme()
   const [viewport, setViewport] = React.useState<ViewportKey>("desktop")
-  const [readySrc, setReadySrc] = React.useState<string | null>(null)
-  const iframeRef = React.useRef<HTMLIFrameElement>(null)
   const { isCopied, copyToClipboard } = useCopyToClipboard()
 
   const installCommand = `npx lovdacn@latest add ${name}`
@@ -47,11 +47,10 @@ export function BlockPreview({ block }: { block: BlockMeta }) {
     () => getExpoPreviewUrl({ component: name, chrome: "web" }),
     [name]
   )
-  const ready = readySrc === src
   const width = VIEWPORTS.find((v) => v.key === viewport)?.width ?? "100%"
 
-  const colorScheme = React.useMemo(() => {
-    if (resolvedTheme) return resolvedTheme
+  const colorScheme = React.useMemo<"light" | "dark">(() => {
+    if (resolvedTheme === "dark" || resolvedTheme === "light") return resolvedTheme
     if (typeof window !== "undefined") {
       return window.matchMedia("(prefers-color-scheme: dark)").matches
         ? "dark"
@@ -60,26 +59,8 @@ export function BlockPreview({ block }: { block: BlockMeta }) {
     return "light"
   }, [resolvedTheme])
 
-  // Only trust the "ready" ping from this card's own iframe.
-  React.useEffect(() => {
-    function onMessage(e: MessageEvent) {
-      if (e.source !== iframeRef.current?.contentWindow) return
-      if ((e.data as { type?: string })?.type === "lvcn:ready") {
-        setReadySrc(src)
-      }
-    }
-    window.addEventListener("message", onMessage)
-    return () => window.removeEventListener("message", onMessage)
-  }, [src])
-
-  // Push the color scheme once the presenter is ready, and whenever it changes.
-  React.useEffect(() => {
-    if (!ready) return
-    iframeRef.current?.contentWindow?.postMessage(
-      { type: "lvcn:preset", colorScheme },
-      expoPreviewOrigin
-    )
-  }, [ready, colorScheme])
+  const { iframeRef, frameKey, revealed, pending, unreachable, handleLoad, retry } =
+    usePreviewHandshake({ src, childOrigin: expoPreviewOrigin, colorScheme })
 
   return (
     <section id={name} className="flex scroll-mt-24 flex-col gap-4">
@@ -150,23 +131,55 @@ export function BlockPreview({ block }: { block: BlockMeta }) {
       </div>
 
       <div className="relative w-full overflow-hidden rounded-xl border border-border bg-background shadow-sm">
-        {!ready && (
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-muted/5 text-sm text-muted-foreground">
+        {pending && !unreachable && (
+          <div
+            className="pointer-events-none absolute inset-0 flex items-center justify-center bg-muted/5 text-sm text-muted-foreground"
+            role="status"
+          >
             Loading preview…
+          </div>
+        )}
+        {unreachable && (
+          <div
+            className="absolute inset-x-0 top-0 z-10 flex flex-wrap items-center justify-center gap-3 border-b border-border bg-muted/80 px-4 py-2 text-sm text-muted-foreground backdrop-blur-sm"
+            role="alert"
+          >
+            <span>The live preview did not respond.</span>
+            <button
+              type="button"
+              onClick={retry}
+              className={cn(buttonVariants({ variant: "outline", size: "sm" }), "h-7")}
+            >
+              Reload preview
+            </button>
+            <a
+              href={src}
+              target="_blank"
+              rel="noreferrer"
+              className="underline underline-offset-4 hover:text-foreground"
+            >
+              Open in a new tab
+            </a>
           </div>
         )}
         <div
           className="mx-auto transition-[max-width] duration-300 ease-in-out"
+          data-preview-viewport="true"
           style={{ maxWidth: width }}
         >
           <iframe
+            key={frameKey}
             ref={iframeRef}
             src={src}
+            onLoad={handleLoad}
+            data-preview-frame="true"
             title={`${title} preview`}
             className={cn(
-              "w-full border-0 bg-background transition-opacity duration-300",
+              "w-full border-0 bg-background",
               block.category === "Login" || block.category === "Signup" ? "h-[720px]" : "h-[600px]",
-              ready ? "opacity-100" : "opacity-0"
+              // Fail open: `revealed` is also true after the readiness timeout, so
+              // a loaded frame is never left transparent.
+              revealed ? "opacity-100" : "opacity-0"
             )}
           />
         </div>

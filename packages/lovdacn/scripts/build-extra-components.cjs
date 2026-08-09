@@ -145,51 +145,63 @@ function resolveFiles(comp, engine) {
   });
 }
 
+function createRegistryItem(comp, engine, style) {
+  const fileDescriptors = resolveFiles(comp, engine);
+  const missing = fileDescriptors.filter((file) => !fs.existsSync(file.srcPath));
+
+  if (missing.length > 0) {
+    throw new Error(
+      `Missing ${comp.name} source: ${missing.map((file) => file.srcPath).join(', ')}`
+    );
+  }
+
+  const files = fileDescriptors.map((file) => ({
+    path: file.path,
+    content: normalizeContent(fs.readFileSync(file.srcPath, 'utf8')),
+    type: 'registry:ui',
+  }));
+
+  const usesSemanticIcons = files.some((file) =>
+    file.content.includes('@/components/ui/semantic-icon')
+  );
+  const dependencies = comp.dependencies.filter(
+    (dependency) => dependency !== 'lucide-react-native'
+  );
+  const registryDependencies = usesSemanticIcons
+    ? [...new Set(['semantic-icon', ...comp.registryDependencies])]
+    : comp.registryDependencies;
+
+  return {
+    $schema: SCHEMA,
+    name: comp.name,
+    dependencies,
+    registryDependencies,
+    files,
+    meta: {
+      engine,
+      style,
+      legacy: Object.prototype.hasOwnProperty.call(DESIGN_ALIASES.styles, style),
+    },
+    type: 'registry:ui',
+  };
+}
+
 function buildExtraComponents() {
   let written = 0;
 
   for (const engine of ENGINES) {
     for (const comp of COMPONENTS) {
-      const fileDescriptors = resolveFiles(comp, engine);
-
-      const missing = fileDescriptors.filter((f) => !fs.existsSync(f.srcPath));
-      if (missing.length > 0) {
-        console.warn(`⚠  Missing ${comp.name} source: ${missing.map((m) => m.srcPath).join(', ')}`);
-        continue;
-      }
-
-      const files = fileDescriptors.map((f) => ({
-        path: f.path,
-        content: normalizeContent(fs.readFileSync(f.srcPath, 'utf8')),
-        type: 'registry:ui',
-      }));
-
-      const usesSemanticIcons = files.some((file) =>
-        file.content.includes('@/components/ui/semantic-icon')
-      );
-      const dependencies = comp.dependencies.filter((dependency) => dependency !== 'lucide-react-native');
-      const registryDependencies = usesSemanticIcons
-        ? [...new Set(['semantic-icon', ...comp.registryDependencies])]
-        : comp.registryDependencies;
-
       for (const style of STYLES) {
+        let item;
+        try {
+          item = createRegistryItem(comp, engine, style);
+        } catch (error) {
+          console.warn(`⚠  ${error.message}`);
+          break;
+        }
+
         const destDir = path.join(DEST_REGISTRY, engine, style);
         fs.ensureDirSync(destDir);
-
-        const item = {
-          $schema: SCHEMA,
-          name: comp.name,
-          dependencies,
-          registryDependencies,
-          files,
-          meta: {
-            engine,
-            style,
-            legacy: Object.prototype.hasOwnProperty.call(DESIGN_ALIASES.styles, style),
-          },
-          type: 'registry:ui',
-        };
-
         fs.writeJsonSync(path.join(destDir, `${comp.name}.json`), item, { spaces: 2 });
         written++;
       }
@@ -202,7 +214,15 @@ function buildExtraComponents() {
   );
 }
 
-module.exports = { buildExtraComponents };
+module.exports = {
+  buildExtraComponents,
+  createRegistryItem,
+  normalizeContent,
+  resolveFiles,
+  COMPONENTS,
+  ENGINES,
+  STYLES,
+};
 
 if (require.main === module) {
   console.log('Building lovda extra component registry...\n');

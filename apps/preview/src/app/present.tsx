@@ -5,6 +5,7 @@ import { PortalHost } from '@rn-primitives/portal';
 import { useLocalSearchParams, Link } from 'expo-router';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { cn } from '@/lib/utils';
+import { createPreviewChild, getReferrerOrigin } from '@/lib/preview-protocol';
 
 // Component imports
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -1527,8 +1528,6 @@ const StatusBar = () => {
   );
 };
 
-const PREVIEW_MESSAGE = 'lvcn:preset';
-
 function PresentPageContent() {
   const params = useLocalSearchParams<{
     component: string;
@@ -1563,24 +1562,32 @@ function PresentPageContent() {
   );
   const [showPicker, setShowPicker] = React.useState(false);
 
-  // Listen for live preset updates from the parent (no reload), reveal the dev
-  // picker only on a top-level window, and tell the parent we're mounted.
+  // Speak the session handshake with the embedding host: answer every
+  // `lvcn:ready-request`, retry our own `lvcn:ready` until acknowledged, and
+  // apply session-scoped `lvcn:preset` updates without reloading. Also reveal the
+  // dev picker only on a top-level window.
   React.useEffect(() => {
     if (typeof window === 'undefined') return;
-    function onMessage(e: MessageEvent) {
-      const data = e.data as { type?: string; preset?: string; colorScheme?: string };
-      if (!data || data.type !== PREVIEW_MESSAGE) return;
-      if (typeof data.preset === 'string') setPreset(data.preset);
-      if (data.colorScheme === 'dark' || data.colorScheme === 'light') setActiveColorScheme(data.colorScheme);
-    }
-    window.addEventListener('message', onMessage);
     if (window.self === window.top) setShowPicker(true);
-    try {
-      window.parent?.postMessage({ type: 'lvcn:ready' }, '*');
-    } catch {
-      // ignore cross-origin restrictions
-    }
-    return () => window.removeEventListener('message', onMessage);
+
+    const child = createPreviewChild({
+      subscribe: (listener) => {
+        const onMessage = (event: MessageEvent) => listener(event);
+        window.addEventListener('message', onMessage);
+        return () => window.removeEventListener('message', onMessage);
+      },
+      getParent: () => (window.parent && window.parent !== window ? window.parent : null),
+      initialParentOrigin: getReferrerOrigin(
+        typeof document === 'undefined' ? null : document.referrer
+      ),
+      onPreset: (message) => {
+        if (typeof message.preset === 'string') setPreset(message.preset);
+        setActiveColorScheme(message.colorScheme);
+      },
+    });
+
+    child.start();
+    return () => child.destroy();
   }, []);
 
   React.useLayoutEffect(() => {

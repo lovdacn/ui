@@ -6,6 +6,7 @@ import { COMPONENTS } from "@/lib/components"
 import { PageHeader } from "@/components/page-header"
 import { siteConfig } from "@/lib/config"
 import { cn } from "@/lib/utils"
+import { VenomCanvas } from "@/components/venom-canvas"
 
 const title = "lovdaCN - The UI Toolkit for React Native & Expo"
 const description =
@@ -37,6 +38,11 @@ export default function IndexPage() {
     <div className="flex flex-1 flex-col">
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-b from-transparent to-muted/20 dark:from-muted/20 dark:to-transparent">
+        {/* Transition layer: sweeps the dot field and eases the whole page into
+            the orange beta theme. Triggered from the Beta button in the header.
+            Purely additive — sits behind the existing decorative gradients and
+            the hero content. */}
+        <VenomCanvas className="-z-[5]" />
         <div className="container-wrapper">
           <div className="container flex flex-col items-center gap-2 px-6 pt-3 pb-8 text-center md:pt-6 md:pb-12 lg:pt-8 lg:pb-16 xl:gap-3">
             {/* Decorative background grid and gradient */}
@@ -65,7 +71,10 @@ export default function IndexPage() {
               <span>shadcn-style</span>
             </div>
 
-            <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground mb-4 max-w-2xl leading-tight">
+            <h1
+              data-hero-protect
+              className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground mb-4 max-w-2xl leading-tight"
+            >
               The UI Toolkit for <br className="hidden sm:block" />
               <span className="bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/60 dark:from-white dark:to-zinc-400">
                 React Native
@@ -79,7 +88,7 @@ export default function IndexPage() {
             <div className="flex flex-col sm:flex-row gap-3.5 w-full sm:w-auto justify-center">
               <Link
                 href="/create"
-                className="inline-flex items-center justify-center gap-2 bg-foreground hover:opacity-90 text-background font-semibold px-5 py-2.5 rounded-full text-sm transition-all group shadow-lg"
+                className="inline-flex items-center justify-center gap-2 bg-primary hover:opacity-90 text-primary-foreground font-semibold px-5 py-2.5 rounded-full text-sm transition-all group shadow-lg"
               >
                 Get Started
                 <ArrowRightIcon className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />

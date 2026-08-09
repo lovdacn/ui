@@ -358,6 +358,73 @@ export default function Layout() {
     )
   })
 
+  it("resolves semantic icons for expo (@expo/vector-icons)", async () => {
+    const lvcnConfig = {
+      $schema: "https://lovdacn.vercel.app/schema.json",
+      style: "nova",
+      baseColor: "zinc",
+      theme: "blue",
+      chartColor: "blue",
+      font: "inter",
+      iconLibrary: "expo",
+      radius: "medium",
+      styleEngine: "nativewind",
+      tsx: true,
+      tailwind: { config: "tailwind.config.js", css: "global.css" },
+      aliases: {
+        components: "@/components",
+        utils: "@/lib/utils",
+        ui: "@/components/ui",
+      },
+      components: [],
+    }
+    await writeFile(path.join(tempCwd, "lvcn.json"), JSON.stringify(lvcnConfig, null, 2), "utf8")
+
+    await runAdd({ components: ["semantic-icon"], cwd: tempCwd, yes: true, overwrite: true })
+
+    const adapter = await readFile(path.join(tempCwd, "components/ui/semantic-icon.tsx"), "utf8")
+    expect(adapter).toContain('from "@expo/vector-icons"')
+    expect(adapter).toContain("createExpoSemanticIcon")
+    expect(execa).toHaveBeenCalledWith(
+      expect.any(String),
+      ["install", "@expo/vector-icons@15.0.3", "react-native-svg"],
+      { cwd: tempCwd, stdio: "inherit" }
+    )
+  })
+
+  it("resolves semantic icons for heroicons (react-native-heroicons)", async () => {
+    const lvcnConfig = {
+      $schema: "https://lovdacn.vercel.app/schema.json",
+      style: "rhea",
+      baseColor: "stone",
+      theme: "amber",
+      chartColor: "orange",
+      font: "inter",
+      iconLibrary: "heroicons",
+      radius: "medium",
+      styleEngine: "nativewind",
+      tsx: true,
+      tailwind: { config: "tailwind.config.js", css: "global.css" },
+      aliases: {
+        components: "@/components",
+        utils: "@/lib/utils",
+        ui: "@/components/ui",
+      },
+      components: [],
+    }
+    await writeFile(path.join(tempCwd, "lvcn.json"), JSON.stringify(lvcnConfig, null, 2), "utf8")
+
+    await runAdd({ components: ["semantic-icon"], cwd: tempCwd, yes: true, overwrite: true })
+
+    const adapter = await readFile(path.join(tempCwd, "components/ui/semantic-icon.tsx"), "utf8")
+    expect(adapter).toContain('from "react-native-heroicons/outline"')
+    expect(execa).toHaveBeenCalledWith(
+      expect.any(String),
+      ["install", "react-native-heroicons@4.0.0", "react-native-svg"],
+      { cwd: tempCwd, stdio: "inherit" }
+    )
+  })
+
   it("should install a block as Expo Router routes via file `target`", async () => {
     const lvcnConfig = {
       $schema: "https://lovdacn.vercel.app/schema.json",
@@ -536,5 +603,31 @@ export default function Layout() {
       const upgraded = await readFile(path.join(tempCwd, "components/ui/primitives.tsx"), "utf8")
       expect(upgraded).toContain("MOTION_PRIMITIVES")
     })
+  })
+
+  it("should resolve components requiring semantic-icon when styleEngine is uniwind and iconLibrary is omitted", async () => {
+    const lvcnConfig = {
+      $schema: "https://lovdacn.vercel.app/schema.json",
+      style: "mira",
+      styleEngine: "uniwind",
+      tsx: true,
+      aliases: {
+        components: "@/components",
+        utils: "@/lib/utils",
+        ui: "@/components/ui",
+      },
+      components: [],
+    }
+    await writeFile(path.join(tempCwd, "lvcn.json"), JSON.stringify(lvcnConfig, null, 2), "utf8")
+
+    await runAdd({
+      components: ["accordion"],
+      cwd: tempCwd,
+      yes: true,
+      overwrite: false,
+    })
+
+    expect(fs.existsSync(path.join(tempCwd, "components/ui/accordion.tsx"))).toBe(true)
+    expect(fs.existsSync(path.join(tempCwd, "components/ui/semantic-icon.tsx"))).toBe(true)
   })
 })

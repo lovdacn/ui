@@ -58,7 +58,7 @@ function validateSources() {
   const activeFonts = Object.keys(fontManifest);
   for (const [label, values, expected] of [
     ['style', activeStyles, ['luma', 'lyra', 'maia', 'mira', 'nova', 'rhea', 'sera', 'vega']],
-    ['icon library', activeIcons, ['lucide', 'phosphor', 'tabler']],
+    ['icon library', activeIcons, ['lucide', 'phosphor', 'tabler', 'expo', 'heroicons']],
     // Every historical v1 font is directly supported, so the active catalog must match
     // the immutable wire order exactly — no font may be aliased away.
     ['font', activeFonts, wireValues('font')],
@@ -415,14 +415,62 @@ export function getCustomizerRecipe(style: PresetStyle): CustomizerRecipe {
 
 function createPreviewIconAdapterSource(library) {
   const packageName = iconManifest.libraries[library].package;
+  if (library === 'expo') {
+    const families = [...new Set(Object.values(iconManifest.icons).map((icon) => icon.expo.split(':')[0]))];
+    const imports = `import { ${families.join(', ')} } from "@expo/vector-icons"`;
+    const map = Object.fromEntries(
+      Object.entries(iconManifest.icons).map(([key, icon]) => {
+        const [family, glyphName] = icon.expo.split(':');
+        return [key, `{ IconSet: ${family}, name: ${JSON.stringify(glyphName)} }`];
+      })
+    );
+    const mapLines = Object.entries(map).map(([key, val]) => `  ${JSON.stringify(key)}: ${val},`).join('\n');
+    return `${GENERATED_HEADER}
+${imports}
+import * as React from 'react'
+
+import type { IconAdapter } from '../semantic-icon-types'
+
+const GLYPHS = {
+${mapLines}
+} as const
+
+export const expoIconAdapter: IconAdapter = ({
+  name,
+  size,
+  color,
+  className,
+  accessibilityLabel,
+  decorative,
+}) => {
+  const entry = GLYPHS[name]
+  if (!entry) return null
+  const { IconSet, name: iconName } = entry
+  return (
+    <IconSet
+      name={iconName as any}
+      size={size}
+      color={color}
+      className={className}
+      accessibilityLabel={decorative ? undefined : accessibilityLabel}
+      aria-hidden={decorative}
+      accessibilityElementsHidden={decorative}
+      importantForAccessibility={decorative ? 'no-hide-descendants' : 'auto'}
+    />
+  )
+}
+`;
+  }
+
   const glyphs = [...new Set(Object.values(iconManifest.icons).map((icon) => icon[library]))];
+  const importPkg = library === 'heroicons' ? 'react-native-heroicons/outline' : packageName;
   const imports = library === 'tabler'
     ? glyphs
-      .map((glyph) => '// @ts-expect-error @tabler/icons-react-native@3.46.0 publishes deep declarations one directory too low\nimport Glyph' + glyph + ' from ' + JSON.stringify(packageName + '/' + glyph))
+      .map((glyph) => '// @ts-expect-error @tabler/icons-react-native@3.46.0 publishes deep declarations one directory too low\nimport Glyph' + glyph + ' from ' + JSON.stringify(importPkg + '/' + glyph))
       .join('\n')
     : `import {
   ${glyphs.map((glyph) => `${glyph} as Glyph${glyph}`).join(',\n  ')},
-} from ${JSON.stringify(packageName)}`;
+} from ${JSON.stringify(importPkg)}`;
   const map = Object.fromEntries(
     Object.entries(iconManifest.icons).map(([key, icon]) => [key, `Glyph${icon[library]}`])
   );
@@ -430,6 +478,7 @@ function createPreviewIconAdapterSource(library) {
   let renderProps = 'size={size} color={color} strokeWidth={strokeWidth}';
   if (library === 'phosphor') renderProps = 'size={size} color={color} weight={weight}';
   if (library === 'tabler') renderProps = 'size={size} color={color} strokeWidth={strokeWidth}';
+  if (library === 'heroicons') renderProps = 'size={size} color={color} strokeWidth={strokeWidth}';
   return `${GENERATED_HEADER}
 ${imports}
 import * as React from 'react'
@@ -504,18 +553,68 @@ export function loadPreviewFont(font: PresetFont): Promise<LoadedFontFaces> {
 
 function createRegistryIconSource(library) {
   const packageName = iconManifest.libraries[library].package;
+  const accessibility = "accessibilityLabel={decorative ? undefined : accessibilityLabel} aria-hidden={decorative} accessibilityElementsHidden={decorative} importantForAccessibility={decorative ? 'no-hide-descendants' : 'auto'}";
+
+  if (library === 'expo') {
+    const families = [...new Set(Object.values(iconManifest.icons).map((icon) => icon.expo.split(':')[0]))];
+    const imports = `import { ${families.join(', ')} } from "@expo/vector-icons";`;
+    const exports = Object.values(iconManifest.icons)
+      .map((icon) => {
+        const [family, glyphName] = icon.expo.split(':');
+        return `export const ${icon.export} = createExpoSemanticIcon(${family}, ${JSON.stringify(glyphName)}, ${JSON.stringify(icon.export)});`;
+      })
+      .join('\n');
+
+    return `${imports}
+import * as React from 'react';
+
+export type SemanticIconProps = {
+  size?: number;
+  color?: string;
+  className?: string;
+  strokeWidth?: number;
+  weight?: 'thin' | 'light' | 'regular' | 'bold' | 'fill' | 'duotone';
+  accessibilityLabel?: string;
+  decorative?: boolean;
+  [key: string]: unknown;
+};
+export type SemanticIconComponent = React.ComponentType<SemanticIconProps>;
+
+function createExpoSemanticIcon(IconSet: React.ComponentType<any>, name: string, displayName: string): SemanticIconComponent {
+  const Component = React.forwardRef<any, SemanticIconProps>(function SemanticIcon(
+    {
+      size = 16,
+      color = 'currentColor',
+      className,
+      accessibilityLabel,
+      decorative = !accessibilityLabel,
+      ...props
+    },
+    ref
+  ) {
+    return <IconSet ref={ref} name={name as any} size={size} color={color} className={className} ${accessibility} {...props} />;
+  });
+  Component.displayName = displayName;
+  return Component;
+}
+
+${exports}
+`;
+  }
+
   const glyphs = [...new Set(Object.values(iconManifest.icons).map((icon) => icon[library]))];
+  const importPkg = library === 'heroicons' ? 'react-native-heroicons/outline' : packageName;
   const imports = library === 'tabler'
     ? glyphs
-      .map((glyph) => '// @ts-expect-error @tabler/icons-react-native@3.46.0 publishes deep declarations one directory too low\nimport Glyph' + glyph + ' from ' + JSON.stringify(packageName + '/' + glyph))
+      .map((glyph) => '// @ts-expect-error @tabler/icons-react-native@3.46.0 publishes deep declarations one directory too low\nimport Glyph' + glyph + ' from ' + JSON.stringify(importPkg + '/' + glyph))
       .join('\n')
     : `import {
   ${glyphs.map((glyph) => `${glyph} as Glyph${glyph}`).join(',\n  ')},
-} from ${JSON.stringify(packageName)}`;
-  const accessibility = "accessibilityLabel={decorative ? undefined : accessibilityLabel} aria-hidden={decorative} accessibilityElementsHidden={decorative} importantForAccessibility={decorative ? 'no-hide-descendants' : 'auto'}";
+} from ${JSON.stringify(importPkg)}`;
   let renderer = `<Glyph ref={ref} size={size} color={color} className={className} strokeWidth={strokeWidth} ${accessibility} {...props} />`;
   if (library === 'phosphor') renderer = `<Glyph ref={ref} size={size} color={color} className={className} weight={weight} ${accessibility} {...props} />`;
   if (library === 'tabler') renderer = `<Glyph ref={ref} size={size} color={color} className={className} strokeWidth={strokeWidth} ${accessibility} {...props} />`;
+  if (library === 'heroicons') renderer = `<Glyph ref={ref} size={size} color={color} className={className} strokeWidth={strokeWidth} ${accessibility} {...props} />`;
   const exports = Object.values(iconManifest.icons)
     .map((icon) => `export const ${icon.export} = createSemanticIcon(Glyph${icon[library]}, ${JSON.stringify(icon.export)});`)
     .join('\n');

@@ -11,8 +11,8 @@
     --card-foreground: 228 4% 5%;
     --popover: 0 0% 100%;
     --popover-foreground: 228 4% 5%;
-    --primary: 247.0 91.7% 59.5%;
-    --primary-foreground: 180.0 0.0% 98.0%;
+    --primary: 247 91.7% 59.5%;
+    --primary-foreground: 180 0% 98%;
     --secondary: 197 2% 95%;
     --secondary-foreground: 223 6% 13%;
     --muted: 197 2% 95%;
@@ -24,10 +24,10 @@
     --border: 214 5% 91%;
     --input: 214 5% 91%;
     --ring: 223 6% 13%;
-    --chart-1: 215.4 18.4% 47.0%;
-    --chart-2: 215.0 22.6% 64.5%;
-    --chart-3: 215.3 22.0% 34.8%;
-    --chart-4: 212.7 29.9% 84.0%;
+    --chart-1: 215.4 18.4% 47%;
+    --chart-2: 215 22.6% 64.5%;
+    --chart-3: 215.3 22% 34.8%;
+    --chart-4: 212.7 29.9% 84%;
     --chart-5: 215.3 27.9% 26.8%;
   }
 
@@ -38,8 +38,8 @@
     --card-foreground: 197 2% 98%;
     --popover: 223 6% 13%;
     --popover-foreground: 197 2% 98%;
-    --primary: 241.0 100.0% 68.6%;
-    --primary-foreground: 0.0 0.0% 9.1%;
+    --primary: 241 100% 68.6%;
+    --primary-foreground: 0 0% 9.1%;
     --secondary: 216 4% 17%;
     --secondary-foreground: 197 2% 98%;
     --muted: 216 4% 17%;
@@ -51,33 +51,36 @@
     --border: 216 4% 17%;
     --input: 216 4% 17%;
     --ring: 213 7% 45%;
-    --chart-1: 215.0 22.6% 64.5%;
-    --chart-2: 212.7 29.9% 84.0%;
-    --chart-3: 215.4 18.4% 47.0%;
-    --chart-4: 212.7 29.9% 84.0%;
-    --chart-5: 215.3 22.0% 34.8%;
+    --chart-1: 215 22.6% 64.5%;
+    --chart-2: 212.7 29.9% 84%;
+    --chart-3: 215.4 18.4% 47%;
+    --chart-4: 212.7 29.9% 84%;
+    --chart-5: 215.3 22% 34.8%;
   }
 }
 
 :root {
-  --font-sans: DM Sans, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji,
-    Segoe UI Symbol, Noto Color Emoji;
+  --font-sans:
+    DM Sans, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji,
+    Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
   --font-display:
-    Spline Sans, Inter, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji,
-    Segoe UI Symbol, Noto Color Emoji;
+    Spline Sans, Inter, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji,
+    Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
   --font-mono:
-    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
-  --font-rounded: 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif;
-  --font-serif: Georgia, 'Times New Roman', serif;
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono,
+    Courier New, monospace;
+  --font-rounded:
+    "SF Pro Rounded", "Hiragino Maru Gothic ProN", Meiryo, "MS PGothic",
+    sans-serif;
+  --font-serif: Georgia, "Times New Roman", serif;
 }
-
 
 /* -------------------------------------------------------------------------------------------------
  * Reduced motion (web)
  *
  * The motion engine handles JS-driven animation via the OS setting, but class-driven animation
- * (tailwindcss-animate nimate-in/nimate-out, nimate-pulse, nimate-spin, and CSS
- * transitions) is owned by CSS — so it must be neutralised here.
+ * (tailwindcss-animate animate-in/animate-out, animate-pulse, animate-spin, and CSS
+ * transitions) is owned by CSS â€” so it must be neutralised here.
  *
  * Motion is removed, never information: final states, colours, and focus affordances are kept.
  * ----------------------------------------------------------------------------------------------- */

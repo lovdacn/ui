@@ -14,6 +14,7 @@ function Label({
   activeAnimate,
   motionActive,
   reduceMotion,
+  children,
   ...props
 }: React.ComponentProps<typeof LabelPrimitive.Text> & SharedAnimationProps) {
   const textProps = {
@@ -45,16 +46,19 @@ function Label({
       onPressOut={onPressOut}
       disabled={disabled}>
       {hasMotion ? (
+        // `asChild` replaces the primitive's text host, so the label content must be handed to
+        // the animated host explicitly — a JSX child always wins over a spread `children` prop.
         <LabelPrimitive.Text {...textProps} asChild>
           <Text
             animate={animate}
             activeAnimate={activeAnimate}
             motionActive={motionActive}
-            reduceMotion={reduceMotion}
-          />
+            reduceMotion={reduceMotion}>
+            {children}
+          </Text>
         </LabelPrimitive.Text>
       ) : (
-        <LabelPrimitive.Text {...textProps} />
+        <LabelPrimitive.Text {...textProps}>{children}</LabelPrimitive.Text>
       )}
     </LabelPrimitive.Root>
   );

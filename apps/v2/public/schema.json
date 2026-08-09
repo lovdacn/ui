@@ -188,7 +188,9 @@
       "enum": [
         "lucide",
         "phosphor",
-        "tabler"
+        "tabler",
+        "expo",
+        "heroicons"
       ]
     },
     "radius": {
