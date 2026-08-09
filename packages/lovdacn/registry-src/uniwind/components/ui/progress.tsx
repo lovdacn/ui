@@ -3,12 +3,14 @@ import * as ProgressPrimitive from '@rn-primitives/progress';
 import { View } from '@/components/ui/primitives';
 import { Platform } from 'react-native';
 import Animated, {
-  Extrapolation,
-  interpolate,
   useAnimatedStyle,
   useDerivedValue,
   withSpring,
 } from 'react-native-reanimated';
+
+function clampProgressValue(value: number | undefined | null) {
+  return Math.min(100, Math.max(0, value ?? 0));
+}
 
 function Progress({
   className,
@@ -16,13 +18,16 @@ function Progress({
   indicatorClassName,
   ...props
 }: React.ComponentProps<typeof ProgressPrimitive.Root> & {
-    indicatorClassName?: string;
-  }) {
+  indicatorClassName?: string;
+}) {
+  const normalizedValue = clampProgressValue(value);
+
   return (
     <ProgressPrimitive.Root
+      value={normalizedValue}
       className={cn('bg-primary/20 relative h-2 w-full overflow-hidden rounded-full', className)}
       {...props}>
-      <Indicator value={value} className={indicatorClassName} />
+      <Indicator value={normalizedValue} className={indicatorClassName} />
     </ProgressPrimitive.Root>
   );
 }
@@ -36,7 +41,7 @@ const Indicator = Platform.select({
 });
 
 type IndicatorProps = {
-  value: number | undefined | null;
+  value: number;
   className?: string;
 };
 
@@ -46,25 +51,29 @@ function WebIndicator({ value, className }: IndicatorProps) {
   }
 
   return (
-    <View
-      className={cn('bg-primary h-full w-full flex-1 transition-all', className)}
-      style={{ transform: `translateX(-${100 - (value ?? 0)}%)` }}>
-      <ProgressPrimitive.Indicator className={cn('h-full w-full', className)} />
-    </View>
+    <ProgressPrimitive.Indicator asChild>
+      <View
+        className={cn('bg-primary h-full w-full transition-all', className)}
+        style={{ transform: `translateX(-${100 - value}%)` }}
+      />
+    </ProgressPrimitive.Indicator>
   );
 }
 
 function NativeIndicator({ value, className }: IndicatorProps) {
-  const progress = useDerivedValue(() => value ?? 0);
+  const width = useDerivedValue(
+    () =>
+      withSpring(value, {
+        overshootClamping: true,
+      }),
+    [value]
+  );
 
   const indicator = useAnimatedStyle(() => {
     return {
-      width: withSpring(
-        `${interpolate(progress.value, [0, 100], [1, 100], Extrapolation.CLAMP)}%`,
-        { overshootClamping: true }
-      ),
+      width: `${width.value}%`,
     };
-  }, [value]);
+  });
 
   if (Platform.OS === 'web') {
     return null;
