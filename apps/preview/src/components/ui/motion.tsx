@@ -5,28 +5,63 @@
  * components, plus standalone `Motion` hosts for user-owned content.
  *
  * Design (see ANIMATIONS_NEW.md):
- * - Object configuration is the canonical v1 API. Utility strings are a later phase.
+ * - Object configuration is the canonical v1 API. Utility strings are sugar that compiles
+ *   to the same object model.
  * - Animations run on the UI thread. Shared values change ONLY when the resolved
  *   target changes (driven by discrete interaction/semantic state). `useDerivedValue`
  *   starts the `withTiming`/`withSpring`; `useAnimatedStyle` only READS shared values.
  *   We never allocate a new spring/timing inside `useAnimatedStyle` on every frame.
  * - User handlers are composed, not replaced (each user callback fires exactly once).
- * - Refs resolve to the underlying host (via `createAnimatedComponent`).
+ * - Refs resolve to the underlying host.
  * - System reduced-motion is respected by default: motion snaps to its final
  *   accessible value instead of animating.
  *
- * NOTE (beta): this is the Phase 0/1 engine. `Motion` + direct hosts + the object
- * API are implemented. Utility-string parsing and per-component auto-wiring across
- * the whole registry are staged for later phases.
+ * ## Visibility contract (fail open, never fail hidden)
+ *
+ * Entrance animations start from a hidden/offset value, so they are only allowed when a
+ * hidden first frame cannot be mistaken for missing content:
+ *
+ * | Environment                                   | First paint |
+ * |-----------------------------------------------|-------------|
+ * | Static/server web output                      | final value |
+ * | Web hydration (host present in initial HTML)  | final value |
+ * | Web mount after the page `load` event         | entrance    |
+ * | Native (iOS/Android)                          | entrance    |
+ * | Reduced motion (system or `reduceMotion`)     | final value |
+ *
+ * The decision is latched per host on its FIRST render, so a host never renders visible
+ * content and then hides it, and the first client render always matches server output.
+ * The engine also never emits an animation object on the first evaluation, so content is
+ * usable even if the worklet runtime never advances.
+ *
+ * ## Style ownership contract
+ *
+ * - `transform`: when motion drives ANY transform key it owns the whole `transform` array.
+ *   Static transform operations found on the host's own `style` prop are composed in front
+ *   of the animated ones; a static operation for a key motion also drives is dropped with a
+ *   development warning. Transforms that come from `className` are invisible to the engine
+ *   and are replaced — animate them instead of mixing the two systems.
+ * - `borderRadius` and colors (`color`, `backgroundColor`, `borderColor`) are NEVER
+ *   invented. They animate only when both an idle and an active endpoint are supplied.
+ *   An active-only value is rejected with a development warning and the static style is
+ *   kept, so a valid static token can never be replaced by `0` or by `transparent`.
+ * - `opacity` and transform keys have safe documented defaults (`1`, `1`, `0`, `0deg`).
+ *
+ * NOTE (beta): `exit`, object-form `repeat` and `reverse` are parsed but NOT executed —
+ * the engine has no presence/unmount coordinator. Supplying them warns in development.
  */
 import * as React from 'react';
 import {
+  Platform,
   Pressable,
   type PressableProps,
-  type StyleProp,
+  StyleSheet,
+  Text as RNTextComponent,
   type TextProps,
   TextInput,
   type TextInputProps,
+  View as RNViewComponent,
+  type StyleProp,
   type ViewProps,
   type ViewStyle,
 } from 'react-native';
@@ -102,9 +137,21 @@ export type MotionPresetName =
 export interface AnimateConfig {
   initial?: MotionTarget;
   to?: MotionTarget;
+  /**
+   * @deprecated Not executed. The engine has no presence/unmount coordinator, so an exit
+   * target never runs. Supplying it warns in development and will be removed in the next
+   * documented breaking release.
+   */
   exit?: MotionTarget;
   transition?: MotionTransition;
+  /**
+   * @deprecated Not executed for object-form animations. Use the continuous presets
+   * (`spin`, `pulse`, `bounce`, `shake`, `wiggle`) for looping motion.
+   */
   repeat?: number | 'infinite';
+  /**
+   * @deprecated Not executed. Supplying it warns in development.
+   */
   reverse?: boolean;
 }
 
@@ -134,7 +181,7 @@ export interface ActiveAnimateConfig {
   states?: Partial<Record<ActiveState, ActiveStateConfig>>;
 }
 
-/** Preset name, utility string (e.g. 'fade-in slide-up duration-200'), config object, or alse. */
+/** Preset name, utility string (e.g. 'fade-in slide-up duration-200'), config object, or false. */
 export type MotionUtilityString = string & {};
 export type AnimateProp = false | MotionPresetName | MotionUtilityString | AnimateConfig;
 export type ActiveAnimateProp =
@@ -144,8 +191,26 @@ export type ActiveAnimateProp =
   | MotionTarget
   | ActiveAnimateConfig;
 
+/**
+ * The interaction channel a host routes a SHORTHAND active target to.
+ *
+ * | Host             | Channel                                   |
+ * |------------------|-------------------------------------------|
+ * | `MotionPressable`| `press`                                   |
+ * | `MotionTextInput`| `focus`                                   |
+ * | `MotionView`     | `semantic` (gated by `motionActive`)       |
+ * | `MotionText`     | `semantic` (gated by `motionActive`)       |
+ * | `MotionSlot`     | explicit — defaults to `semantic`         |
+ *
+ * A host that is also driven semantically (the caller passes `motionActive`) receives the
+ * shorthand on BOTH its canonical channel and the semantic channel, so a Pressable used as
+ * a selected tab/toggle works without a per-component workaround. Explicit `states` entries
+ * always win for the states they name.
+ */
+export type MotionChannel = 'press' | 'focus' | 'semantic' | 'none';
+
 export interface SharedAnimationProps {
-  /** Idle, mount, exit, or continuous animation. `false` disables it. */
+  /** Idle, mount, or continuous animation. `false` disables it. */
   animate?: AnimateProp;
   /** Motion applied while the component's semantic active state is true. */
   activeAnimate?: ActiveAnimateProp;
@@ -249,22 +314,35 @@ export const motionPresets: Record<
 };
 
 /* -------------------------------------------------------------------------------------------------
+ * Development diagnostics
+ * -----------------------------------------------------------------------------------------------*/
+
+const warnedMessages = new Set<string>();
+
+/** Warn once per distinct message so a re-rendering component cannot flood the console. */
+function devWarn(message: string) {
+  if (!__DEV__) return;
+  if (warnedMessages.has(message)) return;
+  warnedMessages.add(message);
+  console.warn(message);
+}
+
+/* -------------------------------------------------------------------------------------------------
  * Normalization (JS thread, memoized)
  * -----------------------------------------------------------------------------------------------*/
 
-const TRANSFORM_KEYS = [
-  'scale',
-  'scaleX',
-  'scaleY',
-  'translateX',
-  'translateY',
-  'rotate',
-  'rotateX',
-  'rotateY',
-] as const;
-
 const COLOR_KEYS = ['backgroundColor', 'borderColor', 'color'] as const;
 
+/**
+ * Properties whose idle value can NEVER be invented: there is no meaningful neutral color
+ * and `0` is not a neutral radius. Motion animates them only when the caller supplies both
+ * endpoints.
+ */
+const NO_INVENT_KEYS: readonly string[] = [...COLOR_KEYS, 'borderRadius'];
+
+/**
+ * Safe idle defaults. Deliberately contains no color and no radius — see `NO_INVENT_KEYS`.
+ */
 const NUMERIC_DEFAULTS: Record<string, number | string> = {
   opacity: 1,
   scale: 1,
@@ -275,10 +353,10 @@ const NUMERIC_DEFAULTS: Record<string, number | string> = {
   rotate: '0deg',
   rotateX: '0deg',
   rotateY: '0deg',
-  borderRadius: 0,
 };
 
-type Normalized = {
+/** Plain, worklet-serializable target set for one host. */
+export type MotionTargets = {
   initial: MotionTarget;
   idle: MotionTarget;
   press?: MotionTarget;
@@ -286,24 +364,75 @@ type Normalized = {
   focus?: MotionTarget;
   semantic?: MotionTarget;
   dragging?: MotionTarget;
+};
+
+/** Discrete interaction/semantic state, read from shared values. */
+export type MotionStateFlags = {
+  pressed: boolean;
+  hovered: boolean;
+  focused: boolean;
+  dragging: boolean;
+  semantic: boolean;
+  disabled: boolean;
+};
+
+export type ResolvedMotionTarget = {
+  /** `undefined` means "no endpoint exists" — the property must not be emitted at all. */
+  value: number | string | undefined;
+  /** True when the value came from an active state rather than from idle. */
+  active: boolean;
+};
+
+type Normalized = MotionTargets & {
   activeTransition: MotionTransition;
   idleTransition: MotionTransition;
   used: Record<string, boolean>;
+  /** Properties requested for active state only, which the engine refuses to animate. */
+  oneSided: Record<string, boolean>;
   loop?: LoopKind;
   loopTransition: MotionTransition;
 };
+
+type TargetRecord = Record<string, number | string | undefined>;
 
 function presetFor(name: MotionPresetName) {
   return motionPresets[name];
 }
 
+/** Warn about fields the engine parses but does not execute (see section 8.1 of the plan). */
+function warnDormantFields(config: AnimateConfig) {
+  if (config.exit !== undefined) {
+    devWarn(
+      '[motion] `animate.exit` is accepted but NOT executed: this engine has no presence/unmount ' +
+        'coordinator, so exit targets never run. Remove it, or keep the element mounted and drive ' +
+        'an active state instead.'
+    );
+  }
+  if (config.repeat !== undefined) {
+    devWarn(
+      '[motion] `animate.repeat` is accepted but NOT executed for object-form animations. Use a ' +
+        'continuous preset (`spin`, `pulse`, `bounce`, `shake`, `wiggle`) for looping motion.'
+    );
+  }
+  if (config.reverse !== undefined) {
+    devWarn('[motion] `animate.reverse` is accepted but NOT executed. Remove it.');
+  }
+}
+
 function resolveAnimate(animate: AnimateProp | undefined, fallback: AnimateProp | undefined) {
   const value = animate === undefined ? fallback : animate;
-  if (value === undefined || value === false) return { config: undefined as AnimateConfig | undefined, loop: undefined as LoopKind | undefined };
+  if (value === undefined || value === false)
+    return { config: undefined as AnimateConfig | undefined, loop: undefined as LoopKind | undefined };
   if (typeof value === 'string') {
     // Single preset name resolves directly; anything with whitespace/prefixes is a utility string.
     if (value in motionPresets) {
       const p = presetFor(value as MotionPresetName);
+      if (!p.initial && !p.to && !p.loop && p.exit) {
+        devWarn(
+          `[motion] The "${value}" preset only describes an exit animation, which this engine does ` +
+            'not run, so it has no effect as an `animate` value.'
+        );
+      }
       return {
         config: { initial: p.initial, to: p.to, exit: p.exit, transition: p.transition } as AnimateConfig,
         loop: p.loop,
@@ -312,6 +441,7 @@ function resolveAnimate(animate: AnimateProp | undefined, fallback: AnimateProp 
     const parsed = parseMotionString(value);
     return { config: parsed.animate, loop: undefined };
   }
+  warnDormantFields(value);
   return { config: value, loop: undefined };
 }
 
@@ -354,8 +484,13 @@ function normalize(props: {
   activeAnimate?: ActiveAnimateProp;
   defaultAnimate?: AnimateProp;
   defaultActiveAnimate?: ActiveAnimateProp;
+  /** The host's canonical shorthand channel. Defaults to `semantic`. */
+  channel?: MotionChannel;
+  /** True when the caller drives this host's semantic state via `motionActive`. */
+  semanticDriven?: boolean;
 }): Normalized {
   const used: Record<string, boolean> = {};
+  const channel: MotionChannel = props.channel ?? 'semantic';
 
   const { config: idleCfg, loop } = resolveAnimate(props.animate, props.defaultAnimate);
   const active = resolveActive(props.activeAnimate, props.defaultActiveAnimate);
@@ -378,7 +513,24 @@ function normalize(props: {
 
   if (active) {
     activeTransition = active.transition ?? SPRING_SNAPPY;
-    if (active.simple) semantic = active.simple;
+
+    // A shorthand target goes to the host's canonical channel …
+    if (active.simple) {
+      if (channel === 'press') press = active.simple;
+      else if (channel === 'focus') focus = active.simple;
+      else if (channel === 'semantic') semantic = active.simple;
+      else {
+        devWarn(
+          '[motion] A shorthand `activeAnimate` target was supplied to a host with no canonical ' +
+            'active channel. Use `activeAnimate.states` to say which state should drive it.'
+        );
+      }
+      // … and additionally to the semantic channel when the caller drives semantic state,
+      // so a Pressable used as a selected tab/toggle animates its selection too.
+      if (props.semanticDriven && channel !== 'semantic') semantic = active.simple;
+    }
+
+    // Explicit per-state targets always win for the state they name.
     if (active.states) {
       const s = active.states;
       if (s.press) press = s.press.to;
@@ -388,6 +540,7 @@ function normalize(props: {
       const sem = s.checked ?? s.selected ?? s.current ?? s.open ?? s.expanded ?? s.visible ?? s.loading;
       if (sem) semantic = sem.to;
     }
+
     markUsed(used, press);
     markUsed(used, hover);
     markUsed(used, focus);
@@ -401,7 +554,26 @@ function normalize(props: {
   if (loop === 'bounce') used.translateY = true;
   if (loop === 'shake') used.translateX = true;
 
-  const loopTransition = loop ? (idleCfg?.transition ?? motionPresets[loop as MotionPresetName]?.transition ?? TIMING_FAST) : TIMING_FAST;
+  // Colors and radii must never be invented. A property that only has an active endpoint is
+  // rejected: the static style keeps ownership and we say so in development.
+  const oneSided: Record<string, boolean> = {};
+  for (const key of NO_INVENT_KEYS) {
+    if (!used[key]) continue;
+    const hasIdleEndpoint =
+      (idle as TargetRecord)[key] !== undefined || (initial as TargetRecord)[key] !== undefined;
+    if (hasIdleEndpoint) continue;
+    oneSided[key] = true;
+    used[key] = false;
+    devWarn(
+      `[motion] "${key}" was given an active value but no idle value, so it cannot be interpolated ` +
+        'and a neutral default would be wrong. The animation is ignored and the static style is ' +
+        `kept. Supply both endpoints (\`animate={{ to: { ${key}: … } }}\`) to animate it.`
+    );
+  }
+
+  const loopTransition = loop
+    ? (idleCfg?.transition ?? motionPresets[loop as MotionPresetName]?.transition ?? TIMING_FAST)
+    : TIMING_FAST;
 
   return {
     initial,
@@ -414,9 +586,107 @@ function normalize(props: {
     activeTransition,
     idleTransition,
     used,
+    oneSided,
     loop,
     loopTransition,
   };
+}
+
+/**
+ * Resolve the winning target for one property.
+ *
+ * Precedence: disabled → dragging → press → semantic → focus → hover → idle.
+ * `fallback` is the invented idle default and is deliberately `undefined` for colors and
+ * radii, in which case the result may be `undefined` — meaning "do not emit this property".
+ *
+ * Pure and worklet-safe so both the UI thread and the engine tests can call it.
+ */
+function resolveMotionTarget(
+  prop: string,
+  targets: MotionTargets,
+  flags: MotionStateFlags,
+  fallback?: number | string
+): ResolvedMotionTarget {
+  'worklet';
+  const idleValue = (targets.idle as TargetRecord)[prop] ?? fallback;
+  if (flags.disabled) return { value: idleValue, active: false };
+
+  let value: number | string | undefined;
+  if (flags.dragging && targets.dragging) value = (targets.dragging as TargetRecord)[prop];
+  if (value === undefined && flags.pressed && targets.press)
+    value = (targets.press as TargetRecord)[prop];
+  if (value === undefined && flags.semantic && targets.semantic)
+    value = (targets.semantic as TargetRecord)[prop];
+  if (value === undefined && flags.focused && targets.focus)
+    value = (targets.focus as TargetRecord)[prop];
+  if (value === undefined && flags.hovered && targets.hover)
+    value = (targets.hover as TargetRecord)[prop];
+
+  if (value !== undefined) return { value, active: true };
+  return { value: idleValue, active: false };
+}
+
+/**
+ * True when a host actually has motion to run. Hosts use this to pick the raw React Native
+ * host (no Reanimated hooks, styles or effects) over the animated one.
+ */
+function hasMotionConfig(config: {
+  animate?: AnimateProp;
+  activeAnimate?: ActiveAnimateProp;
+  defaultAnimate?: AnimateProp;
+  defaultActiveAnimate?: ActiveAnimateProp;
+}): boolean {
+  const animate = config.animate === undefined ? config.defaultAnimate : config.animate;
+  const active = config.activeAnimate === undefined ? config.defaultActiveAnimate : config.activeAnimate;
+  const hasAnimate = animate !== undefined && animate !== false;
+  const hasActive = active !== undefined && active !== false;
+  return hasAnimate || hasActive;
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * Entrance policy — see the visibility contract at the top of this file
+ * -----------------------------------------------------------------------------------------------*/
+
+const IS_WEB = Platform.OS === 'web';
+
+/**
+ * Narrow view of the browser globals. Accessed through `globalThis` so this file does not
+ * need the DOM type library and does not break the native build.
+ */
+type WebGlobals = {
+  document?: { readyState?: string };
+  addEventListener?: (type: string, listener: () => void, options?: { once?: boolean }) => void;
+  requestAnimationFrame?: (callback: () => void) => unknown;
+};
+
+const webGlobal = globalThis as unknown as WebGlobals;
+
+/**
+ * On web, entrances stay disarmed until the initial document has loaded and two frames have
+ * passed. Static output and the whole hydration pass therefore render final, visible values,
+ * while anything mounted later (dialogs, navigations, lists) still animates in.
+ *
+ * This is a one-way latch and never triggers a re-render, so no host can flip from visible
+ * to hidden.
+ */
+let webEntranceArmed = false;
+
+if (IS_WEB && webGlobal.document && typeof webGlobal.addEventListener === 'function') {
+  const arm = () => {
+    webEntranceArmed = true;
+  };
+  const armAfterFrames = () => {
+    const raf = webGlobal.requestAnimationFrame;
+    if (typeof raf === 'function') raf(() => raf(arm));
+    else setTimeout(arm, 0);
+  };
+  if (webGlobal.document.readyState === 'complete') armAfterFrames();
+  else webGlobal.addEventListener('load', armAfterFrames, { once: true });
+}
+
+/** Native and post-load web mounts may animate in; static/hydrating web output may not. */
+function entranceAllowed(): boolean {
+  return IS_WEB ? webEntranceArmed : true;
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -430,6 +700,13 @@ export interface UseMotionConfig extends SharedAnimationProps {
   defaultAnimate?: AnimateProp;
   /** Component default active animation (e.g. Button press scale). */
   defaultActiveAnimate?: ActiveAnimateProp;
+  /** Canonical channel for a shorthand active target. Defaults to `semantic`. */
+  channel?: MotionChannel;
+  /**
+   * Static transform operations taken from the host's own `style` prop. Motion composes them
+   * in front of the animated operations instead of silently replacing them.
+   */
+  staticTransform?: readonly Record<string, number | string>[];
 }
 
 export interface MotionHandlers {
@@ -470,18 +747,34 @@ export function useMotion(config: UseMotionConfig) {
     disabled = false,
     defaultAnimate,
     defaultActiveAnimate,
+    channel = 'semantic',
+    staticTransform,
   } = config;
 
   const systemReduced = useReducedMotion();
   const rmActive = reduceMotion === 'always' ? true : reduceMotion === 'never' ? false : systemReduced;
+  const semanticDriven = motionActive !== undefined;
 
   // JS-thread normalization. Recomputed only when inputs change.
   const n = React.useMemo(
-    () => normalize({ animate, activeAnimate, defaultAnimate, defaultActiveAnimate }),
+    () => normalize({ animate, activeAnimate, defaultAnimate, defaultActiveAnimate, channel, semanticDriven }),
     // Stringify to keep object identity from thrashing the memo.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [JSON.stringify(animate), JSON.stringify(activeAnimate), JSON.stringify(defaultAnimate), JSON.stringify(defaultActiveAnimate)]
+    [
+      JSON.stringify(animate),
+      JSON.stringify(activeAnimate),
+      JSON.stringify(defaultAnimate),
+      JSON.stringify(defaultActiveAnimate),
+      channel,
+      semanticDriven,
+    ]
   );
+
+  // Entrance eligibility is decided ONCE, on the first render, so server output, the first
+  // client render and every later render of this host agree. A `useState` initializer keeps the
+  // decision stable without touching a ref during render.
+  const wantsEntrance = Object.keys(n.initial).length > 0;
+  const [runEntrance] = React.useState(() => wantsEntrance && !rmActive && entranceAllowed());
 
   // Discrete state as shared values so derived values react reliably.
   const pressed = useSharedValue(false);
@@ -492,6 +785,7 @@ export function useMotion(config: UseMotionConfig) {
   const isDisabled = useSharedValue(!!disabled);
   const rm = useSharedValue(rmActive);
   const mounted = useSharedValue(false);
+  const entrance = useSharedValue(runEntrance);
   const loopProgress = useSharedValue(0);
 
   React.useEffect(() => {
@@ -510,8 +804,7 @@ export function useMotion(config: UseMotionConfig) {
   // Loop lifecycle: start on mount when a loop preset is active + not reduced;
   // cancel on unmount and when reduced motion turns on.
   const loopKind = n.loop;
-  const loopDuration =
-    n.loopTransition.type === 'timing' ? n.loopTransition.duration ?? 1000 : 1000;
+  const loopDuration = n.loopTransition.type === 'timing' ? n.loopTransition.duration ?? 1000 : 1000;
   React.useEffect(() => {
     if (!loopKind || rmActive) {
       cancelAnimation(loopProgress);
@@ -528,16 +821,38 @@ export function useMotion(config: UseMotionConfig) {
   }, [loopKind, rmActive, loopDuration, loopProgress]);
 
   // Capture normalized targets as plain, serializable objects for the worklets.
-  const initial = n.initial;
-  const idle = n.idle;
-  const pressT = n.press;
-  const hoverT = n.hover;
-  const focusT = n.focus;
-  const semT = n.semantic;
-  const dragT = n.dragging;
+  const targets: MotionTargets = {
+    initial: n.initial,
+    idle: n.idle,
+    press: n.press,
+    hover: n.hover,
+    focus: n.focus,
+    semantic: n.semantic,
+    dragging: n.dragging,
+  };
   const used = n.used;
   const activeTransition = n.activeTransition;
   const idleTransition = n.idleTransition;
+
+  // Static transform ownership is resolved on the JS thread: keep the operations motion does
+  // not drive, drop (loudly) the ones it does.
+  const composedStaticTransform = React.useMemo(() => {
+    if (!staticTransform || staticTransform.length === 0) return undefined;
+    const kept: Record<string, number | string>[] = [];
+    for (const operation of staticTransform) {
+      const key = Object.keys(operation)[0];
+      if (key && used[key]) {
+        devWarn(
+          `[motion] The animated host owns the "${key}" transform, so the static transform value ` +
+            'from the `style` prop is dropped. Move the static value into `animate`, or animate a ' +
+            'different key.'
+        );
+        continue;
+      }
+      kept.push(operation);
+    }
+    return kept.length > 0 ? kept : undefined;
+  }, [staticTransform, used]);
 
   // Worklet: apply a transition toward a target value, honoring reduced motion.
   const applyTransition = (
@@ -578,67 +893,89 @@ export function useMotion(config: UseMotionConfig) {
     return animatedValue;
   };
 
-  // Worklet: resolve the current target for a property, following state precedence:
-  // disabled -> dragging -> press -> semantic -> focus -> hover -> idle.
-  const resolve = (prop: string): number | string => {
+  /**
+   * Worklet: current value for a property.
+   *
+   * The first evaluation NEVER returns an animation object — it returns a plain, final (or
+   * entrance) value, so static output and the first client paint are usable even if the
+   * worklet runtime never advances.
+   */
+  const resolveValue = (prop: string, fallback?: number | string): number | string | undefined => {
     'worklet';
-    if (!used[prop]) {
-      return NUMERIC_DEFAULTS[prop] ?? 0;
-    }
+    const resolved = resolveMotionTarget(
+      prop,
+      targets,
+      {
+        pressed: pressed.value,
+        hovered: hovered.value,
+        focused: focused.value,
+        dragging: dragging.value,
+        semantic: semActive.value,
+        disabled: isDisabled.value,
+      },
+      fallback
+    );
+    if (resolved.value === undefined) return undefined;
 
-    const idleValue =
-      (idle as Record<string, number | string>)[prop] ?? NUMERIC_DEFAULTS[prop] ?? 0;
-
-    // Mount phase: hold the initial value (no animation) until mounted flips true.
     if (!mounted.value) {
-      const initValue = (initial as Record<string, number | string>)[prop];
-      if (initValue !== undefined) return initValue;
-      return idleValue;
+      if (entrance.value) {
+        const initialValue = (targets.initial as TargetRecord)[prop];
+        if (initialValue !== undefined) return initialValue;
+      }
+      return resolved.value;
     }
 
-    if (isDisabled.value) {
-      return applyTransition(idleValue, idleTransition, rm.value);
-    }
+    return applyTransition(
+      resolved.value,
+      resolved.active ? activeTransition : idleTransition,
+      rm.value
+    );
+  };
 
-    // Highest-precedence active state that defines this property wins.
-    let target: number | string | undefined;
-    if (dragging.value && dragT) target = (dragT as Record<string, number | string>)[prop];
-    if (target === undefined && pressed.value && pressT)
-      target = (pressT as Record<string, number | string>)[prop];
-    if (target === undefined && semActive.value && semT)
-      target = (semT as Record<string, number | string>)[prop];
-    if (target === undefined && focused.value && focusT)
-      target = (focusT as Record<string, number | string>)[prop];
-    if (target === undefined && hovered.value && hoverT)
-      target = (hoverT as Record<string, number | string>)[prop];
+  /** Worklet: properties with a safe neutral default (opacity + transforms). */
+  const resolveInvented = (prop: string): number | string => {
+    'worklet';
+    const fallback = NUMERIC_DEFAULTS[prop] ?? 0;
+    if (!used[prop]) return fallback;
+    const value = resolveValue(prop, fallback);
+    return value === undefined ? fallback : value;
+  };
 
-    if (target !== undefined) {
-      return applyTransition(target, activeTransition, rm.value);
-    }
-    return applyTransition(idleValue, idleTransition, rm.value);
+  /** Worklet: properties that must never be invented (colors + radius). */
+  const resolveOptional = (prop: string): number | string | undefined => {
+    'worklet';
+    if (!used[prop]) return undefined;
+    return resolveValue(prop, undefined);
   };
 
   // One derived value per animatable property. Each re-runs ONLY when a discrete
   // state shared value changes — never every frame — and starts the animation.
-  const opacity = useDerivedValue(() => resolve('opacity'));
-  const scale = useDerivedValue(() => resolve('scale'));
-  const scaleX = useDerivedValue(() => resolve('scaleX'));
-  const scaleY = useDerivedValue(() => resolve('scaleY'));
-  const translateX = useDerivedValue(() => resolve('translateX'));
-  const translateY = useDerivedValue(() => resolve('translateY'));
-  const rotate = useDerivedValue(() => resolve('rotate'));
-  const rotateX = useDerivedValue(() => resolve('rotateX'));
-  const rotateY = useDerivedValue(() => resolve('rotateY'));
-  const backgroundColor = useDerivedValue(() => resolve('backgroundColor'));
-  const borderColor = useDerivedValue(() => resolve('borderColor'));
-  const color = useDerivedValue(() => resolve('color'));
-  const borderRadius = useDerivedValue(() => resolve('borderRadius'));
+  const opacity = useDerivedValue(() => resolveInvented('opacity'));
+  const scale = useDerivedValue(() => resolveInvented('scale'));
+  const scaleX = useDerivedValue(() => resolveInvented('scaleX'));
+  const scaleY = useDerivedValue(() => resolveInvented('scaleY'));
+  const translateX = useDerivedValue(() => resolveInvented('translateX'));
+  const translateY = useDerivedValue(() => resolveInvented('translateY'));
+  const rotate = useDerivedValue(() => resolveInvented('rotate'));
+  const rotateX = useDerivedValue(() => resolveInvented('rotateX'));
+  const rotateY = useDerivedValue(() => resolveInvented('rotateY'));
+  const backgroundColor = useDerivedValue(() => resolveOptional('backgroundColor'));
+  const borderColor = useDerivedValue(() => resolveOptional('borderColor'));
+  const color = useDerivedValue(() => resolveOptional('color'));
+  const borderRadius = useDerivedValue(() => resolveOptional('borderRadius'));
 
-  // useAnimatedStyle ONLY reads shared values and assembles the style. Only keys
-  // that are actually in use are emitted, so static styles are never clobbered.
+  // useAnimatedStyle ONLY reads shared values and assembles the style. Motion owns the whole
+  // transform array (composing the static operations it does not drive) and emits a property
+  // only when it actually has a value for it, so a static style is never replaced by nothing.
   const animatedStyle = useAnimatedStyle(() => {
     const style: Record<string, unknown> = {};
     const transform: Record<string, number | string>[] = [];
+
+    if (composedStaticTransform) {
+      for (let i = 0; i < composedStaticTransform.length; i += 1) {
+        transform.push(composedStaticTransform[i]);
+      }
+    }
 
     // Loop contribution takes precedence for its own property.
     let loopHandled = '';
@@ -663,8 +1000,10 @@ export function useMotion(config: UseMotionConfig) {
     }
 
     if (used.opacity && loopHandled !== 'opacity') style.opacity = opacity.value;
-    if (used.translateX && loopHandled !== 'translateX') transform.push({ translateX: translateX.value as number });
-    if (used.translateY && loopHandled !== 'translateY') transform.push({ translateY: translateY.value as number });
+    if (used.translateX && loopHandled !== 'translateX')
+      transform.push({ translateX: translateX.value as number });
+    if (used.translateY && loopHandled !== 'translateY')
+      transform.push({ translateY: translateY.value as number });
     if (used.scale) transform.push({ scale: scale.value as number });
     if (used.scaleX) transform.push({ scaleX: scaleX.value as number });
     if (used.scaleY) transform.push({ scaleY: scaleY.value as number });
@@ -673,10 +1012,15 @@ export function useMotion(config: UseMotionConfig) {
     if (used.rotateY) transform.push({ rotateY: rotateY.value as string });
 
     if (transform.length > 0) style.transform = transform;
-    if (used.backgroundColor) style.backgroundColor = backgroundColor.value as string;
-    if (used.borderColor) style.borderColor = borderColor.value as string;
-    if (used.color) style.color = color.value as string;
-    if (used.borderRadius) style.borderRadius = borderRadius.value as number;
+
+    const background = backgroundColor.value;
+    if (background !== undefined) style.backgroundColor = background as string;
+    const border = borderColor.value;
+    if (border !== undefined) style.borderColor = border as string;
+    const textColor = color.value;
+    if (textColor !== undefined) style.color = textColor as string;
+    const radius = borderRadius.value;
+    if (radius !== undefined) style.borderRadius = radius as number;
 
     return style;
   });
@@ -806,6 +1150,11 @@ export function useMotionState() {
 
 /* -------------------------------------------------------------------------------------------------
  * Animated hosts
+ *
+ * Every host is a thin dispatcher: with no motion configured it renders the RAW React Native
+ * host (no Reanimated hooks, shared values, styles or effects), otherwise it renders the
+ * animated implementation. Hooks live in the animated implementations, so no hook is ever
+ * called conditionally.
  * -----------------------------------------------------------------------------------------------*/
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -813,22 +1162,95 @@ const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
 
 type WithMotion<P> = P & SharedAnimationProps;
 
-/** Animated View host. */
+/**
+ * Whether this host needs the animated implementation.
+ *
+ * Derived purely from props, so the decision is stable and testable. Note that toggling motion
+ * on or off at runtime changes the rendered host and therefore remounts it: keep a motion prop
+ * configured (for example a `false` idle animation plus a real active animation) if a host must
+ * preserve native state such as text input focus.
+ */
+function useAnimatedHost(config: {
+  animate?: AnimateProp;
+  activeAnimate?: ActiveAnimateProp;
+  defaultAnimate?: AnimateProp;
+  defaultActiveAnimate?: ActiveAnimateProp;
+}): boolean {
+  return hasMotionConfig(config);
+}
+
+/** Static transform operations from the host's own `style` prop, memoized for the worklet. */
+function useStaticTransform(
+  style: StyleProp<unknown>
+): readonly Record<string, number | string>[] | undefined {
+  return React.useMemo(() => {
+    const flat = StyleSheet.flatten(style as StyleProp<ViewStyle>) as
+      | { transform?: unknown }
+      | undefined;
+    const value = flat?.transform;
+    if (!Array.isArray(value)) return undefined;
+    const operations: Record<string, number | string>[] = [];
+    for (const operation of value) {
+      if (operation && typeof operation === 'object') {
+        operations.push({ ...(operation as Record<string, number | string>) });
+      }
+    }
+    return operations.length > 0 ? operations : undefined;
+  }, [style]);
+}
+
+type ViewHostProps = WithMotion<ViewProps> & { ref?: React.Ref<RNViewHost> };
+
+function AnimatedMotionView({
+  animate,
+  activeAnimate,
+  motionActive,
+  reduceMotion,
+  style,
+  ref,
+  ...props
+}: ViewHostProps) {
+  const staticTransform = useStaticTransform(style);
+  const { animatedStyle } = useMotion({
+    animate,
+    activeAnimate,
+    motionActive,
+    reduceMotion,
+    channel: 'semantic',
+    staticTransform,
+  });
+  return <Animated.View ref={ref} style={[style, animatedStyle]} {...props} />;
+}
+
+/** Animated View host. Canonical shorthand channel: `semantic`. */
 export function MotionView({
   animate,
   activeAnimate,
   motionActive,
   reduceMotion,
-  style,
-  ref,
   ...props
-}: WithMotion<ViewProps> & { ref?: React.Ref<RNViewHost> }) {
-  const { animatedStyle } = useMotion({ animate, activeAnimate, motionActive, reduceMotion });
-  return <Animated.View ref={ref} style={[style, animatedStyle]} {...props} />;
+}: ViewHostProps) {
+  const animated = useAnimatedHost({ animate, activeAnimate });
+  if (!animated) {
+    const { ref, ...rest } = props;
+    return <RNViewComponent ref={ref} {...rest} />;
+  }
+  return (
+    <AnimatedMotionView
+      animate={animate}
+      activeAnimate={activeAnimate}
+      motionActive={motionActive}
+      reduceMotion={reduceMotion}
+      {...props}
+    />
+  );
 }
 
-/** Animated Pressable host with composed interaction handlers. */
-export function MotionPressable({
+type PressableHostProps = WithMotion<PressableProps> & {
+  ref?: React.Ref<React.ComponentRef<typeof Pressable>>;
+};
+
+function AnimatedMotionPressable({
   animate,
   activeAnimate,
   motionActive,
@@ -836,41 +1258,99 @@ export function MotionPressable({
   style,
   ref,
   ...props
-}: WithMotion<PressableProps> & { ref?: React.Ref<React.ComponentRef<typeof Pressable>> }) {
+}: PressableHostProps) {
+  const staticTransform = useStaticTransform(style as StyleProp<unknown>);
   const { animatedStyle, handlers } = useMotion({
     animate,
     activeAnimate,
     motionActive,
     reduceMotion,
     disabled: props.disabled ?? undefined,
+    channel: 'press',
+    staticTransform,
   });
   const composed = composeMotionHandlers(props as Record<string, unknown>, handlers);
   return (
-    <AnimatedPressable
-      ref={ref}
-      style={[style as object, animatedStyle]}
+    <AnimatedPressable ref={ref} style={[style as object, animatedStyle]} {...props} {...composed} />
+  );
+}
+
+/** Animated Pressable host. Canonical shorthand channel: `press`. */
+export function MotionPressable({
+  animate,
+  activeAnimate,
+  motionActive,
+  reduceMotion,
+  ...props
+}: PressableHostProps) {
+  const animated = useAnimatedHost({ animate, activeAnimate });
+  if (!animated) {
+    const { ref, ...rest } = props;
+    return <Pressable ref={ref} {...rest} />;
+  }
+  return (
+    <AnimatedMotionPressable
+      animate={animate}
+      activeAnimate={activeAnimate}
+      motionActive={motionActive}
+      reduceMotion={reduceMotion}
       {...props}
-      {...composed}
     />
   );
 }
 
-/** Animated Text host. */
+type TextHostProps = WithMotion<TextProps> & { ref?: React.Ref<RNTextHost> };
+
+function AnimatedMotionText({
+  animate,
+  activeAnimate,
+  motionActive,
+  reduceMotion,
+  style,
+  ref,
+  ...props
+}: TextHostProps) {
+  const staticTransform = useStaticTransform(style as StyleProp<unknown>);
+  const { animatedStyle } = useMotion({
+    animate,
+    activeAnimate,
+    motionActive,
+    reduceMotion,
+    channel: 'semantic',
+    staticTransform,
+  });
+  return <Animated.Text ref={ref} style={[style, animatedStyle]} {...props} />;
+}
+
+/** Animated Text host. Canonical shorthand channel: `semantic`. */
 export function MotionText({
   animate,
   activeAnimate,
   motionActive,
   reduceMotion,
-  style,
-  ref,
   ...props
-}: WithMotion<TextProps> & { ref?: React.Ref<RNTextHost> }) {
-  const { animatedStyle } = useMotion({ animate, activeAnimate, motionActive, reduceMotion });
-  return <Animated.Text ref={ref} style={[style, animatedStyle]} {...props} />;
+}: TextHostProps) {
+  const animated = useAnimatedHost({ animate, activeAnimate });
+  if (!animated) {
+    const { ref, ...rest } = props;
+    return <RNTextComponent ref={ref} {...rest} />;
+  }
+  return (
+    <AnimatedMotionText
+      animate={animate}
+      activeAnimate={activeAnimate}
+      motionActive={motionActive}
+      reduceMotion={reduceMotion}
+      {...props}
+    />
+  );
 }
 
-/** Animated TextInput host (canonical active state: focus). */
-export function MotionTextInput({
+type TextInputHostProps = WithMotion<TextInputProps> & {
+  ref?: React.Ref<React.ComponentRef<typeof TextInput>>;
+};
+
+function AnimatedMotionTextInput({
   animate,
   activeAnimate,
   motionActive,
@@ -878,10 +1358,42 @@ export function MotionTextInput({
   style,
   ref,
   ...props
-}: WithMotion<TextInputProps> & { ref?: React.Ref<React.ComponentRef<typeof TextInput>> }) {
-  const { animatedStyle, handlers } = useMotion({ animate, activeAnimate, motionActive, reduceMotion });
+}: TextInputHostProps) {
+  const staticTransform = useStaticTransform(style as StyleProp<unknown>);
+  const { animatedStyle, handlers } = useMotion({
+    animate,
+    activeAnimate,
+    motionActive,
+    reduceMotion,
+    channel: 'focus',
+    staticTransform,
+  });
   const composed = composeMotionHandlers(props as Record<string, unknown>, handlers);
   return <AnimatedTextInput ref={ref} style={[style, animatedStyle]} {...props} {...composed} />;
+}
+
+/** Animated TextInput host. Canonical shorthand channel: `focus`. */
+export function MotionTextInput({
+  animate,
+  activeAnimate,
+  motionActive,
+  reduceMotion,
+  ...props
+}: TextInputHostProps) {
+  const animated = useAnimatedHost({ animate, activeAnimate });
+  if (!animated) {
+    const { ref, ...rest } = props;
+    return <TextInput ref={ref} {...rest} />;
+  }
+  return (
+    <AnimatedMotionTextInput
+      animate={animate}
+      activeAnimate={activeAnimate}
+      motionActive={motionActive}
+      reduceMotion={reduceMotion}
+      {...props}
+    />
+  );
 }
 
 /* -------------------------------------------------------------------------------------------------
@@ -916,32 +1428,33 @@ function getAnimatedType(type: object): React.ComponentType<any> {
   return created;
 }
 
-/**
- * Render motion INTO a single child instead of adding a wrapper node.
- *
- * The child keeps its identity (event target, accessibility role, layout box); it receives the
- * animated style, the composed interaction handlers, and a merged ref. Use this when the thing
- * you want to animate is someone else's single element and an extra host would be wrong.
- *
- * Requirements: the child must forward `ref` and accept `style`. If it cannot, animation has
- * nowhere to attach — we warn in development and render the child untouched.
- */
-export function MotionSlot({
+type MotionSlotProps = SharedAnimationProps & {
+  children: React.ReactNode;
+  style?: StyleProp<ViewStyle>;
+  /**
+   * Which state a shorthand `activeAnimate` target drives. A slot has no intrinsic host, so
+   * this is explicit; it defaults to `semantic` (gated by `motionActive`).
+   */
+  channel?: MotionChannel;
+};
+
+function AnimatedMotionSlot({
   children,
   animate,
   activeAnimate,
   motionActive,
   reduceMotion,
   style,
-}: SharedAnimationProps & {
-  children: React.ReactNode;
-  style?: StyleProp<ViewStyle>;
-}) {
+  channel = 'semantic',
+}: MotionSlotProps) {
+  const staticTransform = useStaticTransform(style as StyleProp<unknown>);
   const { animatedStyle, handlers } = useMotion({
     animate,
     activeAnimate,
     motionActive,
     reduceMotion,
+    channel,
+    staticTransform,
   });
 
   if (!React.isValidElement(children)) {
@@ -984,6 +1497,31 @@ export function MotionSlot({
   return <AnimatedChild {...props} />;
 }
 
+/**
+ * Render motion INTO a single child instead of adding a wrapper node.
+ *
+ * The child keeps its identity (event target, accessibility role, layout box); it receives the
+ * animated style, the composed interaction handlers, and a merged ref. Use this when the thing
+ * you want to animate is someone else's single element and an extra host would be wrong.
+ *
+ * Requirements: the child must forward `ref` and accept `style`. If it cannot, animation has
+ * nowhere to attach — we warn in development and render the child untouched.
+ *
+ * With no motion configured the child is returned untouched (only `style` is merged), so a
+ * slot costs nothing.
+ */
+export function MotionSlot(props: MotionSlotProps) {
+  const animated = useAnimatedHost({ animate: props.animate, activeAnimate: props.activeAnimate });
+  if (!animated) {
+    const { children, style } = props;
+    if (!React.isValidElement(children)) return <>{children}</>;
+    if (!style) return <>{children}</>;
+    const child = children as React.ReactElement<{ style?: StyleProp<ViewStyle> }>;
+    return React.cloneElement(child, { style: [child.props.style, style] });
+  }
+  return <AnimatedMotionSlot {...props} />;
+}
+
 /* -------------------------------------------------------------------------------------------------
  * Stagger helper
  * -----------------------------------------------------------------------------------------------*/
@@ -1007,7 +1545,6 @@ export function stagger(
       ? {
           initial: motionPresets[base].initial,
           to: motionPresets[base].to,
-          exit: motionPresets[base].exit,
           transition: motionPresets[base].transition,
         }
       : base;
@@ -1027,13 +1564,6 @@ const STRING_TRANSITIONS: Record<string, MotionTransition> = {
   'spring-snappy': transitions.springSnappy,
   'spring-bouncy': transitions.springBouncy,
 };
-
-const EASING_TOKENS: Record<string, 'linear' | 'ease-in' | 'ease-out' | 'ease-in-out'> = {
-  'ease-linear': 'linear',
-  'ease-in': 'in',
-  'ease-out': 'out',
-  'ease-in-out': 'in-out',
-} as never;
 
 const STATE_PREFIXES = ['press', 'hover', 'focus', 'checked', 'selected', 'open', 'expanded'] as const;
 
@@ -1107,8 +1637,13 @@ export function parseMotionString(input: string): ParsedStrings {
       const preset = motionPresets[rawToken as MotionPresetName];
       if (preset.initial) idle.initial = { ...idle.initial, ...preset.initial };
       if (preset.to) idle.to = { ...idle.to, ...preset.to };
-      if (preset.exit) idle.exit = { ...idle.exit, ...preset.exit };
       if (preset.transition && !transition) transition = preset.transition;
+      if (!preset.initial && !preset.to && !preset.loop && preset.exit) {
+        devWarn(
+          `[motion] The "${rawToken}" preset only describes an exit animation, which this engine ` +
+            'does not run, so it has no effect.'
+        );
+      }
       continue;
     }
 
@@ -1131,11 +1666,12 @@ export function parseMotionString(input: string): ParsedStrings {
     }
 
     // ease-*
-    if (rawToken.startsWith('ease-')) {
-      const easing = rawToken === 'ease-linear' ? 'linear' : (rawToken as 'ease-in' | 'ease-out' | 'ease-in-out');
+    if (rawToken === 'ease-linear' || rawToken === 'ease-in' || rawToken === 'ease-out' || rawToken === 'ease-in-out') {
+      const easing = rawToken === 'ease-linear' ? 'linear' : rawToken;
       transition = {
         type: 'timing',
-        duration: transition && transition.type === 'timing' ? transition.duration ?? durations.base : durations.base,
+        duration:
+          transition && transition.type === 'timing' ? transition.duration ?? durations.base : durations.base,
         easing,
       };
       continue;
@@ -1169,7 +1705,11 @@ export function parseMotionString(input: string): ParsedStrings {
  * `Motion` — standalone host for user-owned content. Defaults to a View host.
  * Pass `asChild` to merge the animation into a single child instead of adding a node.
  */
-export function Motion({ asChild, ...props }: WithMotion<ViewProps> & { asChild?: boolean }) {
+export function Motion({
+  asChild,
+  channel,
+  ...props
+}: WithMotion<ViewProps> & { asChild?: boolean; channel?: MotionChannel }) {
   if (asChild) {
     const { animate, activeAnimate, motionActive, reduceMotion, style, children } = props;
     return (
@@ -1178,6 +1718,7 @@ export function Motion({ asChild, ...props }: WithMotion<ViewProps> & { asChild?
         activeAnimate={activeAnimate}
         motionActive={motionActive}
         reduceMotion={reduceMotion}
+        channel={channel}
         style={style}>
         {children}
       </MotionSlot>
@@ -1188,3 +1729,21 @@ export function Motion({ asChild, ...props }: WithMotion<ViewProps> & { asChild?
 
 // Keep a named marker so the beta status is discoverable at runtime/tooling.
 export const MOTION_BETA = true;
+
+/**
+ * @internal
+ *
+ * Engine internals exposed for the dedicated motion tests only. Not part of the public API;
+ * do not import this from component code — the shape can change without notice.
+ */
+export const __motionInternals = {
+  normalize,
+  resolveAnimate,
+  resolveActive,
+  resolveMotionTarget,
+  hasMotionConfig,
+  entranceAllowed,
+  NUMERIC_DEFAULTS,
+  NO_INVENT_KEYS,
+  resetDevWarnings: () => warnedMessages.clear(),
+};

@@ -16,6 +16,23 @@
  *
  * Hosts are intentionally generic — they apply no default animation. Each component
  * owns its own default (e.g. Button passes `activeAnimate ?? 'press'`).
+ *
+ * ## What these hosts guarantee
+ *
+ * - **No motion, no cost.** With no `animate` / `activeAnimate` configured (or with them set
+ *   to `false`), the host renders the RAW React Native component: no Reanimated hooks, shared
+ *   values, animated style or effects. Adding a motion prop switches to the animated host.
+ * - **Visible by default.** Entrance animations only start hidden where a hidden first frame
+ *   cannot be mistaken for missing content (native, and web mounts after page load). Static
+ *   web output, hydration and reduced motion always render final, visible values.
+ * - **Canonical state routing.** A shorthand `activeAnimate` target follows the host: press
+ *   for `Pressable`, focus for `TextInput`, semantic (`motionActive`) for `View` / `Text`.
+ * - **Explicit style ownership.** Motion owns the whole `transform` array once it animates any
+ *   transform key, composing static operations from the `style` prop in front of its own.
+ *   Colors and `borderRadius` are never invented: they animate only when both an idle and an
+ *   active endpoint are supplied.
+ *
+ * The full contract lives in the header of `@/components/ui/motion`.
  */
 
 /** Marker: tells the CLI this file is the motion-aware variant so a later plain
@@ -52,6 +69,11 @@ export type Text = RNText;
 export type TextInput = RNTextInput;
 export type Pressable = React.ComponentRef<typeof RNPressable>;
 
+/**
+ * Type surface kept EXACTLY in sync with the plain seam so the two files stay drop-in
+ * replacements for one another. Engine-only types (e.g. `MotionChannel`) are intentionally not
+ * re-exported here — import them from `@/components/ui/motion` if you need them.
+ */
 export type {
   ActiveAnimateConfig,
   ActiveAnimateProp,
