@@ -116,14 +116,13 @@ describe("immutable v1 preset decoding + active normalization", () => {
       baseColor: "mist",
       theme: "rose",
       chartColor: "lime",
-      // Every historical font is now supported directly, so it survives decoding intact.
       font: "instrument-serif",
-      iconLibrary: "lucide",
+      iconLibrary: "heroicons",
       radius: "full",
     })
-    expect(result?.warnings).toHaveLength(2)
+    expect(result?.warnings).toHaveLength(1)
     expect(result?.warnings.join("\n")).toContain('style "default"')
-    expect(result?.warnings.join("\n")).toContain('icon library "heroicons"')
+    expect(result?.warnings.join("\n")).not.toContain("icon library")
     expect(result?.warnings.join("\n")).not.toContain("font")
   })
 })

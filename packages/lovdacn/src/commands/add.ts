@@ -196,7 +196,7 @@ export async function runAdd(options: z.infer<typeof addOptionsSchema>) {
   }
 
   const style = lvcnConfig.style
-  const iconLibrary = lvcnConfig.iconLibrary
+  const iconLibrary = lvcnConfig.iconLibrary || "lucide"
   const styleEngine = lvcnConfig.styleEngine || "nativewind"
   const packageManager = options.packageManager || getPackageManager(cwd)
 
@@ -642,12 +642,18 @@ async function fetchRegistryItem(
   name: string,
   style: string,
   styleEngine: string,
-  iconLibrary: string
+  iconLibrary?: string
 ): Promise<any> {
   const registryUrl = getRegistryUrl()
+  const effectiveIconLib = iconLibrary || "lucide"
   const candidates =
     name === "semantic-icon"
-      ? [`icons/${styleEngine}/${iconLibrary}/semantic-icon.json`]
+      ? [
+          `icons/${styleEngine}/${effectiveIconLib}/semantic-icon.json`,
+          `icons/${styleEngine}/lucide/semantic-icon.json`,
+          `icons/nativewind/${effectiveIconLib}/semantic-icon.json`,
+          `icons/nativewind/lucide/semantic-icon.json`,
+        ]
       : [
           `styles/${styleEngine}/${style}/${name}.json`,
           `blocks/${style}/${name}.json`,

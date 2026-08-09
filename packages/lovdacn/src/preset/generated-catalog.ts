@@ -190,7 +190,9 @@ export const PRESET_FONTS = [
 export const PRESET_ICON_LIBRARIES = [
   "lucide",
   "phosphor",
-  "tabler"
+  "tabler",
+  "expo",
+  "heroicons"
 ] as const
 export const PRESET_RADII = [
   "default",
@@ -364,12 +366,16 @@ export const FONT_PACKAGES: Record<PresetFont, string> = {
 export const ICON_PACKAGES: Record<PresetIconLibrary, string> = {
   "lucide": "lucide-react-native@1.24.0",
   "phosphor": "phosphor-react-native@3.0.6",
-  "tabler": "@tabler/icons-react-native@3.46.0"
+  "tabler": "@tabler/icons-react-native@3.46.0",
+  "expo": "@expo/vector-icons@15.0.3",
+  "heroicons": "react-native-heroicons@4.0.0"
 }
 export const ICON_IMPORTS: Record<PresetIconLibrary, string> = {
   "lucide": "lucide-react-native",
   "phosphor": "phosphor-react-native",
-  "tabler": "@tabler/icons-react-native"
+  "tabler": "@tabler/icons-react-native",
+  "expo": "@expo/vector-icons",
+  "heroicons": "react-native-heroicons"
 }
 export const RADIUS_VALUES: Record<PresetRadius, string> = {
   "default": "0.5rem",
@@ -851,6 +857,16 @@ export const ICON_LIBRARY_MANIFEST = {
     "label": "Tabler",
     "package": "@tabler/icons-react-native",
     "version": "3.46.0"
+  },
+  "expo": {
+    "label": "Expo",
+    "package": "@expo/vector-icons",
+    "version": "15.0.3"
+  },
+  "heroicons": {
+    "label": "Heroicons",
+    "package": "react-native-heroicons",
+    "version": "4.0.0"
   }
 } as const
 export const STYLE_METADATA = {
@@ -1282,10 +1298,7 @@ export const STYLE_ALIASES: Readonly<Record<string, PresetStyle>> = {
   "default": "vega",
   "new-york": "vega"
 }
-export const ICON_LIBRARY_ALIASES: Readonly<Record<string, PresetIconLibrary>> = {
-  "expo": "lucide",
-  "heroicons": "lucide"
-}
+export const ICON_LIBRARY_ALIASES: Readonly<Record<string, PresetIconLibrary>> = {}
 export const FONT_ALIASES: Readonly<Record<string, PresetFont>> = {}
 
 const PRESET_FIELDS_V1 = [
