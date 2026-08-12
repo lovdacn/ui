@@ -21,6 +21,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const { twMerge } = require('tailwind-merge');
 const recipeCompiler = require('./lib/recipe-compiler.cjs');
+const registryChannel = require('./lib/registry-channel.cjs');
 
 // ---------------------------------------------------------------------------
 // Configuration
@@ -53,7 +54,7 @@ const WORKSPACE_ROOT = path.resolve(__dirname, '../../../../');
 // `react-native-reusables` checkout that does not exist here, which made the build silently
 // rebuild from its OWN generated output in `public/r/styles/<engine>/default`.
 const REUSABLES_SRC = path.join(WORKSPACE_ROOT, 'lvcn/packages/lovdacn/registry-src');
-const DEST_REGISTRY = path.join(WORKSPACE_ROOT, 'lvcn/apps/v2/public/r/styles');
+const DEST_REGISTRY = path.join(registryChannel.registryRoot(), 'styles');
 
 // Packages that are always present in Expo projects and should not be
 // listed as component dependencies.

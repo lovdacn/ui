@@ -9,10 +9,5 @@
     "utils"
   ],
   "files": [],
-  "meta": {
-    "style": "sera",
-    "recipeStyle": "sera",
-    "legacy": false
-  },
   "type": "registry:style"
 }

@@ -5,11 +5,14 @@ import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react"
 import { findNeighbour } from "fumadocs-core/page-tree"
 
 import { AnimationBetaNotice } from "@/components/animation-beta-notice"
+import { BetaGate } from "@/components/beta-gate"
+import { BetaPackageTag } from "@/components/beta-package-tag"
 import { BlocksBetaNotice } from "@/components/blocks-beta-notice"
 import { DocsTableOfContents } from "@/components/docs-toc"
 import { buttonVariants } from "@/components/ui/button"
 import { mdxComponents } from "@/mdx-components"
 import { absoluteUrl, cn } from "@/lib/utils"
+import { COMPONENTS } from "@/lib/components"
 import { source } from "@/lib/source"
 
 export const revalidate = false
@@ -73,6 +76,14 @@ export default async function DocsPage(props: {
   const isBlocksDoc =
     page.url === "/docs/blocks" || page.url.startsWith("/docs/blocks/")
   const isMotionDoc = page.url === "/docs/components/motion"
+  // Beta docs are gated by the component's own `beta` flag, so flagging a component in
+  // lib/components.ts is all it takes to hide its page, its nav entry, and its list entry.
+  const componentSlug = page.url.startsWith("/docs/components/")
+    ? page.url.slice("/docs/components/".length)
+    : undefined
+  const isBetaDoc = COMPONENTS.some(
+    (component) => component.name === componentSlug && component.beta
+  )
 
   return (
     <div
@@ -123,8 +134,15 @@ export default async function DocsPage(props: {
           {isBlocksDoc && <BlocksBetaNotice />}
           {isMotionDoc && <AnimationBetaNotice />}
 
-          <div className="docs-prose w-full flex-1 pb-12">
-            <MDX components={mdxComponents} />
+          <div className="docs-prose w-full flex-1 pb-12" data-docs-body>
+            {isBetaDoc ? (
+              <BetaGate title={`${doc.title} is in beta`}>
+                <MDX components={mdxComponents} />
+              </BetaGate>
+            ) : (
+              <MDX components={mdxComponents} />
+            )}
+            <BetaPackageTag />
           </div>
 
           <div className="flex items-center justify-between gap-4 border-t border-border pt-6">

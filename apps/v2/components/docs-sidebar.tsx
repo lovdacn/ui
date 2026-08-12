@@ -4,6 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 
 import { COMPONENTS } from "@/lib/components"
+import { useBeta } from "@/lib/beta"
 import { cn } from "@/lib/utils"
 
 type NavItem = {
@@ -40,6 +41,18 @@ const SECTIONS: NavSection[] = [
   },
 ]
 
+/**
+ * Beta entries are hidden until beta mode is on, so the default navigation only advertises what
+ * the stable CLI can install. The badge is kept for the entries that do appear in beta mode.
+ */
+function visibleSections(beta: boolean): NavSection[] {
+  if (beta) return SECTIONS
+  return SECTIONS.map((section) => ({
+    ...section,
+    items: section.items.filter((item) => !item.isBeta),
+  })).filter((section) => section.items.length > 0)
+}
+
 /** A small "New" pill, mirroring shadcn's new-component marker. */
 function NewBadge() {
   return (
@@ -59,6 +72,8 @@ function BetaBadge() {
 
 export function DocsSidebar({ className }: { className?: string }) {
   const pathname = usePathname()
+  const beta = useBeta()
+  const sections = visibleSections(beta)
 
   return (
     <aside
@@ -68,7 +83,7 @@ export function DocsSidebar({ className }: { className?: string }) {
       )}
     >
       <div className="pb-10 pt-6">
-        {SECTIONS.map((section) => (
+        {sections.map((section) => (
           <div key={section.title} className="mb-6">
             <h4 className="mb-1 px-2 text-xs font-medium text-muted-foreground">
               {section.title}
@@ -110,11 +125,13 @@ export function DocsSidebar({ className }: { className?: string }) {
 
 export function DocsMobileNav() {
   const pathname = usePathname()
+  const beta = useBeta()
+  const sections = visibleSections(beta)
 
   return (
     <div className="border-b border-border lg:hidden">
       <div className="no-scrollbar flex gap-2 overflow-x-auto px-4 py-3">
-        {SECTIONS.flatMap((s) => s.items)
+        {sections.flatMap((s) => s.items)
           .filter(
             (item) =>
               !item.href.startsWith("/docs/components/") ||

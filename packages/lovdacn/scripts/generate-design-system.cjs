@@ -10,6 +10,7 @@ const {
   parseCssStyleSheet,
   resolveMarker,
 } = require('./lib/recipe-compiler.cjs');
+const registryChannel = require('./lib/registry-channel.cjs');
 
 const CHECK = process.argv.includes('--check');
 const PACKAGE_ROOT = path.resolve(__dirname, '..');
@@ -734,11 +735,11 @@ function generate() {
   emitJson('apps/v2/public/schema.json', createSchema());
 
   const activeStyleIndex = catalog.styles.map(({ name, label, description }) => ({ name, label, description }));
-  emitJson('apps/v2/public/r/styles/index.json', activeStyleIndex);
+  emitJson(registryChannel.registryRelative('styles/index.json'), activeStyleIndex);
 
   for (const style of activeStyles) {
     const css = fs.readFileSync(path.join(DESIGN_ROOT, 'styles', `style-${style}.css`), 'utf8');
-    emit(`apps/v2/public/r/styles/style-${style}.css`, css.replace(/\r\n/g, '\n'));
+    emit(registryChannel.registryRelative(`styles/style-${style}.css`), css.replace(/\r\n/g, '\n'));
   }
 
   for (const engine of catalog.engines) {
@@ -753,13 +754,14 @@ function generate() {
         files: [{ path: 'components/ui/semantic-icon.tsx', content: source, type: 'registry:ui' }],
         meta: { engine, iconLibrary: library },
       };
-      emitJson(`apps/v2/public/r/icons/${engine}/${library}/semantic-icon.json`, item);
+      emitJson(registryChannel.registryRelative(`icons/${engine}/${library}/semantic-icon.json`), item);
     }
   }
 
   if (CHECK && stale.length > 0) {
     throw new Error(`Generated design-system artifacts are stale:\n- ${stale.join('\n- ')}\nRun pnpm --filter lovdacn design-system:generate.`);
   }
+  console.log(`   ${registryChannel.describe()}`);
   console.log(CHECK ? 'design-system artifacts are current' : 'design-system generation complete');
 }
 

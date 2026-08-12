@@ -26,8 +26,10 @@ describe("runAdd", () => {
     // Create temporary workspace directory
     tempCwd = await mkdtemp(path.join(os.tmpdir(), "lovda-test-add-cwd-"))
 
-    // Point LOVDA_REGISTRY_URL to the locally served registry (apps/v2/public/r)
-    process.env.LOVDA_REGISTRY_URL = path.resolve(__dirname, "../../../../apps/v2/public/r")
+    // Point LOVDA_REGISTRY_URL at the locally served registry for THIS release channel.
+    // The package is on the beta line, so the beta root is the registry under test; the
+    // stable root is a frozen baseline artifact and is deliberately not exercised here.
+    process.env.LOVDA_REGISTRY_URL = path.resolve(__dirname, "../../../../apps/v2/public/r/beta")
 
     vi.mocked(execa).mockResolvedValue({} as any)
   })

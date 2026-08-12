@@ -2,6 +2,8 @@
 
 import * as React from "react"
 
+import { packageSpec as buildPackageSpec } from "@/lib/package-spec"
+
 /**
  * Beta mode.
  *
@@ -127,4 +129,29 @@ function subscribe(onChange: () => void) {
 /** Reads beta mode. Renders `false` on the server, then adopts the DOM. */
 export function useBeta() {
   return React.useSyncExternalStore(subscribe, betaTarget, () => false)
+}
+
+/* -------------------------------------------------------------------------------------------------
+ * Release channel
+ *
+ * Beta mode is not only a skin: it selects the npm dist-tag the docs tell you to install, and it
+ * decides whether beta-only material is visible at all. The CLI derives its registry from its own
+ * version (`-beta.*` reads `r/beta`), so the tag is all the site has to communicate.
+ *
+ * The rewriting rules live in lib/package-spec.ts, free of React and the DOM. They are re-exported
+ * here so callers have one import for everything beta-related.
+ * -----------------------------------------------------------------------------------------------*/
+
+export {
+  BETA_PACKAGE_TAG,
+  PACKAGE_NAMES,
+  STABLE_PACKAGE_TAG,
+  packageSpec,
+  rewritePackageSpec,
+  tagFor as packageTag,
+} from "@/lib/package-spec"
+
+/** The package spec the docs should show right now, e.g. `lovdacn@beta`. */
+export function useBetaPackageSpec() {
+  return buildPackageSpec(useBeta())
 }

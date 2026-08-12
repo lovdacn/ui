@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/page-header"
 import { siteConfig } from "@/lib/config"
 import { cn } from "@/lib/utils"
 import { VenomCanvas } from "@/components/venom-canvas"
+import { HeroStrip } from "@/components/hero-strip"
 
 const title = "lovdaCN - The UI Toolkit for React Native & Expo"
 const description =
@@ -61,15 +62,7 @@ export default function IndexPage() {
               />
             </div>
 
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-border bg-muted/60 text-[11px] font-medium text-muted-foreground mb-5 backdrop-blur-sm">
-              <span>Expo</span>
-              <span className="text-muted-foreground/40">•</span>
-              <span>NativeWind</span>
-              <span className="text-muted-foreground/40">•</span>
-              <span>Uniwind</span>
-              <span className="text-muted-foreground/40">•</span>
-              <span>shadcn-style</span>
-            </div>
+            <HeroStrip className="mb-5" />
 
             <h1
               data-hero-protect

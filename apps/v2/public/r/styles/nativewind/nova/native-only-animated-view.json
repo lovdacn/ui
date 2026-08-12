@@ -12,9 +12,7 @@
   ],
   "meta": {
     "engine": "nativewind",
-    "style": "nova",
-    "recipeStyle": "nova",
-    "legacy": false
+    "style": "nova"
   },
   "type": "registry:ui"
 }

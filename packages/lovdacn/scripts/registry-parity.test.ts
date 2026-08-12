@@ -167,13 +167,18 @@ describe("extra registry parity", () => {
   });
 
   it("matches checked-in registry artifacts on disk exactly", () => {
+    // Artifacts are compared inside the ACTIVE channel's root, so a frozen stable baseline is
+    // never judged against current source (see scripts/lib/registry-channel.cjs).
+    const registryChannel = require("./lib/registry-channel.cjs") as {
+      registryRoot: () => string;
+    };
     for (const engine of ENGINES) {
       for (const style of STYLES) {
         for (const definition of COMPONENTS) {
           const expected = createRegistryItem(definition, engine, style);
           const diskPath = path.resolve(
-            __dirname,
-            "../../../apps/v2/public/r/styles",
+            registryChannel.registryRoot(),
+            "styles",
             engine,
             style,
             `${definition.name}.json`

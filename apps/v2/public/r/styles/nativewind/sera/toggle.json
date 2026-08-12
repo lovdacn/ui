@@ -19,9 +19,7 @@
   ],
   "meta": {
     "engine": "nativewind",
-    "style": "sera",
-    "recipeStyle": "sera",
-    "legacy": false
+    "style": "sera"
   },
   "type": "registry:ui"
 }

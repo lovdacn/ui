@@ -39,17 +39,22 @@ const BASE: Record<Scheme, Palette> = {
   },
 }
 
-/** Beta palette — only used while beta mode is on. */
+/**
+ * Beta palette — only used while beta mode is on.
+ *
+ * Burnt orange to match the beta skin: the burst is a rust tone rather than safety orange, and
+ * the dim/idle colours are pulled toward brown so the field reads as embers.
+ */
 const ACCENT: Record<Scheme, Palette> = {
   light: {
-    burst: [249, 115, 22], // orange-500
-    dim: [253, 200, 150],
+    burst: [193, 84, 33], // burnt orange
+    dim: [222, 176, 146],
     core: [255, 255, 255],
   },
   dark: {
-    burst: [251, 146, 60], // orange-400
-    dim: [88, 32, 12],
-    core: [26, 16, 10],
+    burst: [214, 112, 58], // ember
+    dim: [66, 28, 14],
+    core: [22, 14, 10],
   },
 }
 

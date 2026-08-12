@@ -12,9 +12,7 @@
   ],
   "meta": {
     "engine": "nativewind",
-    "style": "new-york",
-    "recipeStyle": "vega",
-    "legacy": true
+    "style": "new-york"
   },
   "type": "registry:ui"
 }

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://lovdacn.vercel.app/schema/registry-item.json",
+  "name": "index",
+  "dependencies": [
+    "class-variance-authority",
+    "nativewind"
+  ],
+  "registryDependencies": [
+    "utils"
+  ],
+  "files": [],
+  "meta": {
+    "style": "nova",
+    "recipeStyle": "nova",
+    "legacy": false
+  },
+  "type": "registry:style"
+}

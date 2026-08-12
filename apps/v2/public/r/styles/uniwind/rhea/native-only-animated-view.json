@@ -12,9 +12,7 @@
   ],
   "meta": {
     "engine": "uniwind",
-    "style": "rhea",
-    "recipeStyle": "rhea",
-    "legacy": false
+    "style": "rhea"
   },
   "type": "registry:ui"
 }

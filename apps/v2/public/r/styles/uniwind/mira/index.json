@@ -9,10 +9,5 @@
     "utils"
   ],
   "files": [],
-  "meta": {
-    "style": "mira",
-    "recipeStyle": "mira",
-    "legacy": false
-  },
   "type": "registry:style"
 }

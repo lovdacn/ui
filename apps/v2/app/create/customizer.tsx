@@ -58,6 +58,7 @@ const RadiusIcon = (
 )
 
 import { useTheme } from "next-themes"
+import { packageSpec, useBeta } from "@/lib/beta"
 import { cn } from "@/lib/utils"
 import { expoPreviewOrigin, getExpoCustomizerPreviewUrl } from "@/lib/preview"
 import { usePreviewHandshake } from "@/lib/use-preview-handshake"
@@ -190,17 +191,22 @@ export function CreateCustomizer({ initialConfig }: { initialConfig: PresetConfi
     requireConfirmation: true,
   })
 
+  const beta = useBeta()
+
   const command = React.useMemo(() => {
+    // Beta mode changes the dist-tag: a beta CLI resolves the beta registry from its own
+    // version, so the tag is the only thing the copied command has to carry.
+    const spec = packageSpec(beta)
     const runner = {
-      npm: "npx lovdacn@latest",
-      pnpm: "pnpm dlx lovdacn@latest",
-      yarn: "yarn dlx lovdacn@latest",
-      bun: "bunx --bun lovdacn@latest",
+      npm: `npx ${spec}`,
+      pnpm: `pnpm dlx ${spec}`,
+      yarn: `yarn dlx ${spec}`,
+      bun: `bunx --bun ${spec}`,
     }[packageManager]
     return target === "new"
       ? `${runner} init --preset ${presetCode} --engine ${selectedEngine} --expo-version ${expoVersion}`
       : `${runner} apply ${presetCode}`
-  }, [packageManager, selectedEngine, expoVersion, presetCode, target])
+  }, [beta, packageManager, selectedEngine, expoVersion, presetCode, target])
 
   // Sync preset to URL
   React.useEffect(() => {
