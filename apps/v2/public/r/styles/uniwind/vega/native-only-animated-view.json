@@ -12,9 +12,7 @@
   ],
   "meta": {
     "engine": "uniwind",
-    "style": "vega",
-    "recipeStyle": "vega",
-    "legacy": false
+    "style": "vega"
   },
   "type": "registry:ui"
 }

@@ -36,6 +36,7 @@
 const fs = require('fs-extra');
 const path = require('path');
 const { twMerge } = require('tailwind-merge');
+const registryChannel = require('./lib/registry-channel.cjs');
 
 const DESIGN_ROOT = path.join(__dirname, '../design-system');
 const DESIGN_CATALOG = fs.readJsonSync(path.join(DESIGN_ROOT, 'catalog.json'));
@@ -47,16 +48,7 @@ const ACTIVE_STYLES = DESIGN_CATALOG.styles.map(({ name, label, description }) =
 }));
 
 const BLOCKS_SRC = path.join(__dirname, 'blocks');
-const REGISTRY_ROOT = path.resolve(
-  __dirname,
-  '..',
-  '..',
-  '..',
-  'apps',
-  'v2',
-  'public',
-  'r'
-);
+const REGISTRY_ROOT = registryChannel.registryRoot();
 const BLOCKS_DEST = path.join(REGISTRY_ROOT, 'blocks');
 const SCHEMA = 'https://lovdacn.vercel.app/schema/registry-item.json';
 

@@ -1,12 +1,11 @@
 {
   "name": "lovdacn",
   "type": "module",
-  "version": "0.1.5",
+  "version": "1.0.0-beta.7",
   "private": false,
   "license": "MIT",
   "files": [
-    "dist",
-    "design-system"
+    "dist"
   ],
   "publishConfig": {
     "access": "public",
@@ -35,6 +34,7 @@
     "blocks:build": "node scripts/build-blocks.cjs",
     "extra:build": "node scripts/build-extra-components.cjs",
     "registry:build:all": "node scripts/generate-design-system.cjs && node scripts/build-registry.cjs && node scripts/build-blocks.cjs && node scripts/build-extra-components.cjs",
+    "registry:validate": "node scripts/validate-registry-channel.cjs",
     "version:beta": "npm version prerelease --preid=beta --no-git-tag-version",
     "release:beta": "npm publish --tag beta --access public"
   },

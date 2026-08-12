@@ -1,3 +1,4 @@
+import { DocsBetaBanner } from "@/components/docs-beta-banner"
 import { DocsMobileNav, DocsSidebar } from "@/components/docs-sidebar"
 
 export default function DocsLayout({
@@ -10,7 +11,12 @@ export default function DocsLayout({
       <DocsMobileNav />
       <div className="container flex flex-1 items-start gap-8 px-0 lg:gap-10">
         <DocsSidebar />
-        <div className="min-w-0 flex-1">{children}</div>
+        <div className="min-w-0 flex-1">
+          {/* Banner lives in the layout so every docs page carries it, and it hides itself
+              outside beta mode. */}
+          <DocsBetaBanner className="mt-4" />
+          {children}
+        </div>
       </div>
     </div>
   )

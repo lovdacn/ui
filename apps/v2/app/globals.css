@@ -141,63 +141,117 @@
  * every page including the docs turns orange, and the default theme stays exactly
  * as it is in production.
  */
+/*
+ * Beta accent.
+ *
+ * Defined outside `.beta` because the toggle and its badges are visible in BOTH themes: the
+ * control that turns beta on has to look like beta before beta exists. One place to tune the
+ * burnt-orange tint, so no component hardcodes a colour scale.
+ */
+:root {
+  --beta-accent: oklch(0.52 0.135 44);
+  --beta-accent-strong: oklch(0.44 0.12 42);
+  --beta-accent-contrast: oklch(0.985 0.008 70);
+  --beta-accent-soft: oklch(0.52 0.135 44 / 10%);
+  --beta-accent-softer: oklch(0.52 0.135 44 / 6%);
+  --beta-accent-line: oklch(0.52 0.135 44 / 26%);
+}
+
+.dark {
+  --beta-accent: oklch(0.7 0.135 50);
+  --beta-accent-strong: oklch(0.78 0.12 58);
+  --beta-accent-contrast: oklch(0.18 0.035 38);
+  --beta-accent-soft: oklch(0.7 0.135 50 / 14%);
+  --beta-accent-softer: oklch(0.7 0.135 50 / 8%);
+  --beta-accent-line: oklch(0.7 0.135 50 / 30%);
+}
+
+/** Chip/badge surface in the beta accent. */
+.beta-pill {
+  border-color: var(--beta-accent-line);
+  background-color: var(--beta-accent-soft);
+  color: var(--beta-accent-strong);
+}
+
+/** Notice/banner surface in the beta accent. */
+.beta-panel {
+  border-color: var(--beta-accent-line);
+  background-color: var(--beta-accent-softer);
+}
+
+.beta-panel-title {
+  color: var(--beta-accent-strong);
+}
+
+.beta-panel-body {
+  color: color-mix(in oklab, var(--beta-accent-strong) 78%, var(--color-foreground));
+}
+
+/*
+ * Beta skin — burnt orange.
+ *
+ * Deliberately darker and less saturated than a stock orange ramp: the hue is pulled toward
+ * red-brown and the chroma cut roughly in half, so the theme reads as ember/rust rather than
+ * safety orange. Text-bearing surfaces stay near-neutral and only borders, accents and the
+ * primary colour carry the tint, which keeps long documentation readable.
+ */
 .beta {
-  --primary: oklch(0.646 0.222 41.116); /* orange-600 */
-  --primary-foreground: oklch(0.985 0.01 73);
-  --secondary: oklch(0.968 0.016 75);
-  --secondary-foreground: oklch(0.408 0.123 38.172);
-  --muted: oklch(0.97 0.014 75);
-  --muted-foreground: oklch(0.53 0.07 45);
-  --accent: oklch(0.954 0.038 75.164); /* orange-100 */
-  --accent-foreground: oklch(0.408 0.123 38.172); /* orange-900 */
-  --border: oklch(0.9 0.045 72);
-  --input: oklch(0.9 0.045 72);
-  --ring: oklch(0.705 0.213 47.604); /* orange-500 */
-  --background: oklch(0.995 0.005 75);
-  --card: oklch(0.999 0.003 75);
-  --popover: oklch(0.999 0.003 75);
-  --surface: oklch(0.977 0.012 75);
-  --code-highlight: oklch(0.954 0.038 75.164);
-  --code-number: oklch(0.56 0.06 45);
-  --sidebar: oklch(0.985 0.012 75);
-  --sidebar-primary: oklch(0.646 0.222 41.116);
-  --sidebar-primary-foreground: oklch(0.985 0.01 73);
-  --sidebar-accent: oklch(0.954 0.038 75.164);
-  --sidebar-accent-foreground: oklch(0.408 0.123 38.172);
-  --sidebar-border: oklch(0.9 0.045 72);
-  --sidebar-ring: oklch(0.705 0.213 47.604);
-  --selection: oklch(0.705 0.213 47.604);
-  --selection-foreground: oklch(0.985 0.01 73);
+  --primary: oklch(0.52 0.135 44); /* burnt orange */
+  --primary-foreground: oklch(0.985 0.008 70);
+  --secondary: oklch(0.955 0.012 62);
+  --secondary-foreground: oklch(0.35 0.085 42);
+  --muted: oklch(0.958 0.01 62);
+  --muted-foreground: oklch(0.47 0.045 46);
+  --accent: oklch(0.93 0.028 62);
+  --accent-foreground: oklch(0.33 0.08 42);
+  --border: oklch(0.88 0.03 58);
+  --input: oklch(0.88 0.03 58);
+  --ring: oklch(0.52 0.135 44);
+  --background: oklch(0.991 0.004 62);
+  --card: oklch(0.998 0.002 62);
+  --popover: oklch(0.998 0.002 62);
+  --surface: oklch(0.968 0.009 62);
+  --code-highlight: oklch(0.93 0.028 62);
+  --code-number: oklch(0.5 0.04 46);
+  --sidebar: oklch(0.978 0.009 62);
+  --sidebar-primary: oklch(0.52 0.135 44);
+  --sidebar-primary-foreground: oklch(0.985 0.008 70);
+  --sidebar-accent: oklch(0.93 0.028 62);
+  --sidebar-accent-foreground: oklch(0.33 0.08 42);
+  --sidebar-border: oklch(0.88 0.03 58);
+  --sidebar-ring: oklch(0.52 0.135 44);
+  --selection: oklch(0.52 0.135 44);
+  --selection-foreground: oklch(0.985 0.008 70);
 }
 
 .beta.dark {
-  --primary: oklch(0.75 0.183 55.934); /* orange-400 */
-  --primary-foreground: oklch(0.22 0.06 36);
-  --secondary: oklch(0.28 0.04 40);
-  --secondary-foreground: oklch(0.9 0.076 70.697);
-  --muted: oklch(0.28 0.04 40);
-  --muted-foreground: oklch(0.74 0.065 60);
-  --accent: oklch(0.35 0.09 38);
-  --accent-foreground: oklch(0.9 0.076 70.697);
-  --border: oklch(0.75 0.183 55.934 / 16%);
-  --input: oklch(0.75 0.183 55.934 / 22%);
-  --ring: oklch(0.705 0.213 47.604);
-  --background: oklch(0.15 0.012 40);
-  --card: oklch(0.21 0.02 40);
-  --popover: oklch(0.21 0.02 40);
-  --surface: oklch(0.21 0.02 40);
-  --surface-foreground: oklch(0.74 0.065 60);
-  --code-highlight: oklch(0.28 0.04 40);
-  --code-number: oklch(0.78 0.06 60);
-  --sidebar: oklch(0.2 0.018 40);
-  --sidebar-primary: oklch(0.75 0.183 55.934);
-  --sidebar-primary-foreground: oklch(0.22 0.06 36);
-  --sidebar-accent: oklch(0.3 0.055 40);
-  --sidebar-accent-foreground: oklch(0.9 0.076 70.697);
-  --sidebar-border: oklch(0.75 0.183 55.934 / 16%);
-  --sidebar-ring: oklch(0.705 0.213 47.604);
-  --selection: oklch(0.75 0.183 55.934);
-  --selection-foreground: oklch(0.22 0.06 36);
+  --primary: oklch(0.66 0.14 48); /* ember, not neon */
+  --primary-foreground: oklch(0.18 0.035 38);
+  --secondary: oklch(0.26 0.028 40);
+  --secondary-foreground: oklch(0.85 0.05 66);
+  --muted: oklch(0.255 0.026 40);
+  --muted-foreground: oklch(0.7 0.042 58);
+  --accent: oklch(0.32 0.055 40);
+  --accent-foreground: oklch(0.86 0.05 66);
+  --border: oklch(0.66 0.14 48 / 14%);
+  --input: oklch(0.66 0.14 48 / 20%);
+  --ring: oklch(0.66 0.14 48);
+  --background: oklch(0.135 0.011 38);
+  --card: oklch(0.185 0.015 38);
+  --popover: oklch(0.185 0.015 38);
+  --surface: oklch(0.185 0.015 38);
+  --surface-foreground: oklch(0.7 0.042 58);
+  --code-highlight: oklch(0.255 0.026 40);
+  --code-number: oklch(0.72 0.045 58);
+  --sidebar: oklch(0.175 0.014 38);
+  --sidebar-primary: oklch(0.66 0.14 48);
+  --sidebar-primary-foreground: oklch(0.18 0.035 38);
+  --sidebar-accent: oklch(0.28 0.04 40);
+  --sidebar-accent-foreground: oklch(0.86 0.05 66);
+  --sidebar-border: oklch(0.66 0.14 48 / 14%);
+  --sidebar-ring: oklch(0.66 0.14 48);
+  --selection: oklch(0.66 0.14 48);
+  --selection-foreground: oklch(0.18 0.035 38);
 }
 
 /*
@@ -219,6 +273,25 @@
   .theme-morph *:not(canvas) {
     transition-duration: 0ms;
   }
+}
+
+/**
+ * Beta gating.
+ *
+ * Visibility is decided by the `beta` class that the inline script in app/layout.tsx puts on
+ * <html> before first paint. Doing it in CSS rather than in React means beta-only material is
+ * never briefly visible on load, and the gate needs no hydration to be correct.
+ */
+[data-beta-only] {
+  display: none;
+}
+
+html.beta [data-beta-only] {
+  display: revert;
+}
+
+html.beta [data-beta-off-only] {
+  display: none;
 }
 
 @layer base {

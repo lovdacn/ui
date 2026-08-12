@@ -9,10 +9,5 @@
     "utils"
   ],
   "files": [],
-  "meta": {
-    "style": "nova",
-    "recipeStyle": "nova",
-    "legacy": false
-  },
   "type": "registry:style"
 }

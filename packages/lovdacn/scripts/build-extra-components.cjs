@@ -21,6 +21,7 @@
 
 const fs = require('fs-extra');
 const path = require('path');
+const registryChannel = require('./lib/registry-channel.cjs');
 
 const WORKSPACE_ROOT = path.resolve(__dirname, '../../../../');
 // Canonical in-repo registry source (Phase 0) — was a non-existent sibling checkout.
@@ -30,7 +31,7 @@ const PREVIEW_SRC = path.join(WORKSPACE_ROOT, 'lvcn/apps/preview/src/components/
 // (e.g. the PLAIN primitives variant, which the preview never uses because the preview
 // always has motion installed).
 const REGISTRY_SRC = path.join(WORKSPACE_ROOT, 'lvcn/packages/lovdacn/registry-src/shared');
-const DEST_REGISTRY = path.join(WORKSPACE_ROOT, 'lvcn/apps/v2/public/r/styles');
+const DEST_REGISTRY = path.join(registryChannel.registryRoot(), 'styles');
 const SCHEMA = 'https://lovdacn.vercel.app/schema/registry-item.json';
 
 const DESIGN_ROOT = path.join(__dirname, '../design-system');

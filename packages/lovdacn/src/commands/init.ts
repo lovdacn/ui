@@ -8,7 +8,11 @@ import { execa } from "execa"
 import pc from "picocolors"
 import { z } from "zod"
 
-import { REGISTRY_URL } from "../config.js"
+import {
+  getRegistryUrl as resolveRegistryUrl,
+  setRegistryChannel,
+  type RegistryChannel,
+} from "../utils/registry-url.js"
 import {
   decodePresetWithWarnings,
   isPresetCode,
@@ -65,6 +69,7 @@ export const initOptionsSchema = z.object({
   preset: z.string().optional(),
   engine: z.enum(["nativewind", "uniwind"]).optional(),
   expoVersion: z.enum(TEMPLATE_EXPO_VERSIONS).optional(),
+  channel: z.enum(["stable", "beta"]).optional(),
 })
 
 export const init = new Command()
@@ -93,6 +98,10 @@ export const init = new Command()
   .option(
     "--expo-version <version>",
     "the Expo SDK template to use (54, 57)"
+  )
+  .option(
+    "--channel <channel>",
+    "registry channel to install from (stable, beta). defaults to this CLI's release channel."
   )
   .action(async (opts) => {
     try {
@@ -205,6 +214,7 @@ async function initializeGitRepo(projectPath: string) {
 }
 
 export async function runInit(options: z.infer<typeof initOptionsSchema>) {
+  setRegistryChannel(options.channel as RegistryChannel | undefined)
   const cwd = options.cwd
   const hasPackageJson = fs.existsSync(path.join(cwd, "package.json"))
 
@@ -1938,26 +1948,7 @@ export async function regenerateProjectCss(opts: {
 }
 
 function getRegistryUrl(): string {
-  if (process.env.LOVDA_REGISTRY_URL) {
-    return process.env.LOVDA_REGISTRY_URL
-  }
-
-  // Try to find the locally served registry (apps/v2/public/r) in the workspace
-  const possibleLocalPaths = [
-    path.resolve(__dirname, "../../../apps/v2/public/r"),
-    path.resolve(__dirname, "../../../../apps/v2/public/r"),
-    path.resolve(__dirname, "../../apps/v2/public/r"),
-    path.resolve(__dirname, "../../../../../apps/v2/public/r"),
-    path.resolve(__dirname, "../../../../../../apps/v2/public/r"),
-  ]
-
-  for (const localPath of possibleLocalPaths) {
-    if (fs.existsSync(localPath)) {
-      return localPath
-    }
-  }
-
-  return REGISTRY_URL
+  return resolveRegistryUrl()
 }
 
 function configureMetroConfig(projectPath: string, styleEngine: "nativewind" | "uniwind", cssRelativePath: string, hasSrcDir: boolean) {
