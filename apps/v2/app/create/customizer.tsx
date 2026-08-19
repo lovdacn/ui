@@ -5,8 +5,6 @@ import { createPortal } from "react-dom"
 import {
   DicesIcon,
   RotateCcwIcon,
-  MonitorIcon,
-  SmartphoneIcon,
   SparklesIcon,
   Droplet,
   Sun,
@@ -152,7 +150,6 @@ export function CreateCustomizer({ initialConfig }: { initialConfig: PresetConfi
   const [locks, setLocks] = React.useState<Partial<Record<PresetField, boolean>>>({})
   const [copied, setCopied] = React.useState(false)
   const [openDialog, setOpenDialog] = React.useState(false)
-  const [viewMode, setViewMode] = React.useState<"web" | "native">("web")
   const [target, setTarget] = React.useState<"new" | "existing">("new")
 
   const presetCode = React.useMemo(() => encodePreset(config), [config])
@@ -406,85 +403,22 @@ export function CreateCustomizer({ initialConfig }: { initialConfig: PresetConfi
       </aside>
 
       {/* Right Preview area */}
-      <div className="flex-1 h-full flex flex-col overflow-hidden bg-muted/5 relative">
-        {/* Toggle between Expo Web and Mobile */}
-        <div className="absolute top-4 left-4 z-30 flex gap-1 rounded-xl border border-border bg-card/85 p-0.5 shadow-lg backdrop-blur-md">
-          {([
-            { mode: "web", icon: MonitorIcon, label: "Expo Web" },
-            { mode: "native", icon: SmartphoneIcon, label: "Mobile" },
-          ] as const).map(({ mode, icon: Icon, label }) => (
-            <button
-              key={mode}
-              type="button"
-              onClick={() => setViewMode(mode)}
-              className={cn(
-                "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all",
-                viewMode === mode
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <Icon className="size-3.5" />
-              {label}
-            </button>
-          ))}
-        </div>
-
-        {/* Preview on a dotted grid backdrop */}
-        <div
-          className={cn(
-            "flex-1 min-h-0 overflow-hidden relative flex flex-col",
-            viewMode === "web"
-              ? "p-0 bg-background"
-              : "p-4 md:p-6 bg-[radial-gradient(hsl(var(--border)/0.6)_1px,transparent_1px)] [background-size:18px_18px]"
-          )}
-        >
-          {viewMode === "web" ? (
-            /* Desktop preview - iframe pinned to fill the container (overrides UA 150px height) */
-            <div className="relative z-10 flex-1 min-h-0 overflow-hidden animate-in fade-in duration-300">
-              {!previewVisible && <PreviewLoadingSkeleton />}
-              {previewUnreachable && (
-                <div
-                  className="absolute inset-x-0 top-0 z-20 flex flex-wrap items-center justify-center gap-3 border-b border-border bg-muted/85 px-4 py-2 text-xs text-muted-foreground backdrop-blur-sm"
-                  role="alert"
-                >
-                  <span>The preview did not confirm the current theme.</span>
-                  <button
-                    type="button"
-                    onClick={retryPreview}
-                    className="rounded-md border border-border bg-background px-2 py-1 text-[11px] font-medium text-foreground transition-colors hover:bg-muted"
-                  >
-                    Reload preview
-                  </button>
-                </div>
-              )}
-              <iframe
-                key={previewFrameKey}
-                ref={previewFrameRef}
-                src={webPreviewUrl}
-                onLoad={onPreviewLoad}
-                data-preview-frame="true"
-                className={cn(
-                  "absolute inset-0 h-full w-full border-0 select-none bg-background",
-                  previewVisible ? "opacity-100" : "opacity-0"
-                )}
-                title="Expo Web Preview"
-              />
-            </div>
-          ) : (
-            /* Mobile preview is not available yet. */
-            <div className="relative z-10 flex-1 min-h-0 flex items-center justify-center">
-              <div className="flex max-w-sm flex-col items-center gap-3 px-6 text-center animate-in fade-in zoom-in-95 duration-300">
-                <div className="flex size-14 items-center justify-center rounded-full border border-border bg-card shadow-sm">
-                  <SmartphoneIcon className="size-6 text-muted-foreground" aria-hidden="true" />
-                </div>
-                <div className="space-y-1">
-                  <h2 className="text-base font-semibold text-foreground">Mobile preview coming soon</h2>
-                  <p className="text-sm text-muted-foreground">Use the Expo Web preview while we finish the native experience.</p>
-                </div>
-              </div>
-            </div>
-          )}
+      <div className="flex-1 h-full flex flex-col overflow-hidden bg-background relative">
+        {/* Desktop web preview - iframe pinned to fill container */}
+        <div className="relative z-10 flex-1 min-h-0 overflow-hidden animate-in fade-in duration-300">
+          {!previewVisible && <PreviewLoadingSkeleton />}
+          <iframe
+            key={previewFrameKey}
+            ref={previewFrameRef}
+            src={webPreviewUrl}
+            onLoad={onPreviewLoad}
+            data-preview-frame="true"
+            className={cn(
+              "absolute inset-0 h-full w-full border-0 select-none bg-background",
+              previewVisible ? "opacity-100" : "opacity-0"
+            )}
+            title="Expo Web Preview"
+          />
         </div>
       </div>
 

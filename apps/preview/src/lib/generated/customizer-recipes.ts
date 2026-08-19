@@ -2,32 +2,32 @@
 
 import type { PresetStyle } from './preset-catalog'
 
-export const CUSTOMIZER_RECIPE_VERSION = "1.0.0-d69e2384a62aa620" as const
+export const CUSTOMIZER_RECIPE_VERSION = "1.0.0-e2d29ba67e95f21f" as const
 export const CUSTOMIZER_RECIPES = {
   "luma": {
     "components": {
       "button": {
-        "container": "focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-4xl border border-transparent bg-clip-padding focus-visible:ring-3 aria-invalid:ring-3 h-9 gap-1.5 px-3",
+        "container": "rounded-4xl border border-transparent min-h-9 gap-1.5 px-3",
         "default": "bg-primary hover:bg-primary/80",
         "outline": "border-border bg-background dark:bg-transparent hover:bg-muted dark:hover:bg-input/30 aria-expanded:bg-muted",
-        "small": "h-8 gap-1 px-3",
+        "small": "min-h-8 gap-1 px-3",
         "text": "text-sm font-medium",
         "smallText": ""
       },
       "card": {
-        "shell": "bg-card ring-foreground/5 dark:ring-foreground/10 overflow-hidden rounded-4xl shadow-md ring-1",
+        "shell": "bg-card rounded-4xl shadow-md",
         "header": "gap-1.5 rounded-t-4xl",
         "title": "text-base font-medium",
         "description": "text-muted-foreground text-sm",
         "content": ""
       },
-      "input": "bg-input/50 border-transparent focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 h-9 rounded-3xl border px-3 py-1 text-base transition-[color, box-shadow, background-color] file:h-7 file:text-sm file:font-medium focus-visible:ring-3 aria-invalid:ring-3 md:text-sm",
-      "label": "text-sm leading-none font-medium",
+      "input": "bg-input/50 border-transparent min-h-9 rounded-3xl border px-3 py-1 text-base file:min-h-7 file:text-sm file:font-medium md:text-sm",
+      "label": "text-sm font-medium",
       "badge": {
-        "shell": "h-5 gap-1 rounded-3xl border px-2 py-0.5 transition-all border-border",
+        "shell": "min-h-5 gap-1 rounded-3xl border px-2 py-0.5 border-border",
         "text": "text-xs font-medium text-foreground"
       },
-      "checkbox": "bg-input/90 dark:data-checked:bg-primary border-transparent aria-invalid:aria-checked:border-primary aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 flex size-4 items-center justify-center rounded-[5px] border transition-shadow group-has-disabled/field:opacity-50 focus-visible:ring-3 aria-invalid:ring-3",
+      "checkbox": "bg-input/90 dark:data-checked:bg-primary border-transparent flex size-4 items-center justify-center rounded-[5px] border transition-shadow group-has-disabled/field:opacity-50",
       "checkboxIndicator": "",
       "progress": "bg-muted h-3 rounded-full",
       "progressIndicator": "bg-primary",
@@ -76,27 +76,27 @@ export const CUSTOMIZER_RECIPES = {
   "lyra": {
     "components": {
       "button": {
-        "container": "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-none border border-transparent bg-clip-padding focus-visible:ring-1 aria-invalid:ring-1 h-8 gap-1.5 px-2.5",
+        "container": "rounded-none border border-transparent min-h-8 gap-1.5 px-2.5",
         "default": "bg-primary hover:bg-primary/80",
         "outline": "border-border bg-background hover:bg-muted dark:bg-input/30 dark:border-input dark:hover:bg-input/50 aria-expanded:bg-muted",
-        "small": "h-7 gap-1 rounded-none px-2.5",
+        "small": "min-h-7 gap-1 rounded-none px-2.5",
         "text": "text-xs font-medium",
         "smallText": ""
       },
       "card": {
-        "shell": "ring-foreground/10 bg-card overflow-hidden rounded-none ring-1",
+        "shell": "bg-card overflow-hidden rounded-none",
         "header": "gap-1 rounded-none",
         "title": "text-sm font-medium",
         "description": "text-muted-foreground text-xs/relaxed",
         "content": ""
       },
-      "input": "dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 disabled:bg-input/50 dark:disabled:bg-input/80 h-8 rounded-none border bg-transparent px-2.5 py-1 text-xs transition-colors file:h-6 file:text-xs file:font-medium focus-visible:ring-1 aria-invalid:ring-1 md:text-xs",
-      "label": "text-xs leading-none",
+      "input": "dark:bg-input/30 border-input disabled:bg-input/50 dark:disabled:bg-input/80 min-h-8 rounded-none border bg-transparent px-2.5 py-1 text-xs transition-colors file:min-h-6 file:text-xs file:font-medium md:text-xs",
+      "label": "text-xs",
       "badge": {
-        "shell": "h-5 gap-1 rounded-none border px-2 py-0.5 transition-all border-border",
+        "shell": "min-h-5 gap-1 rounded-none border px-2 py-0.5 border-border",
         "text": "text-xs font-medium text-foreground"
       },
-      "checkbox": "border-input dark:bg-input/30 dark:data-checked:bg-primary aria-invalid:aria-checked:border-primary aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 flex size-4 items-center justify-center rounded-none border transition-colors group-has-disabled/field:opacity-50 focus-visible:ring-1 aria-invalid:ring-1",
+      "checkbox": "border-input dark:bg-input/30 dark:data-checked:bg-primary flex size-4 items-center justify-center rounded-none border transition-colors group-has-disabled/field:opacity-50",
       "checkboxIndicator": "",
       "progress": "bg-muted h-1 rounded-none",
       "progressIndicator": "bg-primary",
@@ -145,27 +145,27 @@ export const CUSTOMIZER_RECIPES = {
   "maia": {
     "components": {
       "button": {
-        "container": "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-4xl border border-transparent bg-clip-padding focus-visible:ring-[3px] aria-invalid:ring-[3px] h-9 gap-1.5 px-3",
+        "container": "rounded-4xl border border-transparent min-h-9 gap-1.5 px-3",
         "default": "bg-primary hover:bg-primary/80",
         "outline": "border-border bg-input/30 hover:bg-input/50 aria-expanded:bg-muted",
-        "small": "h-8 gap-1 px-3",
+        "small": "min-h-8 gap-1 px-3",
         "text": "text-sm font-medium",
         "smallText": ""
       },
       "card": {
-        "shell": "ring-foreground/10 bg-card overflow-hidden rounded-2xl ring-1",
+        "shell": "bg-card overflow-hidden rounded-2xl",
         "header": "gap-2 rounded-t-xl",
         "title": "text-base font-medium",
         "description": "text-muted-foreground text-sm",
         "content": ""
       },
-      "input": "bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 h-9 rounded-4xl border px-3 py-1 text-base transition-colors file:h-7 file:text-sm file:font-medium focus-visible:ring-[3px] aria-invalid:ring-[3px] md:text-sm",
-      "label": "text-sm leading-none font-medium",
+      "input": "bg-input/30 border-input min-h-9 rounded-4xl border px-3 py-1 text-base transition-colors file:min-h-7 file:text-sm file:font-medium md:text-sm",
+      "label": "text-sm font-medium",
       "badge": {
-        "shell": "h-5 gap-1 rounded-4xl border px-2 py-0.5 transition-all border-border bg-input/30",
+        "shell": "min-h-5 gap-1 rounded-4xl border px-2 py-0.5 border-border bg-input/30",
         "text": "text-xs font-medium text-foreground"
       },
-      "checkbox": "border-input dark:bg-input/30 dark:data-checked:bg-primary aria-invalid:aria-checked:border-primary aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 flex size-4 items-center justify-center rounded-[6px] border transition-shadow group-has-disabled/field:opacity-50 focus-visible:ring-[3px] aria-invalid:ring-[3px]",
+      "checkbox": "border-input dark:bg-input/30 dark:data-checked:bg-primary flex size-4 items-center justify-center rounded-[6px] border transition-shadow group-has-disabled/field:opacity-50",
       "checkboxIndicator": "",
       "progress": "bg-muted h-3 rounded-4xl",
       "progressIndicator": "bg-primary",
@@ -214,27 +214,27 @@ export const CUSTOMIZER_RECIPES = {
   "mira": {
     "components": {
       "button": {
-        "container": "focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-md border border-transparent bg-clip-padding focus-visible:ring-2 aria-invalid:ring-2 h-7 gap-1 px-2",
+        "container": "rounded-md border border-transparent min-h-7 gap-1 px-2",
         "default": "bg-primary hover:bg-primary/80",
         "outline": "border-border dark:bg-input/30 hover:bg-input/50 aria-expanded:bg-muted",
-        "small": "h-6 gap-1 px-2",
+        "small": "min-h-6 gap-1 px-2",
         "text": "font-medium text-xs/relaxed",
         "smallText": "text-xs/relaxed"
       },
       "card": {
-        "shell": "ring-foreground/10 bg-card overflow-hidden rounded-lg ring-1",
+        "shell": "bg-card overflow-hidden rounded-lg",
         "header": "gap-1 rounded-t-lg",
         "title": "text-sm font-medium",
         "description": "text-muted-foreground text-xs/relaxed",
         "content": ""
       },
-      "input": "bg-input/20 dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 h-7 rounded-md border px-2 py-0.5 text-sm transition-colors file:h-6 file:text-xs/relaxed file:font-medium focus-visible:ring-2 aria-invalid:ring-2 md:text-xs/relaxed",
-      "label": "text-xs/relaxed leading-none font-medium",
+      "input": "bg-input/20 dark:bg-input/30 border-input min-h-7 rounded-md border px-2 py-0.5 text-sm transition-colors file:min-h-6 file:text-xs/relaxed file:font-medium md:text-xs/relaxed",
+      "label": "text-xs/relaxed font-medium",
       "badge": {
-        "shell": "h-5 gap-1 rounded-full border px-2 py-0.5 transition-all border-border bg-input/20 dark:bg-input/30",
+        "shell": "min-h-5 gap-1 rounded-full border px-2 py-0.5 border-border bg-input/20 dark:bg-input/30",
         "text": "text-[0.625rem] font-medium text-foreground"
       },
-      "checkbox": "border-input dark:bg-input/30 dark:data-checked:bg-primary aria-invalid:aria-checked:border-primary aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 flex size-4 items-center justify-center rounded-[4px] border transition-shadow group-has-disabled/field:opacity-50 focus-visible:ring-2 aria-invalid:ring-2",
+      "checkbox": "border-input dark:bg-input/30 dark:data-checked:bg-primary flex size-4 items-center justify-center rounded-[4px] border transition-shadow group-has-disabled/field:opacity-50",
       "checkboxIndicator": "",
       "progress": "bg-muted h-1 rounded-md",
       "progressIndicator": "bg-primary",
@@ -283,27 +283,27 @@ export const CUSTOMIZER_RECIPES = {
   "nova": {
     "components": {
       "button": {
-        "container": "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-lg border border-transparent bg-clip-padding focus-visible:ring-3 aria-invalid:ring-3 h-8 gap-1.5 px-2.5",
+        "container": "rounded-lg border border-transparent min-h-8 gap-1.5 px-2.5",
         "default": "bg-primary hover:bg-primary/80",
         "outline": "border-border bg-background hover:bg-muted dark:bg-input/30 dark:border-input dark:hover:bg-input/50 aria-expanded:bg-muted",
-        "small": "h-7 gap-1 px-2.5",
+        "small": "min-h-7 gap-1 px-2.5",
         "text": "text-sm font-medium",
         "smallText": "text-[0.8rem]"
       },
       "card": {
-        "shell": "ring-foreground/10 bg-card overflow-hidden rounded-xl ring-1",
+        "shell": "bg-card overflow-hidden rounded-xl",
         "header": "gap-1 rounded-t-xl",
         "title": "text-base leading-snug font-medium",
         "description": "text-muted-foreground text-sm",
         "content": ""
       },
-      "input": "dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 disabled:bg-input/50 dark:disabled:bg-input/80 h-8 rounded-lg border bg-transparent px-2.5 py-1 text-base transition-colors file:h-6 file:text-sm file:font-medium focus-visible:ring-3 aria-invalid:ring-3 md:text-sm",
-      "label": "text-sm leading-none font-medium",
+      "input": "dark:bg-input/30 border-input disabled:bg-input/50 dark:disabled:bg-input/80 min-h-8 rounded-lg border bg-transparent px-2.5 py-1 text-base transition-colors file:min-h-6 file:text-sm file:font-medium md:text-sm",
+      "label": "text-sm font-medium",
       "badge": {
-        "shell": "h-5 gap-1 rounded-4xl border px-2 py-0.5 transition-all border-border",
+        "shell": "min-h-5 gap-1 rounded-4xl border px-2 py-0.5 border-border",
         "text": "text-xs font-medium text-foreground"
       },
-      "checkbox": "border-input dark:bg-input/30 dark:data-checked:bg-primary aria-invalid:aria-checked:border-primary aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 flex size-4 items-center justify-center rounded-[4px] border transition-colors group-has-disabled/field:opacity-50 focus-visible:ring-3 aria-invalid:ring-3",
+      "checkbox": "border-input dark:bg-input/30 dark:data-checked:bg-primary flex size-4 items-center justify-center rounded-[4px] border transition-colors group-has-disabled/field:opacity-50",
       "checkboxIndicator": "",
       "progress": "bg-muted h-1 rounded-full",
       "progressIndicator": "bg-primary",
@@ -352,27 +352,27 @@ export const CUSTOMIZER_RECIPES = {
   "rhea": {
     "components": {
       "button": {
-        "container": "focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-2xl border border-transparent bg-clip-padding focus-visible:ring-3 aria-invalid:ring-3 h-8 gap-1.5 px-3",
+        "container": "rounded-2xl border border-transparent min-h-8 gap-1.5 px-3",
         "default": "bg-primary hover:bg-primary/80",
         "outline": "border-border bg-background dark:bg-transparent hover:bg-muted dark:hover:bg-input/30 aria-expanded:bg-muted",
-        "small": "h-7 gap-1 px-3",
+        "small": "min-h-7 gap-1 px-3",
         "text": "text-sm font-medium",
         "smallText": ""
       },
       "card": {
-        "shell": "bg-card ring-foreground/5 dark:ring-foreground/10 overflow-hidden shadow-sm ring-1",
+        "shell": "bg-card shadow-sm",
         "header": "gap-1.5",
         "title": "text-base font-medium",
         "description": "text-muted-foreground text-sm",
         "content": ""
       },
-      "input": "bg-input/50 border-transparent focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 h-8 rounded-2xl border px-2.5 py-1 text-base transition-[color,box-shadow] file:h-6 file:text-sm file:font-medium focus-visible:ring-3 aria-invalid:ring-3 md:text-sm",
-      "label": "text-sm leading-none font-medium",
+      "input": "bg-input/50 border-transparent min-h-8 rounded-2xl border px-2.5 py-1 text-base file:min-h-6 file:text-sm file:font-medium md:text-sm",
+      "label": "text-sm font-medium",
       "badge": {
-        "shell": "h-5 gap-1 rounded-2xl border px-2 py-0.5 transition-all border-border",
+        "shell": "min-h-5 gap-1 rounded-2xl border px-2 py-0.5 border-border",
         "text": "text-xs font-medium text-foreground"
       },
-      "checkbox": "bg-input/90 dark:data-checked:bg-primary border-transparent aria-invalid:aria-checked:border-primary aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 flex size-4 items-center justify-center rounded-[5px] border transition-shadow group-has-disabled/field:opacity-50 focus-visible:ring-3 aria-invalid:ring-3",
+      "checkbox": "bg-input/90 dark:data-checked:bg-primary border-transparent flex size-4 items-center justify-center rounded-[5px] border transition-shadow group-has-disabled/field:opacity-50",
       "checkboxIndicator": "",
       "progress": "bg-muted h-2 rounded-2xl",
       "progressIndicator": "bg-primary",
@@ -421,27 +421,27 @@ export const CUSTOMIZER_RECIPES = {
   "sera": {
     "components": {
       "button": {
-        "container": "focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-none border border-transparent bg-clip-padding focus-visible:ring-2 aria-invalid:ring-2 h-10 gap-1.5 px-6",
+        "container": "rounded-none border border-transparent min-h-10 gap-1.5 px-6",
         "default": "bg-primary hover:bg-primary/80",
         "outline": "border-border bg-transparent hover:bg-muted dark:hover:bg-input/30 aria-expanded:bg-muted",
-        "small": "h-9 gap-1 px-4",
+        "small": "min-h-9 gap-1 px-4",
         "text": "text-xs font-semibold uppercase tracking-widest",
         "smallText": ""
       },
       "card": {
-        "shell": "bg-card ring-foreground/5 overflow-hidden shadow-sm ring-1",
+        "shell": "bg-card shadow-sm",
         "header": "gap-1.5 rounded-none",
         "title": "text-lg font-semibold tracking-wider uppercase",
         "description": "text-muted-foreground text-sm leading-relaxed",
         "content": ""
       },
-      "input": "border-transparent border-b-input bg-transparent focus-visible:border-b-ring aria-invalid:border-b-destructive dark:aria-invalid:border-b-destructive/50 h-10 border px-0 py-1 text-base transition-[color,border-color] file:h-7 file:text-sm file:font-medium md:text-sm",
+      "input": "border-transparent border-b-input bg-transparent min-h-10 border px-0 py-1 text-base file:min-h-7 file:text-sm file:font-medium md:text-sm",
       "label": "font-semibold leading-relaxed uppercase text-xs tracking-wide",
       "badge": {
         "shell": "gap-1.5 rounded-none border-0 bg-transparent px-0 py-0 transition-colors",
         "text": "text-[0.625rem] font-semibold uppercase tracking-widest text-foreground"
       },
-      "checkbox": "border-input bg-transparent dark:data-checked:bg-primary aria-invalid:aria-checked:border-primary aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 flex size-4.5 items-center justify-center rounded-none border transition-shadow group-has-disabled/field:opacity-50 focus-visible:ring-2 aria-invalid:ring-2",
+      "checkbox": "border-input bg-transparent dark:data-checked:bg-primary flex size-4.5 items-center justify-center rounded-none border transition-shadow group-has-disabled/field:opacity-50",
       "checkboxIndicator": "",
       "progress": "bg-muted h-0.5 rounded-none",
       "progressIndicator": "bg-primary",
@@ -490,27 +490,27 @@ export const CUSTOMIZER_RECIPES = {
   "vega": {
     "components": {
       "button": {
-        "container": "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-md border border-transparent bg-clip-padding focus-visible:ring-3 aria-invalid:ring-3 h-9 gap-1.5 px-2.5",
+        "container": "rounded-md border border-transparent min-h-9 gap-1.5 px-2.5",
         "default": "bg-primary hover:bg-primary/80",
         "outline": "border-border bg-background hover:bg-muted dark:bg-input/30 dark:border-input dark:hover:bg-input/50 aria-expanded:bg-muted shadow-xs",
-        "small": "h-8 gap-1 px-2.5",
+        "small": "min-h-8 gap-1 px-2.5",
         "text": "text-sm font-medium",
         "smallText": ""
       },
       "card": {
-        "shell": "ring-foreground/10 bg-card overflow-hidden rounded-xl shadow-xs ring-1",
+        "shell": "bg-card rounded-xl shadow-xs",
         "header": "gap-1 rounded-t-xl",
         "title": "text-base leading-normal font-medium",
         "description": "text-muted-foreground text-sm",
         "content": ""
       },
-      "input": "dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 h-9 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] file:h-7 file:text-sm file:font-medium focus-visible:ring-3 aria-invalid:ring-3 md:text-sm",
-      "label": "text-sm leading-none font-medium",
+      "input": "dark:bg-input/30 border-input min-h-9 rounded-md border bg-transparent px-2.5 py-1 text-base shadow-xs file:min-h-7 file:text-sm file:font-medium md:text-sm",
+      "label": "text-sm font-medium",
       "badge": {
-        "shell": "h-5 gap-1 rounded-4xl border px-2 py-0.5 transition-all border-border",
+        "shell": "min-h-5 gap-1 rounded-4xl border px-2 py-0.5 border-border",
         "text": "text-xs font-medium text-foreground"
       },
-      "checkbox": "border-input dark:bg-input/30 dark:data-checked:bg-primary aria-invalid:aria-checked:border-primary aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 flex size-4 items-center justify-center rounded-[4px] border shadow-xs transition-shadow group-has-disabled/field:opacity-50 focus-visible:ring-3 aria-invalid:ring-3",
+      "checkbox": "border-input dark:bg-input/30 dark:data-checked:bg-primary flex size-4 items-center justify-center rounded-[4px] border shadow-xs transition-shadow group-has-disabled/field:opacity-50",
       "checkboxIndicator": "",
       "progress": "bg-muted h-1.5 rounded-full",
       "progressIndicator": "bg-primary",

@@ -65,7 +65,7 @@ function BreadcrumbSeparator({
   ...props
 }: React.ComponentProps<typeof View>) {
   return (
-    <View role="presentation" className={cn('', className)} {...props}>
+    <View role="presentation" className={cn(className)} {...props}>
       {children ?? <Icon as={ChevronRight} className="text-muted-foreground size-3.5" />}
     </View>
   );

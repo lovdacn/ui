@@ -1,0 +1,23 @@
+{
+  "$schema": "https://lovdacn.vercel.app/schema.json",
+  "style": "vega",
+  "styleEngine": "nativewind",
+  "tsx": true,
+  "tailwind": {
+    "config": "tailwind.config.js",
+    "css": "src/global.css",
+    "baseColor": "neutral"
+  },
+  "aliases": {
+    "components": "@/components",
+    "utils": "@/lib/utils",
+    "ui": "@/components/ui"
+  },
+  "components": [],
+  "baseColor": "neutral",
+  "theme": "cyan",
+  "chartColor": "teal",
+  "font": "space-grotesk",
+  "iconLibrary": "lucide",
+  "radius": "medium"
+}

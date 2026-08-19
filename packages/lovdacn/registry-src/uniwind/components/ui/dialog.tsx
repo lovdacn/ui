@@ -5,7 +5,13 @@ import * as DialogPrimitive from '@rn-primitives/dialog';
 import { X } from '@/components/ui/semantic-icon';
 import * as React from 'react';
 import { Text, View } from '@/components/ui/primitives';
-import { Platform, type GestureResponderEvent, type ViewProps } from 'react-native';
+import {
+  Platform,
+  ScrollView,
+  useWindowDimensions,
+  type GestureResponderEvent,
+  type ViewProps,
+} from 'react-native';
 import { FadeIn, FadeOut } from 'react-native-reanimated';
 import { FullWindowOverlay as RNFullWindowOverlay } from 'react-native-screens';
 
@@ -62,10 +68,27 @@ function DialogContent({
   className,
   portalHost,
   children,
+  style,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   portalHost?: string;
 }) {
+  const { height, width } = useWindowDimensions();
+  // Bound the shell to the actual window. Without a maximum height, long content
+  // grows the dialog past the screen and the overflow is simply cut, taking the
+  // footer actions with it. The insets leave the overlay's own padding visible.
+  const maxHeight = Math.max(200, height - 32);
+  const maxWidth = Math.max(240, width - 16);
+
+  // The footer stays OUTSIDE the scroll area so the primary action is reachable
+  // no matter how long the body is. Everything else scrolls. A dialog with no
+  // DialogFooter behaves exactly as before.
+  const childArray = React.Children.toArray(children);
+  const isFooter = (child: React.ReactNode) =>
+    React.isValidElement(child) && child.type === DialogFooter;
+  const footer = childArray.filter(isFooter);
+  const body = childArray.filter((child) => !isFooter(child));
+
   return (
     <DialogPortal hostName={portalHost}>
       <DialogOverlay>
@@ -77,8 +100,18 @@ function DialogContent({
             }),
             className
           )}
-          {...props}>
-          <>{children}</>
+          {...props}
+          style={[{ maxHeight, maxWidth }, style]}>
+          <ScrollView
+            bounces={false}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator
+            contentContainerStyle={{ gap: 16 }}
+            // Shrink to yield space to the footer; never grow past the content.
+            style={{ flexGrow: 0, flexShrink: 1 }}>
+            {body}
+          </ScrollView>
+          {footer}
           <DialogPrimitive.Close
             className={cn(
               'absolute right-4 top-4 rounded opacity-70 active:opacity-100',
@@ -117,7 +150,7 @@ function DialogFooter({ className, ...props }: ViewProps) {
 function DialogTitle({ className, ...props }: React.ComponentProps<typeof DialogPrimitive.Title>) {
   return (
     <DialogPrimitive.Title
-      className={cn('text-foreground text-lg font-semibold leading-none', className)}
+      className={cn('text-foreground text-lg font-semibold leading-tight', className)}
       {...props}
     />
   );

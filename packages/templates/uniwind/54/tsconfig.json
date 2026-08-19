@@ -2,9 +2,13 @@
   "extends": "expo/tsconfig.base.json",
   "compilerOptions": {
     "strict": true,
+    "skipLibCheck": true,
     "paths": {
       "@/*": [
         "./*"
+      ],
+      "react-native/*": [
+        "./node_modules/react-native/*"
       ]
     }
   },

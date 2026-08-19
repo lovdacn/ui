@@ -69,7 +69,7 @@ function BottomSheetContent({
       <BottomSheetOverlay>
         <DialogPrimitive.Content
           className={cn(
-            'bg-background p-6 shadow-lg shadow-black/5 gap-6 text-sm ring-1 ring-foreground/5 z-50 flex flex-col w-full rounded-t-4xl border-t border-border max-h-[85%] pb-10',
+            'bg-background p-6 shadow-lg shadow-black/5 gap-6 text-sm z-50 flex flex-col w-full rounded-t-4xl border-t border-border max-h-[85%] pb-10',
             Platform.select({
               web: 'animate-in slide-in-from-bottom duration-250',
             }),
@@ -124,7 +124,7 @@ function BottomSheetFooter({ className, ...props }: ViewProps) {
 function BottomSheetTitle({ className, ...props }: React.ComponentProps<typeof DialogPrimitive.Title>) {
   return (
     <DialogPrimitive.Title
-      className={cn('text-foreground text-lg leading-none font-semibold', className)}
+      className={cn('text-foreground text-lg leading-tight font-semibold', className)}
       {...props}
     />
   );

@@ -53,7 +53,7 @@ function WebIndicator({ value, className }: IndicatorProps) {
   return (
     <ProgressPrimitive.Indicator asChild>
       <View
-        className={cn('bg-primary h-full w-full transition-all', className)}
+        className={cn('bg-primary h-full w-full', className)}
         style={{ transform: `translateX(-${100 - value}%)` }}
       />
     </ProgressPrimitive.Indicator>
