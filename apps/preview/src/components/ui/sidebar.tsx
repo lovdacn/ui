@@ -578,7 +578,7 @@ function SidebarMenuSubButton({
         accessibilityRole="button"
         accessibilityState={{ selected: isActive }}
         className={cn(
-          'h-8 w-full flex-row items-center gap-2 overflow-hidden rounded-md px-2',
+          'min-h-11 min-w-11 w-full flex-row items-center gap-2 overflow-hidden rounded-md px-2',
           isActive && 'bg-accent',
           Platform.select({ web: 'hover:bg-accent' }),
           className

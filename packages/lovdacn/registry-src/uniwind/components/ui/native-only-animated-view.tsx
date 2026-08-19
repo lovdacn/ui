@@ -11,7 +11,10 @@ import Animated from 'react-native-reanimated';
  * </NativeOnlyAnimatedView>
  */
 function NativeOnlyAnimatedView(
-  props: React.ComponentProps<typeof Animated.View> & React.RefAttributes<typeof Animated.View>
+  // `RefAttributes<typeof Animated.View>` types the ref as the component CLASS.
+  // Animated.View wants a ref to the INSTANCE, so the two are incompatible.
+  // `ComponentPropsWithRef` carries the correctly typed ref already.
+  props: React.ComponentPropsWithRef<typeof Animated.View>
 ) {
   if (Platform.OS === 'web') {
     return <>{props.children as React.ReactNode}</>;

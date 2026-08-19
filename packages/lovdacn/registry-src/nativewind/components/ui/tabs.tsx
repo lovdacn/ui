@@ -1,7 +1,7 @@
 import { TextClassContext } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
 import * as TabsPrimitive from '@rn-primitives/tabs';
-import { Platform } from 'react-native';
+import { Platform, ScrollView } from 'react-native';
 
 function Tabs({
   className,
@@ -12,9 +12,24 @@ function Tabs({
 
 function TabsList({
   className,
+  scrollable = true,
   ...props
-}: React.ComponentProps<typeof TabsPrimitive.List>) {
-  return (
+}: React.ComponentProps<typeof TabsPrimitive.List> & {
+  /**
+   * Scroll the row horizontally on native once the triggers are wider than the
+   * available width.
+   *
+   * A flex row cannot overflow on native: it compresses its children instead, so
+   * a row of five triggers silently truncates their labels ("Starred" renders as
+   * "Starre"). Scrolling is therefore the default. When the row already fits, the
+   * content container still lays out identically, so this changes nothing visible
+   * until the row would otherwise have been clipped.
+   *
+   * Set `false` for a fixed, non-scrolling row.
+   */
+  scrollable?: boolean;
+}) {
+  const list = (
     <TabsPrimitive.List
       className={cn(
         'bg-muted flex h-9 flex-row items-center justify-center rounded-lg p-[3px]',
@@ -23,6 +38,24 @@ function TabsList({
       )}
       {...props}
     />
+  );
+
+  // Web already has real overflow, and keeps its `inline-flex w-fit` sizing.
+  if (!scrollable || Platform.OS === 'web') {
+    return list;
+  }
+
+  return (
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
+      // flexGrow 0 stops the scroller expanding to fill the Tabs column;
+      // flexGrow 1 on the content lets the row keep its own alignment.
+      style={{ flexGrow: 0 }}
+      contentContainerStyle={{ flexGrow: 1 }}>
+      {list}
+    </ScrollView>
   );
 }
 
@@ -34,7 +67,7 @@ function TabsTrigger({
   return (
     <TextClassContext.Provider
       value={cn(
-        'text-foreground dark:text-muted-foreground text-sm font-medium leading-none',
+        'text-foreground dark:text-muted-foreground text-sm font-medium leading-tight',
         value === props.value && 'dark:text-foreground'
       )}>
       <TabsPrimitive.Trigger

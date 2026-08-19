@@ -271,17 +271,12 @@ function applyLvcnComponentFixes(fileName, content) {
       "'bg-background border-border z-50 flex flex-col gap-4 rounded-lg border p-6 shadow-lg shadow-black/5 sm:max-w-lg'",
       "'bg-background border-border z-50 mx-auto flex w-full max-w-lg flex-col gap-4 rounded-lg border p-6 shadow-lg shadow-black/5 sm:max-w-lg'"
     );
-    if (!content.includes('AlertDialogPrimitive.useRootContext()')) {
-      content = addGestureResponderImport(content);
-      content = content.replace(
-        /function AlertDialogOverlay\(\{\n  className,\n  children,\n  \.\.\.props\n\}: Omit<React\.ComponentProps<typeof AlertDialogPrimitive\.Overlay>, 'asChild'> & \{\n    children\?: React\.ReactNode;\n  \}\) \{\n  return \(/,
-        "function AlertDialogOverlay({\n  className,\n  children,\n  onPress,\n  ...props\n}: Omit<React.ComponentProps<typeof AlertDialogPrimitive.Overlay>, 'asChild'> & {\n  children?: React.ReactNode;\n}) {\n  const { onOpenChange } = AlertDialogPrimitive.useRootContext();\n\n  function onOverlayPress(event: GestureResponderEvent) {\n    onPress?.(event);\n    if (event.target === event.currentTarget && !event.isDefaultPrevented()) {\n      onOpenChange(false);\n    }\n  }\n\n  return ("
-      );
-      content = content.replace(
-        '        {...props}>',
-        "        {...props}\n        onPress={Platform.select({ web: onOverlayPress, native: onPress })}>"
-      );
-    }
+    // No press-to-dismiss injection here. `AlertDialogPrimitive.Overlay` is
+    // View-based and has no `onPress`, which is deliberate: an alert dialog asks
+    // for an explicit choice and must not close on an outside tap the way Dialog
+    // does. The handler this block used to add was copied from Dialog, whose
+    // overlay IS Pressable-based, and it only type-checked in apps whose
+    // `declarations.d.ts` had flattened the primitive prop types.
   } else if (fileName === 'popover.tsx') {
     // Keep primitive-controlled open/close behavior. Do not inject useRootContext here:
     // older mobile primitive builds do not expose it consistently, and native overlays
@@ -326,11 +321,60 @@ function applyLvcnComponentFixes(fileName, content) {
  */
 const parseCssStyleSheet = recipeCompiler.parseCssStyleSheet
 
-function appendCnMarker(content, classLiteral, marker) {
-  if (content.includes(`${classLiteral} ${marker}`)) {
-    return content;
+/**
+ * Every recipe slot whose target class literal could not be found, collected so
+ * one build reports all of them rather than failing on the first.
+ */
+const slotMisses = [];
+
+function reportSlotMisses() {
+  if (slotMisses.length === 0) return;
+  const lines = slotMisses.map(
+    ({ marker, classLiteral }) => `  ${marker}\n    expected: ${classLiteral}`
+  );
+  throw new Error(
+    `${slotMisses.length} recipe slot(s) found no target class literal:\n\n${lines.join('\n')}\n\n` +
+      `A canonical class literal changed shape. Update the slot target so the ` +
+      `per-style recipe keeps applying, instead of letting it silently disappear.`
+  );
+}
+
+/**
+ * Attach a recipe marker to the END of a canonical class literal.
+ *
+ * Position is the whole point. `cn()` is tailwind-merge, so the LAST argument
+ * wins a conflict; a marker injected as a leading argument loses its radius,
+ * padding and typography to the base classes that follow it, and only the
+ * classes with no canonical counterpart survive. Appending to the real base
+ * literal is what makes a per-style recipe actually apply.
+ *
+ * A target that no longer exists is recorded as a build error, not a no-op.
+ * Silent misses are how the badge text recipe, four `leading-none` slots and the
+ * NativeWind AlertDialog recipe all disappeared: the canonical literal changed
+ * shape, the match quietly stopped, and the style vanished with nothing to show
+ * it had ever been there.
+ *
+ * Pass `{ optional: true }` for a slot that is genuinely absent in one engine.
+ */
+function appendCnMarker(content, classLiteral, marker, { optional = false } = {}) {
+  const candidates = Array.isArray(classLiteral) ? classLiteral : [classLiteral];
+  for (const candidate of candidates) {
+    if (content.includes(`${candidate} ${marker}`)) {
+      return content;
+    }
   }
-  return content.replace(`'${classLiteral}'`, `'${classLiteral} ${marker}'`);
+  for (const candidate of candidates) {
+    for (const quote of ["'", '"']) {
+      const target = `${quote}${candidate}${quote}`;
+      if (content.includes(target)) {
+        return content.replace(target, `${quote}${candidate} ${marker}${quote}`);
+      }
+    }
+  }
+  if (!optional) {
+    slotMisses.push({ marker, classLiteral: candidates.join('\n           or: ') });
+  }
+  return content;
 }
 /**
  * Dynamically inject cn-* placeholder classes into components.
@@ -339,7 +383,6 @@ function injectCnPlaceholderClasses(fileName, content) {
   let res = content;
 
   if (fileName === 'button.tsx') {
-    res = res.replace(/const buttonVariants = cva\(\s*cn\(/g, "const buttonVariants = cva(cn('cn-button',");
     res = res.replace(/default: cn\(\s*'bg-primary/g, "default: cn('cn-button-variant-default bg-primary");
     res = res.replace(/destructive: cn\(\s*'bg-destructive/g, "destructive: cn('cn-button-variant-destructive bg-destructive");
     res = res.replace(/outline: cn\(\s*'border-border/g, "outline: cn('cn-button-variant-outline border-border");
@@ -352,7 +395,6 @@ function injectCnPlaceholderClasses(fileName, content) {
     res = res.replace(/lg: cn\(\s*'h-11 rounded-md/g, "lg: cn('cn-button-size-lg h-11 rounded-md");
     res = res.replace(/icon: 'h-10 w-10 sm:h-9 sm:w-9'/g, "icon: 'cn-button-size-icon h-10 w-10 sm:h-9 sm:w-9'");
 
-    res = res.replace(/const buttonTextVariants = cva\(\s*cn\(/g, "const buttonTextVariants = cva(cn('cn-button-text',");
     res = res.replace(/default: 'text-primary-foreground',/g, "default: 'cn-button-text-variant-default text-primary-foreground',");
     res = res.replace(/destructive: 'text-white',/g, "destructive: 'cn-button-text-variant-destructive text-white',");
     res = res.replace(/outline: cn\(\s*'group-active:text-accent-foreground'/g, "outline: cn('cn-button-text-variant-outline group-active:text-accent-foreground'");
@@ -364,18 +406,49 @@ function injectCnPlaceholderClasses(fileName, content) {
     // leading cn-button marker; append the marker here so the resolved style
     // classes are the LAST argument and win at runtime tailwind-merge.
     res = appendCnMarker(res, 'group shrink-0 flex-row items-center justify-center gap-2 rounded-md shadow-none', 'cn-button');
+    // The text recipe has to land on the real text base literal too. Injected as
+    // a leading cn() argument it would lose every tailwind-merge conflict to the
+    // classes that follow it, silently discarding the style's type scale.
+    res = appendCnMarker(res, 'text-foreground text-sm font-medium', 'cn-button-text');
+    for (const marker of ['cn-button', 'cn-button-text']) {
+      if (!res.includes(marker)) {
+        throw new Error(
+          `button.tsx: recipe slot "${marker}" was not placed. The canonical base ` +
+            `literal changed shape; update the slot target in injectCnPlaceholderClasses.`
+        );
+      }
+    }
   } else if (fileName === 'badge.tsx') {
-    res = res.replace(/const badgeVariants = cva\(\s*cn\(/g, "const badgeVariants = cva(cn('cn-badge',");
     res = res.replace(/default: cn\(\s*'bg-primary/g, "default: cn('cn-badge-variant-default bg-primary");
     res = res.replace(/secondary: cn\(\s*'bg-secondary/g, "secondary: cn('cn-badge-variant-secondary bg-secondary");
     res = res.replace(/destructive: cn\(\s*'bg-destructive/g, "destructive: cn('cn-badge-variant-destructive bg-destructive");
     res = res.replace(/outline: cn\(\s*'text-foreground/g, "outline: cn('cn-badge-variant-outline text-foreground");
 
-    res = res.replace(/const badgeTextVariants = cva\(\s*'text-xs font-semibold'/g, "const badgeTextVariants = cva('cn-badge-text text-xs font-semibold'");
+    res = res.replace(
+      /const badgeTextVariants = cva\(\s*'(text-xs font-(?:semibold|medium))'/g,
+      "const badgeTextVariants = cva('cn-badge-text $1'"
+    );
     res = res.replace(/default: 'text-primary-foreground',/g, "default: 'cn-badge-text-variant-default text-primary-foreground',");
     res = res.replace(/secondary: 'text-secondary-foreground',/g, "secondary: 'cn-badge-text-variant-secondary text-secondary-foreground',");
-    res = res.replace(/destructive: 'text-destructive-foreground',/g, "destructive: 'cn-badge-text-variant-destructive text-destructive-foreground',");
+    res = res.replace(
+      /destructive: '(text-destructive-foreground|text-white)',/g,
+      "destructive: 'cn-badge-text-variant-destructive $1',"
+    );
     res = res.replace(/outline: 'text-foreground',/g, "outline: 'cn-badge-text-variant-outline text-foreground',");
+
+    // The badge text recipe is what keeps a reduced-opacity variant readable:
+    // a destructive badge whose background drops to `bg-destructive/10` must
+    // repoint its label colour too, or white-on-tint renders unreadable. A
+    // silent regex miss here is exactly how that shipped before, so assert.
+    for (const marker of ['cn-badge-text', 'cn-badge-text-variant-destructive']) {
+      if (!res.includes(marker)) {
+        throw new Error(
+          `badge.tsx: recipe slot "${marker}" was not injected. The canonical ` +
+            `badgeTextVariants literal changed shape; update the slot pattern in ` +
+            `injectCnPlaceholderClasses instead of letting the style silently drop.`
+        );
+      }
+    }
 
     // Append the marker to the real base container literal (later cn() arg) so
     // resolved style classes win at runtime tailwind-merge.
@@ -436,7 +509,7 @@ function injectCnPlaceholderClasses(fileName, content) {
     res = res.replace(/className=\{cn\('mb-1\.5 font-medium text-foreground tracking-tight leading-none', className\)\}/g, "className={cn('cn-alert-title mb-1.5 font-medium text-foreground tracking-tight leading-none', className)}");
     res = res.replace(/className=\{cn\('text-sm text-muted-foreground leading-relaxed', className\)\}/g, "className={cn('cn-alert-description text-sm text-muted-foreground leading-relaxed', className)}");
     res = appendCnMarker(res, 'bg-card border-border relative w-full rounded-lg border px-4 pb-2 pt-3.5', 'cn-alert');
-    res = appendCnMarker(res, 'mb-1 ml-0.5 min-h-4 pl-6 font-medium leading-none tracking-tight', 'cn-alert-title');
+    res = appendCnMarker(res, 'mb-1 ml-0.5 min-h-4 pl-6 font-medium leading-tight tracking-tight', 'cn-alert-title');
     res = appendCnMarker(res, 'text-muted-foreground ml-0.5 pb-1.5 pl-6 text-sm leading-relaxed', 'cn-alert-description');
   } else if (fileName === 'card.tsx') {
     res = res.replace(/className=\{cn\(\s*'rounded-xl border border-border bg-card/g, "className={cn('cn-card rounded-xl border border-border bg-card");
@@ -446,8 +519,15 @@ function injectCnPlaceholderClasses(fileName, content) {
     res = res.replace(/className=\{cn\('p-6 pt-0', className\)\}/g, "className={cn('cn-card-content p-6 pt-0', className)}");
     res = res.replace(/className=\{cn\('flex items-center p-6 pt-0', className\)\}/g, "className={cn('cn-card-footer flex items-center p-6 pt-0', className)}");
     res = appendCnMarker(res, 'bg-card border-border flex flex-col gap-6 rounded-xl border py-6 shadow-sm shadow-black/5', 'cn-card');
+    // Card's recipe carries typography (`text-sm`, `text-card-foreground`) that a
+    // View cannot cascade on native. Redirect that half into the text context the
+    // component already provides, so per-style body type actually reaches Text.
+    res = res.replace(
+      /<TextClassContext.Provider value="text-card-foreground">/g,
+      '<TextClassContext.Provider value={cn(\'cn-card-text text-card-foreground\')}>'
+    );
     res = appendCnMarker(res, 'flex flex-col gap-1.5 px-6', 'cn-card-header');
-    res = appendCnMarker(res, 'font-semibold leading-none', 'cn-card-title');
+    res = appendCnMarker(res, 'font-semibold leading-tight', 'cn-card-title');
     res = appendCnMarker(res, 'text-muted-foreground text-sm', 'cn-card-description');
     res = appendCnMarker(res, 'px-6', 'cn-card-content');
     res = appendCnMarker(res, 'flex flex-row items-center px-6', 'cn-card-footer');
@@ -457,7 +537,7 @@ function injectCnPlaceholderClasses(fileName, content) {
     res = appendCnMarker(res, 'absolute right-4 top-4 rounded opacity-70 active:opacity-100', 'cn-dialog-close');
     res = appendCnMarker(res, 'flex flex-col gap-2 text-center sm:text-left', 'cn-dialog-header');
     res = appendCnMarker(res, 'flex flex-col-reverse gap-2 sm:flex-row sm:justify-end', 'cn-dialog-footer');
-    res = appendCnMarker(res, 'text-foreground text-lg font-semibold leading-none', 'cn-dialog-title');
+    res = appendCnMarker(res, 'text-foreground text-lg font-semibold leading-tight', 'cn-dialog-title');
     res = appendCnMarker(res, 'text-muted-foreground text-sm', 'cn-dialog-description');
   } else if (fileName === 'alert-dialog.tsx') {
     res = appendCnMarker(res, 'absolute bottom-0 left-0 right-0 top-0 z-50 flex items-center justify-center bg-black/50 p-2', 'cn-alert-dialog-overlay');
@@ -491,12 +571,18 @@ function injectCnPlaceholderClasses(fileName, content) {
     res = appendCnMarker(res, 'bg-border -mx-1 my-1 h-px', 'cn-context-menu-separator');
     res = appendCnMarker(res, 'text-muted-foreground ml-auto text-xs tracking-widest', 'cn-context-menu-shortcut');
   } else if (fileName === 'hover-card.tsx') {
-    res = appendCnMarker(res, 'bg-popover border-border z-50 w-64 rounded-md border p-4 shadow-md shadow-black/5', 'cn-hover-card-content');
-    res = appendCnMarker(res, 'bg-popover border-border outline-hidden z-50 w-64 rounded-md border p-4 shadow-md shadow-black/5', 'cn-hover-card-content');
+    res = appendCnMarker(
+      res,
+      [
+        'bg-popover border-border outline-hidden z-50 w-64 rounded-md border p-4 shadow-md shadow-black/5',
+        'bg-popover border-border z-50 w-64 rounded-md border p-4 shadow-md shadow-black/5',
+      ],
+      'cn-hover-card-content'
+    );
   } else if (fileName === 'tabs.tsx') {
     res = appendCnMarker(res, 'bg-muted flex h-9 flex-row items-center justify-center rounded-lg p-[3px]', 'cn-tabs-list');
     res = appendCnMarker(res, 'flex flex-row items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 shadow-none shadow-black/5', 'cn-tabs-trigger');
-    res = appendCnMarker(res, 'text-foreground dark:text-muted-foreground text-sm font-medium leading-none', 'cn-tabs-trigger-text');
+    res = appendCnMarker(res, 'text-foreground dark:text-muted-foreground text-sm font-medium leading-tight', 'cn-tabs-trigger-text');
     res = res.replace("className={cn(Platform.select({ web: 'flex-1 outline-none' }), className)}", "className={cn(Platform.select({ web: 'flex-1 outline-none' }), 'cn-tabs-content', className)}");
   } else if (fileName === 'label.tsx') {
     res = res.replace(/className=\{cn\(\s*'text-sm text-foreground/g, "className={cn('cn-label text-sm text-foreground");
@@ -510,7 +596,14 @@ function injectCnPlaceholderClasses(fileName, content) {
     res = appendCnMarker(res, 'group flex items-center rounded-md px-2 py-1.5 sm:py-1', 'cn-menubar-trigger');
     res = appendCnMarker(res, 'bg-popover border-border min-w-[12rem] overflow-hidden rounded-md border p-1 shadow-lg shadow-black/5', 'cn-menubar-content');
     res = appendCnMarker(res, 'bg-popover border-border overflow-hidden rounded-md border p-1 shadow-lg shadow-black/5', 'cn-menubar-sub-content');
-    res = appendCnMarker(res, 'active:bg-accent group flex flex-row items-center rounded-sm px-2 py-2 sm:py-1.5', 'cn-menubar-sub-trigger');
+    res = appendCnMarker(
+      res,
+      [
+        'active:bg-accent group flex flex-row items-center justify-between rounded-sm px-2 py-2 sm:py-1.5',
+        'active:bg-accent group flex flex-row items-center rounded-sm px-2 py-2 sm:py-1.5',
+      ],
+      'cn-menubar-sub-trigger'
+    );
     res = appendCnMarker(res, 'active:bg-accent group relative flex flex-row items-center gap-2 rounded-sm px-2 py-2 sm:py-1.5', 'cn-menubar-item');
     res = appendCnMarker(res, 'text-foreground px-2 py-2 text-sm font-medium sm:py-1.5', 'cn-menubar-label');
     res = appendCnMarker(res, 'bg-border -mx-1 my-1 h-px', 'cn-menubar-separator');
@@ -593,6 +686,40 @@ const isNativeHostileClass = recipeCompiler.isNativeHostileClass
 const filterNativeSafeStyleClasses = recipeCompiler.filterNativeSafeStyleClasses
 
 /**
+ * Markers that resolve onto a View host.
+ *
+ * Native has no View->Text cascade — that is precisely why `TextClassContext`
+ * exists — so a typography token handed to a View is a dead class. These
+ * markers therefore contribute container classes only. Where the component
+ * exposes a text context (Card), the typography half is redirected into that
+ * context instead of being dropped.
+ */
+const CONTAINER_HOST_MARKER_PREFIXES = [
+  'cn-button',
+  'cn-badge',
+  'cn-card',
+  'cn-alert',
+  'cn-accordion',
+  'cn-dialog-content',
+  'cn-dialog-header',
+  'cn-dialog-footer',
+  'cn-alert-dialog-content',
+  'cn-popover-content',
+  'cn-hover-card-content',
+  'cn-dropdown-menu-content',
+  'cn-context-menu-content',
+  'cn-menubar-content',
+  'cn-select-content',
+  'cn-tabs',
+  'cn-toggle-group',
+];
+
+function isContainerHostMarker(marker) {
+  if (/(?:-text$|-text-)/.test(marker)) return false;
+  return CONTAINER_HOST_MARKER_PREFIXES.some((prefix) => marker.startsWith(prefix));
+}
+
+/**
  * Resolve placeholder cn-* classes from styleMap and inline them.
  *
  * shadcn applies per-style overrides through CSS specificity (`.style-x .cn-y`
@@ -623,7 +750,7 @@ function inlineStyleClasses(content, styleMap) {
           mappedClasses = extractTextClasses(fullStyles);
         } else {
           const fullStyles = filterNativeSafeStyleClasses(cls, styleMap[cls] || '');
-          if (cls.startsWith('cn-button') || cls.startsWith('cn-badge')) {
+          if (isContainerHostMarker(cls)) {
             mappedClasses = extractContainerClasses(fullStyles);
           } else {
             mappedClasses = fullStyles;
@@ -643,6 +770,13 @@ function inlineStyleClasses(content, styleMap) {
       let finalStr = styleClasses.length > 0
         ? twMerge(baseClasses.join(' '), styleClasses.join(' '))
         : baseClasses.filter(Boolean).join(' ');
+      // The shadow-versus-clipping decision has to be made on the MERGED result.
+      // A recipe may carry no shadow of its own (so the compiler keeps its
+      // `overflow-hidden`) while the base literal still contributes one, and the
+      // two only meet here. Leaving both on one host clips the shadow and makes
+      // Android rasterize the clip path and border stroke separately, thinning
+      // the corner arcs.
+      finalStr = recipeCompiler.dropClippingWhenShadowed(finalStr);
       // Escape matching quote characters to prevent string termination syntax errors
       if (quote === "'") {
         finalStr = finalStr.replace(/'/g, "\\'");
@@ -919,6 +1053,11 @@ cleanOldDirectories();
 for (const engine of ENGINES) {
   buildEngine(engine);
 }
+
+// A recipe slot that found no target silently drops a per-style recipe from the
+// output. Fail here, after both engines have been visited, so one build reports
+// every miss instead of surfacing them one at a time.
+reportSlotMisses();
 
 // Write top-level styles index
 fs.writeJsonSync(

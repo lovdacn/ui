@@ -115,7 +115,7 @@ function SheetContent({
         <SheetSideContext.Provider value={{ side }}>
           <DialogPrimitive.Content
             className={cn(
-              'absolute bg-background p-6 shadow-lg shadow-black/5 gap-6 text-sm ring-1 ring-foreground/5 z-50 flex flex-col',
+              'absolute bg-background p-6 shadow-lg shadow-black/5 gap-6 text-sm z-50 flex flex-col',
               sideStyles[side],
               Platform.select({
                 web: webAnimations[side],
@@ -168,7 +168,7 @@ function SheetFooter({ className, ...props }: ViewProps) {
 function SheetTitle({ className, ...props }: React.ComponentProps<typeof DialogPrimitive.Title>) {
   return (
     <DialogPrimitive.Title
-      className={cn('text-foreground text-lg leading-none font-semibold', className)}
+      className={cn('text-foreground text-lg leading-tight font-semibold', className)}
       {...props}
     />
   );

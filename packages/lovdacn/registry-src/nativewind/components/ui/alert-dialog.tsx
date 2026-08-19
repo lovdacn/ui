@@ -20,20 +20,10 @@ const FullWindowOverlay = Platform.OS === 'ios' ? RNFullWindowOverlay : React.Fr
 function AlertDialogOverlay({
   className,
   children,
-  onPress,
   ...props
 }: Omit<React.ComponentProps<typeof AlertDialogPrimitive.Overlay>, 'asChild'> & {
   children?: React.ReactNode;
 }) {
-  const { onOpenChange } = AlertDialogPrimitive.useRootContext();
-
-  function onOverlayPress(event: GestureResponderEvent) {
-    onPress?.(event);
-    if (event.target === event.currentTarget && !event.isDefaultPrevented()) {
-      onOpenChange(false);
-    }
-  }
-
   return (
     <FullWindowOverlay>
       <AlertDialogPrimitive.Overlay
@@ -44,8 +34,7 @@ function AlertDialogOverlay({
           }),
           className
         )}
-        {...props}
-        onPress={Platform.select({ web: onOverlayPress, native: onPress })}>
+        {...props}>
         <NativeOnlyAnimatedView
           entering={FadeIn.duration(200).delay(50)}
           exiting={FadeOut.duration(150)}>
@@ -68,7 +57,7 @@ function AlertDialogContent({
       <AlertDialogOverlay>
         <AlertDialogPrimitive.Content
           className={cn(
-            'bg-background border-border z-50 flex w-full max-w-lg flex-col gap-4 rounded-lg border p-6 shadow-lg shadow-black/5 sm:max-w-lg',
+            'bg-background border-border z-50 mx-auto flex w-full max-w-lg flex-col gap-4 rounded-lg border p-6 shadow-lg shadow-black/5 sm:max-w-lg',
             Platform.select({
               web: 'animate-in fade-in-0 zoom-in-95 duration-200',
             }),

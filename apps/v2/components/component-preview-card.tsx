@@ -66,35 +66,12 @@ export function ComponentPreviewCard({
       >
         {componentName ? (
           <>
-            {pending && !unreachable && (
+            {pending && (
               <div
                 className="pointer-events-none absolute inset-0 flex items-center justify-center text-sm text-muted-foreground"
                 role="status"
               >
                 Loading preview…
-              </div>
-            )}
-            {unreachable && (
-              <div
-                className="absolute inset-x-0 top-0 z-10 flex flex-wrap items-center justify-center gap-3 border-b border-border bg-muted/80 px-4 py-2 text-sm text-muted-foreground backdrop-blur-sm"
-                role="alert"
-              >
-                <span>The live preview did not respond.</span>
-                <button
-                  type="button"
-                  onClick={retry}
-                  className="rounded-md border border-border bg-background px-2 py-1 text-xs font-medium text-foreground transition-colors hover:bg-muted"
-                >
-                  Reload preview
-                </button>
-                <a
-                  href={src}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="underline underline-offset-4 hover:text-foreground"
-                >
-                  Open in a new tab
-                </a>
               </div>
             )}
             <iframe

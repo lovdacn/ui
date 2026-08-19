@@ -4,7 +4,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { Pressable } from '@/components/ui/primitives';
 import { Platform } from 'react-native';
 
-const buttonVariants = cva(cn('','','','','','','','','','',
+const buttonVariants = cva(cn(
     'group shrink-0 flex-row items-center justify-center gap-2 rounded-md shadow-none',
     Platform.select({
       web: "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive whitespace-nowrap outline-none transition-all focus-visible:ring-[3px] disabled:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
@@ -48,7 +48,7 @@ const buttonVariants = cva(cn('','','','','','','','','','',
   }
 );
 
-const buttonTextVariants = cva(cn('','','','','','','','','','',
+const buttonTextVariants = cva(cn(
     'text-foreground text-sm font-medium',
     Platform.select({ web: 'pointer-events-none transition-colors' })
   ),
