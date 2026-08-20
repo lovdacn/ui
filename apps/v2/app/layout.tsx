@@ -30,8 +30,27 @@ export const metadata: Metadata = {
     template: `%s · ${siteConfig.name}`,
   },
   description: siteConfig.description,
+  applicationName: siteConfig.name,
+  authors: [
+    {
+      name: siteConfig.name,
+      url: siteConfig.url,
+    },
+  ],
+  creator: siteConfig.name,
+  publisher: siteConfig.name,
+  category: "technology",
+  classification: "React Native & Expo UI Components",
+  generator: "Next.js",
+  referrer: "origin-when-cross-origin",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   keywords: [
     "React Native UI components",
+    "shadcn for react native",
     "Expo UI components",
     "Tailwind CSS React Native",
     "NativeWind",
@@ -44,14 +63,9 @@ export const metadata: Metadata = {
     "Open Source React Native UI",
     "lovdaCN",
   ],
-  authors: [
-    {
-      name: "lovdaCN",
-      url: siteConfig.url,
-    },
-  ],
-  creator: "lovdaCN",
-  publisher: "lovdaCN",
+  alternates: {
+    canonical: siteConfig.url,
+  },
   robots: {
     index: true,
     follow: true,
@@ -62,9 +76,6 @@ export const metadata: Metadata = {
       "max-image-preview": "large",
       "max-snippet": -1,
     },
-  },
-  alternates: {
-    canonical: siteConfig.url,
   },
   openGraph: {
     type: "website",
@@ -79,6 +90,7 @@ export const metadata: Metadata = {
         width: 1200,
         height: 630,
         alt: `${siteConfig.name} - React Native & Expo UI Components`,
+        type: "image/jpeg",
       },
     ],
   },
@@ -88,18 +100,34 @@ export const metadata: Metadata = {
     description: siteConfig.description,
     images: [siteConfig.ogImage],
     creator: "@lvcn",
+    site: "@lvcn",
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: siteConfig.name,
   },
   icons: {
-    icon: "/logo.png",
-    apple: "/logo.png",
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/logo.png", type: "image/png" },
+    ],
+    apple: [{ url: "/logo.png", type: "image/png" }],
   },
+  manifest: "/site.webmanifest",
   verification: {
     google: "0BqCMBBzgG8M_tlZHw5mb_rf24UsBzpYTAF77_QHEns",
   },
 }
 
 export const viewport: Viewport = {
-  themeColor: META_THEME_COLORS.light,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: META_THEME_COLORS.light },
+    { media: "(prefers-color-scheme: dark)", color: META_THEME_COLORS.dark },
+  ],
+  colorScheme: "dark light",
+  width: "device-width",
+  initialScale: 1,
 }
 
 export default function RootLayout({
@@ -107,37 +135,46 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const jsonLdWebsite = {
+  const jsonLdGraph = {
     "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: siteConfig.name,
-    url: siteConfig.url,
-    description: siteConfig.description,
-    potentialAction: {
-      "@type": "SearchAction",
-      target: `${siteConfig.url}/docs?search={search_term_string}`,
-      "query-input": "required name=search_term_string",
-    },
-  }
-
-  const jsonLdSoftwareApp = {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    name: siteConfig.name,
-    operatingSystem: "iOS, Android, Web",
-    applicationCategory: "DeveloperApplication",
-    offers: {
-      "@type": "Offer",
-      price: "0",
-      priceCurrency: "USD",
-    },
-    description: siteConfig.description,
-    url: siteConfig.url,
-    author: {
-      "@type": "Organization",
-      name: siteConfig.name,
-      url: siteConfig.url,
-    },
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": `${siteConfig.url}/#organization`,
+        name: siteConfig.name,
+        url: siteConfig.url,
+        logo: `${siteConfig.url}/logo.png`,
+        sameAs: [siteConfig.links.github, siteConfig.links.twitter],
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${siteConfig.url}/#website`,
+        url: siteConfig.url,
+        name: siteConfig.name,
+        description: siteConfig.description,
+        publisher: { "@id": `${siteConfig.url}/#organization` },
+        potentialAction: {
+          "@type": "SearchAction",
+          target: `${siteConfig.url}/docs?search={search_term_string}`,
+          "query-input": "required name=search_term_string",
+        },
+      },
+      {
+        "@type": "SoftwareApplication",
+        "@id": `${siteConfig.url}/#software`,
+        name: siteConfig.name,
+        operatingSystem: "iOS, Android, Web",
+        applicationCategory: "DeveloperApplication",
+        offers: {
+          "@type": "Offer",
+          price: "0",
+          priceCurrency: "USD",
+        },
+        description: siteConfig.description,
+        url: siteConfig.url,
+        author: { "@id": `${siteConfig.url}/#organization` },
+      },
+    ],
   }
 
   return (
@@ -156,11 +193,7 @@ export default function RootLayout({
         />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdWebsite) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdSoftwareApp) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdGraph) }}
         />
       </head>
       <body className="min-h-full flex flex-col font-sans">
