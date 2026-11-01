@@ -62,7 +62,7 @@ export function SiteHeader() {
   }, [])
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-xl supports-backdrop-filter:bg-background/60">
       <div className="container-wrapper px-4 md:px-6">
         <div className="flex h-(--header-height) items-center gap-4">
           <Link href="/" className="mr-2 flex items-center gap-2 font-semibold">
@@ -87,9 +87,9 @@ export function SiteHeader() {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "rounded-md px-3 py-1.5 text-sm font-medium transition-colors hover:text-foreground",
+                    "rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors hover:bg-muted hover:text-foreground",
                     isActive
-                      ? "text-foreground"
+                      ? "bg-muted text-foreground"
                       : "text-muted-foreground"
                   )}
                 >
@@ -131,12 +131,13 @@ export function SiteHeader() {
               )}
               onClick={() => setOpen((v) => !v)}
               aria-label="Toggle menu"
+              aria-expanded={open}
             >
               {open ? <XIcon className="size-4" /> : <MenuIcon className="size-4" />}
             </button>
             <Link
               href="/create"
-              className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap text-xs font-semibold transition-all outline-none h-8 px-3.5 rounded-lg text-white bg-gradient-to-r from-[#d946ef] to-[#f97316] hover:opacity-90 active:scale-[0.98] shadow-xs"
+              className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap text-xs font-semibold transition-all outline-none h-8 px-3.5 rounded-full text-white bg-gradient-to-r from-[#d946ef] to-[#f97316] hover:opacity-90 hover:shadow-md active:scale-[0.98] shadow-xs"
             >
               <Plus className="size-3.5" />
               <span>Create</span>
@@ -152,7 +153,7 @@ export function SiteHeader() {
                 href={item.href}
                 onClick={() => setOpen(false)}
                 className={cn(
-                  "rounded-md px-3 py-2 text-sm font-medium",
+                  "rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-muted",
                   pathname.startsWith(item.href) ||
                     (item.href === "/" && pathname === "/")
                     ? "text-foreground"

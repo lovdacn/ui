@@ -50,7 +50,7 @@ export function ComponentPreviewCard({
   return (
     <div
       className={cn(
-        "my-6 overflow-hidden rounded-xl border border-border bg-background shadow-sm",
+        "my-6 overflow-hidden rounded-2xl border border-border bg-background shadow-[var(--shadow-soft)]",
         className,
       )}
     >

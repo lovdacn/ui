@@ -69,7 +69,7 @@ export default function IndexPage() {
               className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground mb-4 max-w-2xl leading-tight"
             >
               The UI Toolkit for <br className="hidden sm:block" />
-              <span className="bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/60 dark:from-white dark:to-zinc-400">
+              <span className="text-gradient">
                 React Native
               </span>
             </h1>
@@ -81,7 +81,7 @@ export default function IndexPage() {
             <div className="flex flex-col sm:flex-row gap-3.5 w-full sm:w-auto justify-center">
               <Link
                 href="/create"
-                className="inline-flex items-center justify-center gap-2 bg-primary hover:opacity-90 text-primary-foreground font-semibold px-5 py-2.5 rounded-full text-sm transition-all group shadow-lg"
+                className="inline-flex items-center justify-center gap-2 bg-primary hover:opacity-90 text-primary-foreground font-semibold px-5 py-2.5 rounded-full text-sm transition-all group shadow-lg hover:shadow-xl hover:-translate-y-0.5"
               >
                 Get Started
                 <ArrowRightIcon className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
@@ -122,7 +122,7 @@ export default function IndexPage() {
               <Link
                 key={component.name}
                 href={`/docs/components/${component.name}`}
-                className="group border border-border/50 hover:border-border/80 bg-card hover:bg-muted/40 p-6 rounded-xl transition-colors duration-200 flex flex-col justify-between min-h-[140px]"
+                className="group surface-card p-6 flex flex-col justify-between min-h-[140px]"
               >
                 <div>
                   <div className="flex items-center justify-between gap-4 mb-2">
@@ -155,20 +155,20 @@ export default function IndexPage() {
       {/* Footer Features Section */}
       <div className="container-wrapper">
         <div className="container py-16">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
-            <div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+            <div className="surface-card p-6">
               <h4 className="font-bold text-foreground mb-3 text-base">Open Code</h4>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 Components live in your repo. Edit, extend, and own every line — just like shadcn/ui.
               </p>
             </div>
-            <div>
+            <div className="surface-card p-6">
               <h4 className="font-bold text-foreground mb-3 text-base">Style Engines</h4>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 Choose NativeWind or Uniwind. Ten visual styles and nine base colors out of the box.
               </p>
             </div>
-            <div>
+            <div className="surface-card p-6">
               <h4 className="font-bold text-foreground mb-3 text-base">CLI First</h4>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 Scaffold projects and add components with{" "}

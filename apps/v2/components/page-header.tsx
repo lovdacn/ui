@@ -6,7 +6,13 @@ function PageHeader({
   ...props
 }: React.ComponentProps<"section">) {
   return (
-    <section className={cn("border-grid border-b", className)} {...props}>
+    <section
+      className={cn(
+        "border-grid relative overflow-hidden border-b bg-gradient-to-b from-muted/40 to-transparent",
+        className
+      )}
+      {...props}
+    >
       <div className="container-wrapper">
         <div className="container flex flex-col items-center gap-2 px-6 py-8 text-center md:py-16 lg:py-20 xl:gap-4">
           {children}
@@ -23,7 +29,7 @@ function PageHeaderHeading({
   return (
     <h1
       className={cn(
-        "leading-tighter max-w-3xl text-3xl font-semibold tracking-tight text-balance text-primary lg:leading-[1.1] xl:text-5xl xl:tracking-tighter",
+        "leading-tighter max-w-3xl text-3xl font-bold tracking-tight text-balance text-primary lg:leading-[1.1] xl:text-5xl xl:tracking-tighter",
         className
       )}
       {...props}
