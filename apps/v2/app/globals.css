@@ -502,7 +502,7 @@ html.beta [data-beta-off-only] {
 }
 
 .docs-prose table {
-  @apply my-6 block w-full overflow-x-auto rounded-xl border-collapse text-sm;
+  @apply my-6 w-full border-collapse text-sm;
 }
 
 .docs-prose th {
@@ -510,7 +510,7 @@ html.beta [data-beta-off-only] {
 }
 
 .docs-prose td {
-  @apply border border-border px-4 py-2 text-left;
+  @apply border border-border px-4 py-2 text-left break-words;
 }
 
 .docs-prose strong {

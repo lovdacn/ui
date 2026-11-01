@@ -142,7 +142,7 @@ export function DocsCopyPage({ page, url }: { page: string; url: string }) {
       {open && (
         <div
           role="menu"
-          className="absolute right-0 top-[calc(100%+0.25rem)] z-50 w-52 overflow-hidden rounded-xl border border-border bg-popover/95 p-1.5 text-popover-foreground shadow-[var(--shadow-lift)] backdrop-blur-md"
+          className="absolute right-0 top-[calc(100%+0.25rem)] z-50 w-52 overflow-hidden rounded-xl border border-border bg-popover/95 p-1.5 text-popover-foreground shadow-(--shadow-lift) backdrop-blur-md"
         >
           {MENU_ITEMS.map((item) => (
             <a

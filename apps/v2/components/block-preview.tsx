@@ -130,7 +130,7 @@ export function BlockPreview({ block }: { block: BlockMeta }) {
         </div>
       </div>
 
-      <div className="relative w-full overflow-hidden rounded-2xl border border-border bg-background shadow-[var(--shadow-soft)] transition-shadow duration-300 hover:shadow-[var(--shadow-lift)]">
+      <div className="relative w-full overflow-hidden rounded-2xl border border-border bg-background shadow-(--shadow-soft) transition-shadow duration-300 hover:shadow-(--shadow-lift)">
         {pending && (
           <div
             className="pointer-events-none absolute inset-0 flex items-center justify-center bg-muted/5 text-sm text-muted-foreground"

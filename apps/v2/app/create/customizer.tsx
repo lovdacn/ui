@@ -545,7 +545,7 @@ export function CreateCustomizer({ initialConfig }: { initialConfig: PresetConfi
   return (
     <div className="flex flex-1 flex-col w-full overflow-hidden bg-zinc-100 dark:bg-black p-2.5 md:p-3.5 gap-2.5 md:gap-3.5 md:h-[calc(100dvh-var(--header-height))] md:flex-none md:flex-row">
       {/* Left Sidebar Panel - Standalone rounded box */}
-      <aside className="relative z-20 w-full md:w-80 h-full rounded-2xl border border-border/80 dark:border-zinc-800 bg-card/95 dark:bg-zinc-950/90 backdrop-blur-xl shadow-[var(--shadow-soft)] flex flex-col shrink-0 min-h-0 overflow-hidden">
+      <aside className="relative z-20 w-full md:w-80 h-full rounded-2xl border border-border/80 dark:border-zinc-800 bg-card/95 dark:bg-zinc-950/90 backdrop-blur-xl shadow-(--shadow-soft) flex flex-col shrink-0 min-h-0 overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-3.5 pt-4.5 pb-3 shrink-0 border-b border-border/50 bg-transparent">
           <span className="text-sm font-bold uppercase tracking-wider text-foreground">Customize</span>
@@ -736,7 +736,7 @@ export function CreateCustomizer({ initialConfig }: { initialConfig: PresetConfi
       </aside>
 
       {/* Right Preview area - Standalone rounded box */}
-      <div className="lvcn-create-preview-stage relative flex h-full flex-1 flex-col rounded-2xl border border-border/80 dark:border-zinc-800 shadow-[var(--shadow-soft)] overflow-hidden">
+      <div className="lvcn-create-preview-stage relative flex h-full flex-1 flex-col rounded-2xl border border-border/80 dark:border-zinc-800 shadow-(--shadow-soft) overflow-hidden">
         {/* Desktop web preview - iframe pinned to fill container */}
         <div className="relative isolate z-10 flex-1 min-h-0 overflow-hidden animate-in fade-in duration-300">
           {!previewVisible && <PreviewLoadingSkeleton />}
