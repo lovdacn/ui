@@ -64,11 +64,11 @@ export default async function BlockCategoryPage(props: {
     <>
       <BlocksBetaNotice />
       {items.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
+        <p className="surface-card p-8 text-center text-sm text-muted-foreground">
           No blocks in this category yet.
         </p>
       ) : (
-        <div className="flex flex-col gap-16 md:gap-24">
+        <div className="flex flex-col gap-16 md:gap-28">
           {items.map((block) => (
             <BlockPreview key={block.name} block={block} />
           ))}

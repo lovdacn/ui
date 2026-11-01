@@ -85,7 +85,7 @@ export function DocsSidebar({ className }: { className?: string }) {
       <div className="pb-10 pt-6">
         {sections.map((section) => (
           <div key={section.title} className="mb-6">
-            <h4 className="mb-1 px-2 text-xs font-medium text-muted-foreground">
+            <h4 className="mb-2 px-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/80">
               {section.title}
             </h4>
             <ul className="space-y-0.5">
@@ -99,10 +99,10 @@ export function DocsSidebar({ className }: { className?: string }) {
                     <Link
                       href={item.href}
                       className={cn(
-                        "flex items-center justify-between rounded-md border border-transparent px-2 py-1.5 text-[0.8rem] font-medium transition-colors",
+                        "flex items-center justify-between rounded-full border border-transparent px-3 py-1.5 text-[0.8rem] font-medium transition-all duration-200",
                         isActive
-                          ? "border-accent bg-accent text-accent-foreground"
-                          : "text-muted-foreground hover:text-foreground"
+                          ? "border-border bg-accent text-accent-foreground shadow-sm"
+                          : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
                       )}
                     >
                       <span className="truncate">{item.name}</span>
@@ -129,7 +129,7 @@ export function DocsMobileNav() {
   const sections = visibleSections(beta)
 
   return (
-    <div className="border-b border-border lg:hidden">
+    <div className="sticky top-[var(--header-height)] z-30 border-b border-border/60 bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60 lg:hidden">
       <div className="no-scrollbar flex gap-2 overflow-x-auto px-4 py-3">
         {sections.flatMap((s) => s.items)
           .filter(
@@ -147,10 +147,10 @@ export function DocsMobileNav() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex shrink-0 items-center rounded-full border px-3 py-1 text-xs font-medium",
+                  "flex shrink-0 items-center rounded-full border px-3 py-1 text-xs font-medium shadow-sm transition-colors",
                   isActive
                     ? "border-foreground bg-foreground text-background"
-                    : "border-border text-muted-foreground"
+                    : "border-border bg-card text-muted-foreground hover:text-foreground"
                 )}
               >
                 <span>{item.name}</span>

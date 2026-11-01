@@ -9,9 +9,9 @@ export default function DocsLayout({
   return (
     <div className="container-wrapper flex flex-1 flex-col px-2">
       <DocsMobileNav />
-      <div className="container flex flex-1 items-start gap-8 px-0 lg:gap-10">
+      <div className="container flex flex-1 items-start gap-8 px-0 lg:gap-12">
         <DocsSidebar />
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1 lg:border-l lg:border-border/50 lg:pl-10">
           {/* Banner lives in the layout so every docs page carries it, and it hides itself
               outside beta mode. */}
           <DocsBetaBanner className="mt-4" />

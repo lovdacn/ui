@@ -63,12 +63,12 @@ export function BlockPreview({ block }: { block: BlockMeta }) {
     usePreviewHandshake({ src, childOrigin: expoPreviewOrigin, colorScheme })
 
   return (
-    <section id={name} className="flex scroll-mt-24 flex-col gap-4">
+    <section id={name} className="group/block flex scroll-mt-24 flex-col gap-4">
       <div className="flex flex-wrap items-start gap-4">
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
-            <h3 className="text-lg font-semibold tracking-tight">{title}</h3>
-            <span className="rounded-md border border-border px-1.5 py-0.5 font-mono text-[11px] text-muted-foreground">
+            <h3 className="text-xl font-semibold tracking-tight">{title}</h3>
+            <span className="rounded-full border border-border bg-muted/50 px-2 py-0.5 font-mono text-[11px] text-muted-foreground">
               {name}
             </span>
           </div>
@@ -76,7 +76,7 @@ export function BlockPreview({ block }: { block: BlockMeta }) {
         </div>
 
         <div className="ml-auto flex items-center gap-1.5">
-          <div className="hidden items-center gap-0.5 rounded-lg border border-border p-0.5 md:flex">
+          <div className="hidden items-center gap-0.5 rounded-xl border border-border bg-muted/40 p-0.5 shadow-sm md:flex">
             {VIEWPORTS.map((v) => {
               const Icon = v.icon
               return (
@@ -87,8 +87,8 @@ export function BlockPreview({ block }: { block: BlockMeta }) {
                   aria-label={v.label}
                   aria-pressed={viewport === v.key}
                   className={cn(
-                    "flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-foreground",
-                    viewport === v.key && "bg-muted text-foreground"
+                    "flex size-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground",
+                    viewport === v.key && "bg-background text-foreground shadow-sm"
                   )}
                 >
                   <Icon className="size-3.5" />
@@ -115,7 +115,7 @@ export function BlockPreview({ block }: { block: BlockMeta }) {
             type="button"
             onClick={() => copyToClipboard(installCommand)}
             aria-label="Copy install command"
-            className="group flex h-8 items-center gap-2 rounded-md border border-border bg-muted/40 px-2.5 font-mono text-xs transition-colors hover:bg-muted/70"
+            className="group flex h-8 items-center gap-2 rounded-lg border border-border bg-muted/40 px-2.5 shadow-sm font-mono text-xs transition-colors hover:bg-muted/70"
           >
             <span className="select-none text-muted-foreground">$</span>
             <code className="whitespace-nowrap text-foreground">{installCommand}</code>
@@ -130,7 +130,7 @@ export function BlockPreview({ block }: { block: BlockMeta }) {
         </div>
       </div>
 
-      <div className="relative w-full overflow-hidden rounded-xl border border-border bg-background shadow-sm">
+      <div className="relative w-full overflow-hidden rounded-2xl border border-border bg-background shadow-[var(--shadow-soft)] transition-shadow duration-300 hover:shadow-[var(--shadow-lift)]">
         {pending && (
           <div
             className="pointer-events-none absolute inset-0 flex items-center justify-center bg-muted/5 text-sm text-muted-foreground"

@@ -47,7 +47,7 @@ export default function BlocksLayout({
         <PageActions>
           <Link
             href="/docs/components"
-            className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
+            className={cn(buttonVariants({ variant: "outline", size: "sm" }), "rounded-full shadow-sm")}
           >
             View Components
           </Link>
@@ -56,7 +56,7 @@ export default function BlocksLayout({
 
       <BlocksNav />
 
-      <div className="container-wrapper flex-1 py-8 md:py-12">
+      <div className="container-wrapper flex-1 bg-gradient-to-b from-muted/30 to-transparent py-8 md:py-12">
         <div className="container flex flex-col gap-12 px-6">{children}</div>
       </div>
     </>

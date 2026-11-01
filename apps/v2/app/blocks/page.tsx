@@ -10,7 +10,7 @@ export default function BlocksPage() {
   return (
     <>
       <BlocksBetaNotice />
-      <div className="flex flex-col gap-16 md:gap-24">
+      <div className="flex flex-col gap-16 md:gap-28">
         {featuredBlocks.map((block) => (
           <BlockPreview key={block.name} block={block} />
         ))}

@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils"
  */
 export function HeroStrip({ className }: { className?: string }) {
   const shell =
-    "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border text-[11px] font-medium backdrop-blur-sm"
+    "inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-[11px] font-medium tracking-wide shadow-sm backdrop-blur-md"
 
   return (
     <>

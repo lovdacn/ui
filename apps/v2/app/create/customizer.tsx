@@ -545,17 +545,17 @@ export function CreateCustomizer({ initialConfig }: { initialConfig: PresetConfi
   return (
     <div className="flex flex-1 flex-col w-full overflow-hidden bg-zinc-100 dark:bg-black p-2.5 md:p-3.5 gap-2.5 md:gap-3.5 md:h-[calc(100dvh-var(--header-height))] md:flex-none md:flex-row">
       {/* Left Sidebar Panel - Standalone rounded box */}
-      <aside className="relative z-20 w-full md:w-80 h-full rounded-2xl border border-border/80 dark:border-zinc-800 bg-card/95 dark:bg-zinc-950/90 backdrop-blur-xl shadow-xs flex flex-col shrink-0 min-h-0 overflow-hidden">
+      <aside className="relative z-20 w-full md:w-80 h-full rounded-2xl border border-border/80 dark:border-zinc-800 bg-card/95 dark:bg-zinc-950/90 backdrop-blur-xl shadow-[var(--shadow-soft)] flex flex-col shrink-0 min-h-0 overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-3.5 pt-4.5 pb-2 shrink-0 bg-transparent">
-          <span className="text-sm font-bold tracking-tight text-foreground">Customize</span>
+        <div className="flex items-center justify-between px-3.5 pt-4.5 pb-3 shrink-0 border-b border-border/50 bg-transparent">
+          <span className="text-sm font-bold uppercase tracking-wider text-foreground">Customize</span>
           <span className="rounded-full border border-zinc-300/80 dark:border-border bg-zinc-200/60 dark:bg-zinc-800/80 px-2 py-0.5 font-mono text-[9px] text-zinc-600 dark:text-zinc-400">
             {presetCode}
           </span>
         </div>
 
         {/* Pickers list */}
-        <div className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto px-3 py-2.5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-3 py-3 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           <Picker
             label="Preset"
             value={currentPreset ?? config.style}
@@ -680,10 +680,10 @@ export function CreateCustomizer({ initialConfig }: { initialConfig: PresetConfi
         </div>
 
         {/* Footer actions */}
-        <div className="p-3 bg-transparent shrink-0 flex flex-col gap-2">
+        <div className="p-3 border-t border-border/50 bg-card/60 backdrop-blur-md shrink-0 flex flex-col gap-2">
           <button
             onClick={() => setOpenDialog(true)}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#ec4899] to-[#f97316] hover:opacity-90 text-white px-3 py-2.5 text-sm font-bold shadow-md transition-all active:scale-[0.99]"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#ec4899] to-[#f97316] hover:opacity-90 text-white px-3 py-2.5 text-sm font-bold shadow-lg shadow-pink-500/20 transition-all active:scale-[0.99]"
           >
             {"</> Get Code"}
           </button>
@@ -736,7 +736,7 @@ export function CreateCustomizer({ initialConfig }: { initialConfig: PresetConfi
       </aside>
 
       {/* Right Preview area - Standalone rounded box */}
-      <div className="lvcn-create-preview-stage relative flex h-full flex-1 flex-col rounded-2xl border border-border/80 dark:border-zinc-800 shadow-xs overflow-hidden">
+      <div className="lvcn-create-preview-stage relative flex h-full flex-1 flex-col rounded-2xl border border-border/80 dark:border-zinc-800 shadow-[var(--shadow-soft)] overflow-hidden">
         {/* Desktop web preview - iframe pinned to fill container */}
         <div className="relative isolate z-10 flex-1 min-h-0 overflow-hidden animate-in fade-in duration-300">
           {!previewVisible && <PreviewLoadingSkeleton />}
@@ -766,7 +766,7 @@ export function CreateCustomizer({ initialConfig }: { initialConfig: PresetConfi
               role="dialog"
               aria-modal="true"
               aria-labelledby="get-code-title"
-              className="relative w-full max-w-[540px] rounded-2xl border border-border bg-card p-6 shadow-2xl animate-in zoom-in-95 duration-200 text-card-foreground"
+              className="relative w-full max-w-[540px] rounded-3xl border border-border bg-card p-6 shadow-2xl animate-in zoom-in-95 duration-200 text-card-foreground"
             >
               {/* Header */}
               <div className="flex items-start justify-between gap-4 pb-4">

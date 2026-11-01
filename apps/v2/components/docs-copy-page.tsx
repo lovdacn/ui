@@ -109,7 +109,7 @@ export function DocsCopyPage({ page, url }: { page: string; url: string }) {
   return (
     <div
       ref={containerRef}
-      className="relative flex items-stretch rounded-lg bg-secondary"
+      className="relative flex items-stretch rounded-xl border border-border/60 bg-secondary shadow-sm"
     >
       <Button
         variant="secondary"
@@ -142,7 +142,7 @@ export function DocsCopyPage({ page, url }: { page: string; url: string }) {
       {open && (
         <div
           role="menu"
-          className="absolute right-0 top-[calc(100%+0.25rem)] z-50 w-52 overflow-hidden rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-md"
+          className="absolute right-0 top-[calc(100%+0.25rem)] z-50 w-52 overflow-hidden rounded-xl border border-border bg-popover/95 p-1.5 text-popover-foreground shadow-[var(--shadow-lift)] backdrop-blur-md"
         >
           {MENU_ITEMS.map((item) => (
             <a
@@ -152,7 +152,7 @@ export function DocsCopyPage({ page, url }: { page: string; url: string }) {
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => setOpen(false)}
-              className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm outline-none hover:bg-muted focus-visible:bg-muted [&_svg]:text-muted-foreground"
+              className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm outline-none transition-colors hover:bg-muted focus-visible:bg-muted [&_svg]:text-muted-foreground"
             >
               {item.icon}
               {item.label}
