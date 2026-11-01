@@ -50,7 +50,7 @@ export function DocsTableOfContents({
         className
       )}
     >
-      <p className="mb-2 text-xs font-medium text-muted-foreground">On This Page</p>
+      <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">On This Page</p>
       <ul className="space-y-1.5 border-l border-border">
         {toc.map((item) => (
           <li key={item.url}>

@@ -94,7 +94,7 @@ export default async function DocsPage(props: {
         <div className="mx-auto flex w-full max-w-160 min-w-0 flex-1 flex-col gap-6 px-4 py-6 text-foreground md:px-0 lg:py-8">
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between gap-4">
-              <h1 className="scroll-m-24 text-3xl font-semibold tracking-tight">
+              <h1 className="scroll-m-24 text-3xl font-semibold tracking-tight sm:text-4xl">
                 {doc.title}
               </h1>
               <div className="flex gap-2">
@@ -103,7 +103,7 @@ export default async function DocsPage(props: {
                     href={neighbours.previous.url}
                     className={cn(
                       buttonVariants({ variant: "secondary", size: "icon" }),
-                      "size-8 shadow-none"
+                      "size-8 rounded-full shadow-none"
                     )}
                     aria-label="Previous page"
                   >
@@ -115,7 +115,7 @@ export default async function DocsPage(props: {
                     href={neighbours.next.url}
                     className={cn(
                       buttonVariants({ variant: "secondary", size: "icon" }),
-                      "size-8 shadow-none"
+                      "size-8 rounded-full shadow-none"
                     )}
                     aria-label="Next page"
                   >
@@ -149,7 +149,7 @@ export default async function DocsPage(props: {
             {neighbours.previous ? (
               <Link
                 href={neighbours.previous.url}
-                className="group flex flex-col gap-1 text-sm"
+                className="surface-card group flex flex-col gap-1 px-4 py-3 text-sm"
               >
                 <span className="text-muted-foreground">Previous</span>
                 <span className="font-medium group-hover:underline underline-offset-4">
@@ -162,7 +162,7 @@ export default async function DocsPage(props: {
             {neighbours.next ? (
               <Link
                 href={neighbours.next.url}
-                className="group flex flex-col gap-1 text-right text-sm"
+                className="surface-card group flex flex-col gap-1 px-4 py-3 text-right text-sm"
               >
                 <span className="text-muted-foreground">Next</span>
                 <span className="font-medium group-hover:underline underline-offset-4">

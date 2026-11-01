@@ -41,7 +41,7 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     }: React.ComponentProps<"div">) => (
       <div
         className={cn(
-          "my-6 rounded-lg border border-border bg-muted/40 px-4 py-3 text-sm",
+          "my-6 rounded-xl border border-border border-l-4 border-l-foreground/40 bg-muted/40 px-4 py-3 text-sm shadow-[var(--shadow-soft)]",
           className
         )}
         {...props}

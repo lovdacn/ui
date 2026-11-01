@@ -14,7 +14,7 @@ export function DocsBetaBanner({ className }: { className?: string }) {
     <div
       data-beta-only
       className={cn(
-        "beta-panel flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border px-3 py-2 text-xs",
+        "beta-panel flex flex-wrap items-center gap-x-2 gap-y-1 rounded-xl border px-3.5 py-2.5 text-xs",
         className
       )}
     >
