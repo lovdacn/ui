@@ -171,10 +171,16 @@ describe("extra registry parity", () => {
     // never judged against current source (see scripts/lib/registry-channel.cjs).
     const registryChannel = require("./lib/registry-channel.cjs") as {
       registryRoot: () => string;
+      resolveChannel: () => "stable" | "beta";
     };
+    // Mirror buildExtraComponents(): the stable channel does not ship the beta `motion` item.
+    const built =
+      registryChannel.resolveChannel() === "beta"
+        ? COMPONENTS
+        : COMPONENTS.filter((definition) => definition.name !== "motion");
     for (const engine of ENGINES) {
       for (const style of STYLES) {
-        for (const definition of COMPONENTS) {
+        for (const definition of built) {
           const expected = createRegistryItem(definition, engine, style);
           const diskPath = path.resolve(
             registryChannel.registryRoot(),
