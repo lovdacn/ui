@@ -23,23 +23,16 @@ const fs = require("fs-extra");
 const path = require("path");
 const registryChannel = require("./lib/registry-channel.cjs");
 
-const WORKSPACE_ROOT = path.resolve(__dirname, "../../../../");
+// Repository root (packages/lovdacn/scripts -> repo). Resolved from this file so the build
+// works whatever the checkout folder is called (previously it assumed a folder named `lvcn`).
+const WORKSPACE_ROOT = path.resolve(__dirname, "../../..");
 // Canonical in-repo registry source (Phase 0) — was a non-existent sibling checkout.
-const REUSABLES_SRC = path.join(
-  WORKSPACE_ROOT,
-  "lvcn/packages/lovdacn/registry-src",
-);
-const PREVIEW_SRC = path.join(
-  WORKSPACE_ROOT,
-  "lvcn/apps/preview/src/components/ui",
-);
+const REUSABLES_SRC = path.join(WORKSPACE_ROOT, "packages/lovdacn/registry-src");
+const PREVIEW_SRC = path.join(WORKSPACE_ROOT, "apps/preview/src/components/ui");
 // Canonical in-repo source for style-agnostic files that are NOT part of the preview app
 // (e.g. the PLAIN primitives variant, which the preview never uses because the preview
 // always has motion installed).
-const REGISTRY_SRC = path.join(
-  WORKSPACE_ROOT,
-  "lvcn/packages/lovdacn/registry-src/shared",
-);
+const REGISTRY_SRC = path.join(WORKSPACE_ROOT, "packages/lovdacn/registry-src/shared");
 const DEST_REGISTRY = path.join(registryChannel.registryRoot(), "styles");
 const SCHEMA = "https://lovdacn.vercel.app/schema/registry-item.json";
 
