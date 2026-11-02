@@ -86,8 +86,43 @@ const Animated = {
   createAnimatedComponent,
 };
 
-export const FadeIn = { duration: () => FadeIn };
-export const FadeOut = { duration: () => FadeOut };
+/**
+ * Layout-animation builders (`FadeIn.duration(200).delay(50)`, `LinearTransition.springify()`,
+ * ...). Every chained modifier returns the same builder, which is all static rendering needs.
+ */
+function makeAnimationBuilder(name) {
+  const builder = new Proxy(
+    { name },
+    {
+      get(target, prop) {
+        if (prop in target) return target[prop];
+        // Never look like a promise, and never answer symbol lookups with a function.
+        if (typeof prop !== 'string' || prop === 'then') return undefined;
+        return () => builder;
+      },
+    }
+  );
+  return builder;
+}
+
+export const FadeIn = makeAnimationBuilder('FadeIn');
+export const FadeOut = makeAnimationBuilder('FadeOut');
+export const FadeInUp = makeAnimationBuilder('FadeInUp');
+export const FadeOutUp = makeAnimationBuilder('FadeOutUp');
+export const LinearTransition = makeAnimationBuilder('LinearTransition');
+export const SlideInDown = makeAnimationBuilder('SlideInDown');
+export const SlideInLeft = makeAnimationBuilder('SlideInLeft');
+export const SlideInRight = makeAnimationBuilder('SlideInRight');
+export const SlideInUp = makeAnimationBuilder('SlideInUp');
+export const SlideOutDown = makeAnimationBuilder('SlideOutDown');
+export const SlideOutLeft = makeAnimationBuilder('SlideOutLeft');
+export const SlideOutRight = makeAnimationBuilder('SlideOutRight');
+export const SlideOutUp = makeAnimationBuilder('SlideOutUp');
+
+/** `<LayoutAnimationConfig>` only configures native layout animations; render its children. */
+export function LayoutAnimationConfig({ children }) {
+  return React.createElement(React.Fragment, null, children);
+}
 
 export { Pressable, TextInput };
 export default Animated;

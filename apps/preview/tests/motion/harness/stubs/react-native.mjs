@@ -100,6 +100,7 @@ export const Platform = {
 export const AccessibilityInfo = {
   isReduceMotionEnabled: async () => globalThis.__TEST_REDUCED_MOTION__ === true,
   addEventListener: () => ({ remove() {} }),
+  announceForAccessibility() {},
 };
 
 export const Animated = {
@@ -113,9 +114,34 @@ export const Animated = {
     setValue(value) {
       this.value = value;
     }
+    stopAnimation() {}
+    interpolate({ outputRange }) {
+      return outputRange[outputRange.length - 1];
+    }
   },
 };
 
-export const Dimensions = { get: () => ({ width: 1024, height: 768 }) };
-export const useWindowDimensions = () => ({ width: 1024, height: 768 });
+/**
+ * `FlatList` renders every item synchronously so static markup contains the list content.
+ * Only the props the component library uses are honoured.
+ */
+const FlatListHost = makeHost('FlatList', 'div');
+export function FlatList({ data = [], renderItem, keyExtractor, ...props }) {
+  const items = data.map((item, index) =>
+    React.createElement(
+      React.Fragment,
+      { key: keyExtractor ? keyExtractor(item, index) : String(index) },
+      renderItem ? renderItem({ item, index }) : null
+    )
+  );
+  return React.createElement(FlatListHost, props, items);
+}
+
+/** Window size used by `Dimensions` / `useWindowDimensions`; tests may override it. */
+function windowSize() {
+  return { width: globalThis.__TEST_WINDOW_WIDTH__ ?? 1024, height: 768 };
+}
+
+export const Dimensions = { get: windowSize, addEventListener: () => ({ remove() {} }) };
+export const useWindowDimensions = windowSize;
 export const findNodeHandle = () => null;

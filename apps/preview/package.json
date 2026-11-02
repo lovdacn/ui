@@ -116,7 +116,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "test": "node --test \"src/lib/__tests__/*.test.mjs\" && node --import ./tests/motion/harness/register.mjs --test \"tests/motion/*.test.mjs\" \"tests/components/*.test.mjs\""
   },
   "private": true
 }

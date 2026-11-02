@@ -1,4 +1,9 @@
-/** Minimal `lucide-react-native` stub: any named export is a no-op icon component. */
+/**
+ * Minimal `lucide-react-native` stub: every icon is a no-op SVG tagged with its name.
+ *
+ * ES modules need named exports to be declared up front, so every icon imported by
+ * `src/components/ui/*` is listed here. Add a name when a component starts using a new icon.
+ */
 import * as React from 'react';
 
 function makeIcon(name) {
@@ -22,8 +27,19 @@ export default new Proxy(
   }
 );
 
+export const AlertCircle = makeIcon('AlertCircle');
+export const ArrowRight = makeIcon('ArrowRight');
+export const Bold = makeIcon('Bold');
 export const Check = makeIcon('Check');
+export const CheckCircle2 = makeIcon('CheckCircle2');
 export const ChevronDown = makeIcon('ChevronDown');
+export const ChevronDownIcon = makeIcon('ChevronDownIcon');
+export const ChevronLeft = makeIcon('ChevronLeft');
 export const ChevronRight = makeIcon('ChevronRight');
 export const ChevronUp = makeIcon('ChevronUp');
+export const ChevronUpIcon = makeIcon('ChevronUpIcon');
+export const Info = makeIcon('Info');
+export const Loader2 = makeIcon('Loader2');
+export const MoreHorizontal = makeIcon('MoreHorizontal');
+export const PanelLeft = makeIcon('PanelLeft');
 export const X = makeIcon('X');

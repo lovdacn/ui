@@ -54,6 +54,9 @@ const MODULE_ALIASES = new Map([
   ['@rn-primitives/radio-group', path.join(STUBS, 'radio-group.mjs')],
   ['@rn-primitives/collapsible', path.join(STUBS, 'collapsible.mjs')],
   ['lucide-react-native', path.join(STUBS, 'lucide.mjs')],
+  // Native-only packages that cannot be imported under Node (used by the component tests).
+  ['react-native-screens', path.join(STUBS, 'screens.mjs')],
+  ['react-native-safe-area-context', path.join(STUBS, 'safe-area-context.mjs')],
 ]);
 
 const SOURCE_EXTENSIONS = ['.tsx', '.ts', '.mjs', '.js'];

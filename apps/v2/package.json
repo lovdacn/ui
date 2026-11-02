@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "postinstall": "fumadocs-mdx",
+    "test": "node --test \"lib/__tests__/*.test.mjs\" \"app/create/__tests__/*.test.mjs\"",
     "docs:components": "node scripts/generate-component-docs.mjs"
   },
   "dependencies": {
