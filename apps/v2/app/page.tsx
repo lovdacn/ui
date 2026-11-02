@@ -53,6 +53,42 @@ const features = [
   },
 ]
 
+const stats = [
+  { value: String(COMPONENTS.length), label: "Components" },
+  { value: "2", label: "Style engines" },
+  { value: "10", label: "Visual styles" },
+  { value: "9", label: "Base colors" },
+]
+
+const buttonSnippet = `import { Button } from "@/components/ui/button"
+import { Text } from "@/components/ui/text"
+
+export default function Screen() {
+  return (
+    <Button onPress={() => console.log("hi")}>
+      <Text>Get started</Text>
+    </Button>
+  )
+}`
+
+const showcase = [
+  {
+    label: "Ownership",
+    title: "Copied into your repo",
+    body: "The CLI adds source files to your project, so you can read and change every line.",
+  },
+  {
+    label: "Styling",
+    title: "Tailwind classes on native",
+    body: "Style with NativeWind or Uniwind using the utility classes you already know.",
+  },
+  {
+    label: "Theming",
+    title: "Tokens, not hardcoded colors",
+    body: "Pick a style and base color, then adjust the theme in one place.",
+  },
+]
+
 export default function IndexPage() {
   return (
     <div className="flex flex-1 flex-col">
@@ -69,15 +105,16 @@ export default function IndexPage() {
               className="pointer-events-none absolute inset-0 -z-10 [mask-image:linear-gradient(to_bottom,black_60%,transparent_100%)]"
             >
               <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,var(--color-foreground),transparent)] opacity-10 dark:opacity-20" />
-              <div className="absolute left-1/2 top-0 h-72 w-[40rem] max-w-full -translate-x-1/2 rounded-full bg-orange-500/15 blur-3xl" />
-              <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--color-border)_1px,transparent_1px),linear-gradient(to_bottom,var(--color-border)_1px,transparent_1px)] bg-[size:56px_56px] opacity-30 dark:opacity-25 [mask-image:radial-gradient(ellipse_at_center,black,transparent_85%)]" />
+              <div className="animate-glow-pulse absolute left-1/2 top-0 h-80 w-[44rem] max-w-full -translate-x-1/2 rounded-full bg-orange-500/25 blur-3xl" />
+              <div className="absolute inset-0 bg-[radial-gradient(var(--color-muted-foreground)_1px,transparent_1px)] bg-[size:20px_20px] opacity-20 [mask-image:radial-gradient(ellipse_at_top,black,transparent_70%)]" />
+              <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--color-border)_1px,transparent_1px),linear-gradient(to_bottom,var(--color-border)_1px,transparent_1px)] bg-[size:48px_48px] opacity-30 dark:opacity-25 [mask-image:radial-gradient(ellipse_at_center,black,transparent_85%)]" />
             </div>
 
             <HeroStrip className="mb-6" />
 
             <h1
               data-hero-protect
-              className="font-heading mb-5 max-w-3xl text-4xl font-bold leading-[1.05] tracking-tighter text-foreground sm:text-5xl md:text-6xl lg:text-7xl"
+              className="font-heading animate-fade-up mb-6 max-w-4xl text-5xl font-bold leading-[0.98] tracking-[-0.045em] text-foreground sm:text-6xl md:text-7xl lg:text-8xl"
             >
               The UI Toolkit for <br className="hidden sm:block" />
               <span className="text-gradient">React Native</span>
@@ -90,14 +127,14 @@ export default function IndexPage() {
             <div className="flex w-full flex-col justify-center gap-3 sm:w-auto sm:flex-row">
               <Link
                 href="/create"
-                className={`group inline-flex items-center justify-center gap-2 rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:opacity-90 ${focusRing}`}
+                className={`group inline-flex items-center justify-center gap-2 rounded-md bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg ring-1 ring-primary/20 transition-all hover:-translate-y-0.5 hover:opacity-90 ${focusRing}`}
               >
                 Get Started
                 <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-1" />
               </Link>
               <Link
                 href="/docs/components"
-                className={`inline-flex items-center justify-center rounded-md border border-border bg-background/60 px-5 py-2.5 text-sm font-medium text-foreground backdrop-blur transition-colors hover:bg-muted ${focusRing}`}
+                className={`inline-flex items-center justify-center rounded-md border border-transparent px-6 py-3 text-sm font-medium text-muted-foreground backdrop-blur transition-colors hover:border-border hover:bg-muted hover:text-foreground ${focusRing}`}
               >
                 Browse Components
               </Link>
@@ -118,14 +155,25 @@ export default function IndexPage() {
                     terminal
                   </span>
                 </div>
-                <pre className="overflow-x-auto p-5 font-mono text-sm leading-7 text-foreground">
-                  <code>
-                    <span className="select-none text-muted-foreground">$ </span>
-                    npx lovda init{"\n"}
-                    <span className="select-none text-muted-foreground">$ </span>
-                    npx lovda add button
-                  </code>
-                </pre>
+                <div className="space-y-1 p-5 font-mono text-sm leading-7 text-foreground">
+                  {["npx lovda init", "npx lovda add button"].map((cmd) => (
+                    <div
+                      key={cmd}
+                      className="flex items-center justify-between gap-4 rounded-md px-2 hover:bg-muted/50"
+                    >
+                      <code className="overflow-x-auto whitespace-nowrap">
+                        <span className="select-none text-primary">$ </span>
+                        {cmd}
+                      </code>
+                      <span
+                        aria-hidden
+                        className="select-none rounded border border-border px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground"
+                      >
+                        copy
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -136,13 +184,72 @@ export default function IndexPage() {
                 {["Expo", "NativeWind", "Uniwind"].map((label) => (
                   <li
                     key={label}
-                    className="rounded-md border border-border bg-muted/40 px-3 py-1 font-mono text-xs text-muted-foreground"
+                    className="rounded-full border border-border bg-muted/40 px-3.5 py-1 font-mono text-xs text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
                   >
                     {label}
                   </li>
                 ))}
               </ul>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats strip */}
+      <section className="container-wrapper border-b border-border">
+        <dl className="container grid grid-cols-2 divide-border md:grid-cols-4 md:divide-x">
+          {stats.map((stat) => (
+            <div
+              key={stat.label}
+              className="flex flex-col gap-1 px-4 py-8 text-center md:py-10"
+            >
+              <dd className="order-1 font-mono text-3xl font-bold tabular-nums tracking-tighter text-foreground md:text-4xl">
+                {stat.value}
+              </dd>
+              <dt className={`${eyebrow} order-2`}>{stat.label}</dt>
+            </div>
+          ))}
+        </dl>
+      </section>
+
+      {/* Code showcase */}
+      <section className="container-wrapper border-b border-border">
+        <div className="container py-16 md:py-20">
+          <p className={`${eyebrow} mb-3`}>Developer experience</p>
+          <h2 className="mb-10 max-w-xl text-2xl font-bold tracking-tighter text-foreground md:text-4xl">
+            Familiar API. Native feel.
+          </h2>
+          <div className="group relative grid overflow-hidden rounded-xl border border-border bg-card transition-colors hover:border-foreground/30 lg:grid-cols-2">
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -left-10 -top-10 size-48 rounded-full bg-orange-500/0 blur-3xl transition-colors duration-500 group-hover:bg-orange-500/15"
+            />
+            <div className="relative border-b border-border lg:border-b-0 lg:border-r">
+              <div className="flex items-center justify-between border-b border-border bg-muted/50 px-4 py-2.5">
+                <span className="font-mono text-[11px] text-muted-foreground">
+                  app/index.tsx
+                </span>
+                <span className="font-mono text-[11px] text-muted-foreground">
+                  tsx
+                </span>
+              </div>
+              <pre className="overflow-x-auto p-5 font-mono text-[13px] leading-6 text-foreground">
+                <code>{buttonSnippet}</code>
+              </pre>
+            </div>
+            <ul className="relative flex flex-col divide-y divide-border">
+              {showcase.map((item) => (
+                <li key={item.title} className="flex flex-col gap-1 p-6">
+                  <p className={eyebrow}>{item.label}</p>
+                  <h3 className="text-base font-bold tracking-tight text-foreground">
+                    {item.title}
+                  </h3>
+                  <p className="text-sm leading-relaxed text-muted-foreground">
+                    {item.body}
+                  </p>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </section>
@@ -158,7 +265,7 @@ export default function IndexPage() {
             {features.map((f) => (
               <div
                 key={f.title}
-                className={`group relative overflow-hidden rounded-xl border border-border bg-card p-6 transition-colors hover:border-foreground/30 ${f.className}`}
+                className={`group relative overflow-hidden rounded-xl border border-border bg-card p-6 transition-colors hover:border-foreground/30 hover:shadow-[0_0_40px_-15px_var(--color-foreground)] ${f.className}`}
               >
                 <div
                   aria-hidden
