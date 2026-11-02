@@ -3,9 +3,7 @@ import Link from "next/link"
 import { ArrowRightIcon } from "lucide-react"
 
 import { COMPONENTS } from "@/lib/components"
-import { PageHeader } from "@/components/page-header"
 import { siteConfig } from "@/lib/config"
-import { cn } from "@/lib/utils"
 import { VenomCanvas } from "@/components/venom-canvas"
 import { HeroStrip } from "@/components/hero-strip"
 
@@ -34,149 +32,163 @@ export const metadata: Metadata = {
   },
 }
 
+const eyebrow =
+  "font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground"
+
+const focusRing =
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+
+const features = [
+  {
+    label: "01 / Open Code",
+    title: "Open Code",
+    body: "Components live in your repo. Edit, extend, and own every line — just like shadcn/ui.",
+    className: "md:col-span-2",
+  },
+  {
+    label: "02 / Engines",
+    title: "Style Engines",
+    body: "Choose NativeWind or Uniwind. Ten visual styles and nine base colors out of the box.",
+    className: "",
+  },
+]
+
 export default function IndexPage() {
   return (
     <div className="flex flex-1 flex-col">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-transparent to-muted/20 dark:from-muted/20 dark:to-transparent">
+      <section className="relative overflow-hidden border-b border-border">
         {/* Transition layer: sweeps the dot field and eases the whole page into
-            the orange beta theme. Triggered from the Beta button in the header.
-            Purely additive — sits behind the existing decorative gradients and
-            the hero content. */}
+            the orange beta theme. Triggered from the Beta button in the header. */}
         <VenomCanvas className="-z-[5]" />
         <div className="container-wrapper">
-          <div className="container flex flex-col items-center gap-2 px-6 pt-3 pb-8 text-center md:pt-6 md:pb-12 lg:pt-8 lg:pb-16 xl:gap-3">
-            {/* Decorative background grid and gradient */}
-            <div className="pointer-events-none absolute inset-0 -z-10 [mask-image:linear-gradient(to_bottom,black_60%,transparent_100%)]">
-              <div
-                aria-hidden
-                className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,var(--color-foreground),transparent_80%)] opacity-15 dark:opacity-25"
-              />
-              <div
-                aria-hidden
-                className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,var(--color-muted),transparent_85%)] opacity-60 dark:opacity-85"
-              />
-              <div
-                aria-hidden
-                className="absolute inset-0 bg-[linear-gradient(to_right,var(--color-border)_1px,transparent_1px),linear-gradient(to_bottom,var(--color-border)_1px,transparent_1px)] bg-[size:56px_56px] opacity-15 dark:opacity-25 [mask-image:radial-gradient(ellipse_at_center,black,transparent_90%)]"
-              />
+          <div className="container flex flex-col items-center gap-2 px-6 pt-10 pb-14 text-center md:pt-16 md:pb-20 lg:pt-20 lg:pb-24">
+            {/* Decorative background grid and glow */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-0 -z-10 [mask-image:linear-gradient(to_bottom,black_60%,transparent_100%)]"
+            >
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,var(--color-foreground),transparent)] opacity-10 dark:opacity-20" />
+              <div className="absolute left-1/2 top-0 h-72 w-[40rem] max-w-full -translate-x-1/2 rounded-full bg-orange-500/15 blur-3xl" />
+              <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--color-border)_1px,transparent_1px),linear-gradient(to_bottom,var(--color-border)_1px,transparent_1px)] bg-[size:56px_56px] opacity-30 dark:opacity-25 [mask-image:radial-gradient(ellipse_at_center,black,transparent_85%)]" />
             </div>
 
-            <HeroStrip className="mb-5" />
+            <HeroStrip className="mb-6" />
 
             <h1
               data-hero-protect
-              className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground mb-4 max-w-2xl leading-tight"
+              className="font-heading mb-5 max-w-3xl text-4xl font-bold leading-[1.05] tracking-tighter text-foreground sm:text-5xl md:text-6xl lg:text-7xl"
             >
               The UI Toolkit for <br className="hidden sm:block" />
-              <span className="text-gradient">
-                React Native
-              </span>
+              <span className="text-gradient">React Native</span>
             </h1>
 
-            <p className="text-base md:text-lg text-muted-foreground font-normal max-w-xl mb-8 leading-relaxed">
+            <p className="mb-8 max-w-xl text-base font-normal leading-relaxed text-muted-foreground md:text-lg">
               {description}
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-3.5 w-full sm:w-auto justify-center">
+            <div className="flex w-full flex-col justify-center gap-3 sm:w-auto sm:flex-row">
               <Link
                 href="/create"
-                className="inline-flex items-center justify-center gap-2 bg-primary hover:opacity-90 text-primary-foreground font-semibold px-5 py-2.5 rounded-full text-sm transition-all group shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+                className={`group inline-flex items-center justify-center gap-2 rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:opacity-90 ${focusRing}`}
               >
                 Get Started
-                <ArrowRightIcon className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
+                <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-1" />
               </Link>
               <Link
                 href="/docs/components"
-                className="inline-flex items-center justify-center border border-border bg-background hover:bg-muted text-foreground font-medium px-5 py-2.5 rounded-full text-sm transition-all"
+                className={`inline-flex items-center justify-center rounded-md border border-border bg-background/60 px-5 py-2.5 text-sm font-medium text-foreground backdrop-blur transition-colors hover:bg-muted ${focusRing}`}
               >
                 Browse Components
               </Link>
+            </div>
+
+            {/* Terminal */}
+            <div className="relative mt-12 w-full max-w-2xl text-left">
+              <div
+                aria-hidden
+                className="absolute -inset-px rounded-xl bg-gradient-to-b from-foreground/15 to-transparent blur-sm"
+              />
+              <div className="relative overflow-hidden rounded-xl border border-border bg-card shadow-xl">
+                <div className="flex items-center gap-2 border-b border-border bg-muted/50 px-4 py-2.5">
+                  <span aria-hidden className="size-2.5 rounded-full bg-red-500/80" />
+                  <span aria-hidden className="size-2.5 rounded-full bg-yellow-500/80" />
+                  <span aria-hidden className="size-2.5 rounded-full bg-green-500/80" />
+                  <span className="ml-3 font-mono text-[11px] text-muted-foreground">
+                    terminal
+                  </span>
+                </div>
+                <pre className="overflow-x-auto p-5 font-mono text-sm leading-7 text-foreground">
+                  <code>
+                    <span className="select-none text-muted-foreground">$ </span>
+                    npx lovda init{"\n"}
+                    <span className="select-none text-muted-foreground">$ </span>
+                    npx lovda add button
+                  </code>
+                </pre>
+              </div>
+            </div>
+
+            {/* Stack labels */}
+            <div className="mt-10 flex flex-col items-center gap-3">
+              <p className={eyebrow}>Built for</p>
+              <ul className="flex flex-wrap items-center justify-center gap-2">
+                {["Expo", "NativeWind", "Uniwind"].map((label) => (
+                  <li
+                    key={label}
+                    className="rounded-md border border-border bg-muted/40 px-3 py-1 font-mono text-xs text-muted-foreground"
+                  >
+                    {label}
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Components Grid Section */}
-      <div className="container-wrapper flex-1 border-b border-border">
-        <div className="container py-16">
-          <div className="flex items-end justify-between mb-10">
-            <div>
-              <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground mb-2">
-                Components
-              </h2>
-              <p className="text-muted-foreground text-sm">
-                {COMPONENTS.length} production-ready components for Expo.
-              </p>
-            </div>
-            <Link
-              href="/docs/components"
-              className="text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
-            >
-              View all
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {COMPONENTS.slice(0, 12).map((component) => (
-              <Link
-                key={component.name}
-                href={`/docs/components/${component.name}`}
-                className="group surface-card p-6 flex flex-col justify-between min-h-[140px]"
+      {/* Features bento */}
+      <section className="container-wrapper border-b border-border">
+        <div className="container py-16 md:py-20">
+          <p className={`${eyebrow} mb-3`}>Why lovdaCN</p>
+          <h2 className="mb-10 max-w-xl text-2xl font-bold tracking-tighter text-foreground md:text-4xl">
+            Own your components. Ship faster.
+          </h2>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            {features.map((f) => (
+              <div
+                key={f.title}
+                className={`group relative overflow-hidden rounded-xl border border-border bg-card p-6 transition-colors hover:border-foreground/30 ${f.className}`}
               >
-                <div>
-                  <div className="flex items-center justify-between gap-4 mb-2">
-                    <h3 className="font-bold text-base text-foreground group-hover:text-foreground">
-                      {component.title}
-                    </h3>
-                    <span className="text-[10px] font-mono bg-muted border border-border text-muted-foreground px-2 py-0.5 rounded">
-                      {component.name}
-                    </span>
-                  </div>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    {component.description}
-                  </p>
-                </div>
-              </Link>
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute -right-10 -top-10 size-40 rounded-full bg-orange-500/0 blur-3xl transition-colors duration-500 group-hover:bg-orange-500/20"
+                />
+                <p className={`${eyebrow} mb-6`}>{f.label}</p>
+                <h3 className="mb-2 text-lg font-bold tracking-tight text-foreground">
+                  {f.title}
+                </h3>
+                <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
+                  {f.body}
+                </p>
+              </div>
             ))}
-          </div>
-
-          <div className="flex justify-center mt-12">
-            <Link
-              href="/docs/components"
-              className="border border-border hover:bg-muted bg-background text-foreground font-medium text-sm px-6 py-2.5 rounded-lg transition-all shadow-sm"
-            >
-              See all {COMPONENTS.length} components
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* Footer Features Section */}
-      <div className="container-wrapper">
-        <div className="container py-16">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-            <div className="surface-card p-6">
-              <h4 className="font-bold text-foreground mb-3 text-base">Open Code</h4>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Components live in your repo. Edit, extend, and own every line — just like shadcn/ui.
-              </p>
-            </div>
-            <div className="surface-card p-6">
-              <h4 className="font-bold text-foreground mb-3 text-base">Style Engines</h4>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Choose NativeWind or Uniwind. Ten visual styles and nine base colors out of the box.
-              </p>
-            </div>
-            <div className="surface-card p-6">
-              <h4 className="font-bold text-foreground mb-3 text-base">CLI First</h4>
-              <p className="text-sm text-muted-foreground leading-relaxed">
+            <div className="group relative overflow-hidden rounded-xl border border-border bg-card p-6 transition-colors hover:border-foreground/30 md:col-span-3">
+              <div
+                aria-hidden
+                className="pointer-events-none absolute -right-10 -top-10 size-40 rounded-full bg-orange-500/0 blur-3xl transition-colors duration-500 group-hover:bg-orange-500/20"
+              />
+              <p className={`${eyebrow} mb-6`}>03 / CLI</p>
+              <h3 className="mb-2 text-lg font-bold tracking-tight text-foreground">
+                CLI First
+              </h3>
+              <p className="text-sm leading-relaxed text-muted-foreground">
                 Scaffold projects and add components with{" "}
-                <code className="text-foreground font-mono text-xs bg-muted px-1.5 py-0.5 rounded border border-border">
+                <code className="rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-xs text-foreground">
                   npx lovda init
                 </code>{" "}
                 and{" "}
-                <code className="text-foreground font-mono text-xs bg-muted px-1.5 py-0.5 rounded border border-border">
+                <code className="rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-xs text-foreground">
                   npx lovda add
                 </code>
                 .
@@ -184,7 +196,92 @@ export default function IndexPage() {
             </div>
           </div>
         </div>
-      </div>
+      </section>
+
+      {/* Components Grid Section */}
+      <section className="container-wrapper flex-1 border-b border-border">
+        <div className="container py-16 md:py-20">
+          <div className="mb-10 flex items-end justify-between gap-4">
+            <div>
+              <p className={`${eyebrow} mb-3`}>Library</p>
+              <h2 className="mb-2 text-2xl font-bold tracking-tighter text-foreground md:text-4xl">
+                Components
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                {COMPONENTS.length} production-ready components for Expo.
+              </p>
+            </div>
+            <Link
+              href="/docs/components"
+              className={`rounded-sm text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground ${focusRing}`}
+            >
+              View all
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 overflow-hidden rounded-xl border border-border md:grid-cols-2 lg:grid-cols-3 [&>*]:-mb-px [&>*]:-mr-px">
+            {COMPONENTS.slice(0, 12).map((component) => (
+              <Link
+                key={component.name}
+                href={`/docs/components/${component.name}`}
+                className={`group flex min-h-[140px] flex-col justify-between border-b border-r border-border bg-background p-6 transition-colors hover:bg-muted/50 focus-visible:z-10 ${focusRing}`}
+              >
+                <div>
+                  <span className="mb-3 inline-block rounded border border-border bg-muted px-2 py-0.5 font-mono text-[10px] text-muted-foreground">
+                    {component.name}
+                  </span>
+                  <h3 className="mb-2 text-base font-bold text-foreground">
+                    {component.title}
+                  </h3>
+                  <p className="text-xs leading-relaxed text-muted-foreground">
+                    {component.description}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          <div className="mt-12 flex justify-center">
+            <Link
+              href="/docs/components"
+              className={`rounded-md border border-border bg-background px-6 py-2.5 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-muted ${focusRing}`}
+            >
+              See all {COMPONENTS.length} components
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Final CTA band */}
+      <section className="relative overflow-hidden">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute left-1/2 top-1/2 h-48 w-[36rem] max-w-full -translate-x-1/2 -translate-y-1/2 rounded-full bg-orange-500/10 blur-3xl"
+        />
+        <div className="container-wrapper">
+          <div className="container relative flex flex-col items-center gap-5 px-6 py-16 text-center md:py-24">
+            <p className={eyebrow}>Start building</p>
+            <h2 className="max-w-xl text-3xl font-bold tracking-tighter text-foreground md:text-5xl">
+              Build your next Expo app with lovdaCN
+            </h2>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <Link
+                href="/create"
+                className={`group inline-flex items-center justify-center gap-2 rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 ${focusRing}`}
+              >
+                Get Started
+                <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-1" />
+              </Link>
+              <Link
+                href="/docs/components"
+                className={`inline-flex items-center justify-center rounded-md border border-border bg-background px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted ${focusRing}`}
+              >
+                Browse Components
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   )
 }
