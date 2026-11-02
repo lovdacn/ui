@@ -53,11 +53,22 @@ const features = [
   },
 ]
 
-const stats = [
-  { value: String(COMPONENTS.length), label: "Components" },
-  { value: "2", label: "Style engines" },
-  { value: "10", label: "Visual styles" },
-  { value: "9", label: "Base colors" },
+const workflow = [
+  {
+    title: "Initialize",
+    body: "Set up your Expo project with your style engine and base color.",
+    command: "npx lovda init",
+  },
+  {
+    title: "Add components",
+    body: "Copy only the components you need straight into your repo.",
+    command: "npx lovda add button",
+  },
+  {
+    title: "Make it yours",
+    body: "Edit the source and tweak theme tokens. It is all your code.",
+    command: "npx expo start",
+  },
 ]
 
 const buttonSnippet = `import { Button } from "@/components/ui/button"
@@ -176,40 +187,46 @@ export default function IndexPage() {
                 </div>
               </div>
             </div>
-
-            {/* Stack labels */}
-            <div className="mt-10 flex flex-col items-center gap-3">
-              <p className={eyebrow}>Built for</p>
-              <ul className="flex flex-wrap items-center justify-center gap-2">
-                {["Expo", "NativeWind", "Uniwind"].map((label) => (
-                  <li
-                    key={label}
-                    className="rounded-full border border-border bg-muted/40 px-3.5 py-1 font-mono text-xs text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
-                  >
-                    {label}
-                  </li>
-                ))}
-              </ul>
-            </div>
           </div>
         </div>
       </section>
 
-      {/* Stats strip */}
+      {/* Workflow */}
       <section className="container-wrapper border-b border-border">
-        <dl className="container grid grid-cols-2 divide-border md:grid-cols-4 md:divide-x">
-          {stats.map((stat) => (
-            <div
-              key={stat.label}
-              className="flex flex-col gap-1 px-4 py-8 text-center md:py-10"
-            >
-              <dd className="order-1 font-mono text-3xl font-bold tabular-nums tracking-tighter text-foreground md:text-4xl">
-                {stat.value}
-              </dd>
-              <dt className={`${eyebrow} order-2`}>{stat.label}</dt>
-            </div>
-          ))}
-        </dl>
+        <div className="container py-16 md:py-20">
+          <p className={`${eyebrow} mb-3`}>Workflow</p>
+          <h2 className="mb-10 max-w-xl text-2xl font-bold tracking-tighter text-foreground md:text-4xl">
+            From zero to shipped in three commands.
+          </h2>
+          <ol className="grid gap-4 md:grid-cols-3">
+            {workflow.map((step, i) => (
+              <li
+                key={step.title}
+                className="group relative flex flex-col gap-4 overflow-hidden rounded-xl border border-border bg-card p-6 transition-colors hover:border-foreground/30"
+              >
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute -right-10 -top-10 size-40 rounded-full bg-orange-500/0 blur-3xl transition-colors duration-500 group-hover:bg-orange-500/15"
+                />
+                <span className="relative font-mono text-xs text-primary">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <div className="relative">
+                  <h3 className="mb-1 text-base font-bold tracking-tight text-foreground">
+                    {step.title}
+                  </h3>
+                  <p className="text-sm leading-relaxed text-muted-foreground">
+                    {step.body}
+                  </p>
+                </div>
+                <code className="relative mt-auto overflow-x-auto whitespace-nowrap rounded-md border border-border bg-muted/50 px-3 py-2 font-mono text-xs text-foreground">
+                  <span className="select-none text-primary">$ </span>
+                  {step.command}
+                </code>
+              </li>
+            ))}
+          </ol>
+        </div>
       </section>
 
       {/* Code showcase */}
