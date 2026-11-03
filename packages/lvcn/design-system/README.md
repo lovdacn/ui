@@ -44,8 +44,8 @@ Vendored snapshot date: 2026-09-01.
 - `theme-tokens.json` is vendored verbatim from shadcn: values may never be hand-edited or approximated. Refresh it only from the recorded upstream sources and update the provenance above.
 - Active values come from `catalog.json`, `icon-manifest.json`, and `font-manifest.json`; legacy values belong only in `aliases.json` and the wire table.
 - Recipe CSS in this directory is compiler input. `apps/v2/public/r/styles/style-*.css` is generated/debug output and must never be read as source.
-- Run `pnpm --filter lvcn design-system:generate` after edits.
-- Run `pnpm --filter lvcn design-system:check` to fail on stale output, missing recipes, unsupported manifest entries, or incomplete icon mappings.
+- Run `pnpm --filter @lvcn/ui design-system:generate` after edits.
+- Run `pnpm --filter @lvcn/ui design-system:check` to fail on stale output, missing recipes, unsupported manifest entries, or incomplete icon mappings.
 - Runtime preview artifacts contain static class literals. Installed projects receive one static style plus one generated icon/font adapter, not all selectable profiles.
 
 ## Canonical configuration provenance

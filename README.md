@@ -95,10 +95,10 @@ To run tasks specifically for one app or package:
 pnpm --filter v2 dev
 
 # Build the CLI tool
-pnpm --filter lvcn build
+pnpm --filter @lvcn/ui build
 
 # Run unit tests for CLI
-pnpm --filter lvcn test
+pnpm --filter @lvcn/ui test
 ```
 
 ---

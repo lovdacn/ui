@@ -1545,7 +1545,7 @@ function generate() {
 
   if (CHECK && stale.length > 0) {
     throw new Error(
-      `Generated design-system artifacts are stale:\n- ${stale.join("\n- ")}\nRun pnpm --filter lvcn design-system:generate.`,
+      `Generated design-system artifacts are stale:\n- ${stale.join("\n- ")}\nRun pnpm --filter @lvcn/ui design-system:generate.`,
     );
   }
   console.log(`   ${registryChannel.describe()}`);

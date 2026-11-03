@@ -32,7 +32,7 @@ Every component follows the same architectural and style guidelines:
 - **Imports & Bundler**: Keep imports clean using `@/components/ui/` or `@/lib/`. The registry build resolves and packages these internal dependencies together when components are published.
 - **Registry Compilation**: If you add or edit a component, regenerate the registry JSON files in `apps/v2/public/r` using:
   ```bash
-  pnpm --filter lvcn exec node scripts/build-registry.cjs
+  pnpm --filter @lvcn/ui exec node scripts/build-registry.cjs
   ```
 
 ## Local Development & CLI Testing
@@ -43,7 +43,7 @@ pnpm dev
 To test your local CLI changes:
 1. Build the CLI package:
    ```bash
-   pnpm --filter lvcn build
+   pnpm --filter @lvcn/ui build
    ```
 2. Run the built CLI against a scratch/temporary folder, directing it to your local registry files:
    ```bash
@@ -55,7 +55,7 @@ To test your local CLI changes:
    ```
 4. Run CLI unit tests:
    ```bash
-   pnpm --filter lvcn test
+   pnpm --filter @lvcn/ui test
    ```
 
 ## Registry Structure
