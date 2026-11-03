@@ -18,7 +18,8 @@
   },
   "bin": {
     "lvcn": "dist/index.js",
-    "lvcn-ui": "dist/index.js"
+    "lvcn-ui": "dist/index.js",
+    "ui": "dist/index.js"
   },
   "scripts": {
     "test": "vitest run",
