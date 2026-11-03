@@ -1,0 +1,120 @@
+---
+title: Skeleton
+description: Use to show a placeholder while content is loading.
+component: true
+---
+
+<ComponentPreviewCard title="Skeleton" />
+
+## Installation
+
+<Tabs defaultValue="cli" className="my-6 w-full">
+<TabsList>
+<TabsTrigger value="cli">CLI</TabsTrigger>
+<TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+<TabsContent value="cli">
+
+<PackageManagerTabs>
+<PMTabContent value="npm">
+
+```bash
+npx lvcn@latest add skeleton
+```
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+```bash
+yarn dlx lvcn@latest add skeleton
+```
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+```bash
+pnpm dlx lvcn@latest add skeleton
+```
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+```bash
+bunx --bun lvcn@latest add skeleton
+```
+
+</PMTabContent>
+</PackageManagerTabs>
+
+*(You can also use the shortened `lvcn` alias, e.g., `npx lvcn@latest add skeleton`)*
+
+</TabsContent>
+<TabsContent value="manual">
+
+<Steps>
+
+<Step>Add the registry components this component depends on: `utils`.</Step>
+
+<Step>Copy and paste the following code into your project.</Step>
+
+```tsx title="components/ui/skeleton.tsx"
+import { cn } from '@/lib/utils';
+import { View } from 'react-native';
+
+function Skeleton({
+  className,
+  ...props
+}: React.ComponentProps<typeof View> & React.RefAttributes<View>) {
+  return <View className={cn('bg-accent animate-pulse rounded-md', className)} {...props} />;
+}
+
+export { Skeleton };
+```
+
+<Step>Update the import paths to match your project setup.</Step>
+
+</Steps>
+
+</TabsContent>
+</Tabs>
+
+This copies the component source into your project (typically `components/ui/skeleton.tsx`) and installs any required dependencies.
+
+**Registry dependencies:** `utils`
+
+## Usage
+
+```tsx
+import { Skeleton } from "@/components/ui/skeleton"
+import { View } from "react-native"
+
+export function Example() {
+  return (
+    <View className="flex-row items-center gap-4">
+      <Skeleton className="size-12 rounded-full" />
+      <View className="gap-2">
+        <Skeleton className="h-4 w-[200px]" />
+        <Skeleton className="h-4 w-[160px]" />
+      </View>
+    </View>
+  )
+}
+```
+
+## Styles
+
+lvcn components are available across all style packs:
+
+| Style | Notes |
+| --- | --- |
+| `default` | Classic rounded system |
+| `new-york` | Compact, refined |
+| `nova` | Sharp corners (default in many setups) |
+| `luma` / `lyra` / `maia` / `mira` | Radius & font variants |
+| `rhea` / `sera` / `vega` | Pill, zero-radius, balanced |
+
+Style is set at project init via `lvcn.json` (`style` + `styleEngine`).
+
+## Platform
+
+These components target **Expo / React Native** with **NativeWind** or **Uniwind**. They use `Platform.select` where web and native need different behavior.

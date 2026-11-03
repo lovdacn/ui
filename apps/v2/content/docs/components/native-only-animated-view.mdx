@@ -1,0 +1,126 @@
+---
+title: Native Only Animated View
+description: A view that animates only on native platforms and is a plain View on web.
+component: true
+---
+
+<ComponentPreviewCard title="Native Only Animated View" />
+
+## Installation
+
+<Tabs defaultValue="cli" className="my-6 w-full">
+<TabsList>
+<TabsTrigger value="cli">CLI</TabsTrigger>
+<TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+<TabsContent value="cli">
+
+<PackageManagerTabs>
+<PMTabContent value="npm">
+
+```bash
+npx lvcn@latest add native-only-animated-view
+```
+
+</PMTabContent>
+<PMTabContent value="yarn">
+
+```bash
+yarn dlx lvcn@latest add native-only-animated-view
+```
+
+</PMTabContent>
+<PMTabContent value="pnpm">
+
+```bash
+pnpm dlx lvcn@latest add native-only-animated-view
+```
+
+</PMTabContent>
+<PMTabContent value="bun">
+
+```bash
+bunx --bun lvcn@latest add native-only-animated-view
+```
+
+</PMTabContent>
+</PackageManagerTabs>
+
+*(You can also use the shortened `lvcn` alias, e.g., `npx lvcn@latest add native-only-animated-view`)*
+
+</TabsContent>
+<TabsContent value="manual">
+
+<Steps>
+
+<Step>Copy and paste the following code into your project.</Step>
+
+```tsx title="components/ui/native-only-animated-view.tsx"
+import { Platform } from 'react-native';
+import Animated from 'react-native-reanimated';
+
+/**
+ * This component is used to wrap animated views that should only be animated on native.
+ * @param props - The props for the animated view.
+ * @returns The animated view if the platform is native, otherwise the children.
+ * @example
+ * <NativeOnlyAnimatedView entering={FadeIn} exiting={FadeOut}>
+ *   <Text>I am only animated on native</Text>
+ * </NativeOnlyAnimatedView>
+ */
+function NativeOnlyAnimatedView(
+  props: React.ComponentProps<typeof Animated.View> & React.RefAttributes<typeof Animated.View>
+) {
+  if (Platform.OS === 'web') {
+    return <>{props.children as React.ReactNode}</>;
+  } else {
+    return <Animated.View {...props} />;
+  }
+}
+
+export { NativeOnlyAnimatedView };
+```
+
+<Step>Update the import paths to match your project setup.</Step>
+
+</Steps>
+
+</TabsContent>
+</Tabs>
+
+This copies the component source into your project (typically `components/ui/native-only-animated-view.tsx`) and installs any required dependencies.
+
+**Registry dependencies:** `utils`
+
+## Usage
+
+```tsx
+import { NativeOnlyAnimatedView } from "@/components/ui/native-only-animated-view"
+import { Text } from "@/components/ui/text"
+
+export function Example() {
+  return (
+    <NativeOnlyAnimatedView className="p-4">
+      <Text>Animated on native</Text>
+    </NativeOnlyAnimatedView>
+  )
+}
+```
+
+## Styles
+
+lvcn components are available across all style packs:
+
+| Style | Notes |
+| --- | --- |
+| `default` | Classic rounded system |
+| `new-york` | Compact, refined |
+| `nova` | Sharp corners (default in many setups) |
+| `luma` / `lyra` / `maia` / `mira` | Radius & font variants |
+| `rhea` / `sera` / `vega` | Pill, zero-radius, balanced |
+
+Style is set at project init via `lvcn.json` (`style` + `styleEngine`).
+
+## Platform
+
+These components target **Expo / React Native** with **NativeWind** or **Uniwind**. They use `Platform.select` where web and native need different behavior.

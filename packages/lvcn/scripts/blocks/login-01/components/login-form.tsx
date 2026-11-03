@@ -1,0 +1,81 @@
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Text } from '@/components/ui/text';
+import { Link } from 'expo-router';
+import * as React from 'react';
+import { View } from 'react-native';
+
+export function LoginForm() {
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
+
+  function onSubmit() {
+    // TODO: wire up your auth flow, then navigate.
+    // router.replace('/');
+  }
+
+  return (
+    <Card className="mx-auto w-full max-w-sm">
+      <CardHeader className="items-center gap-1">
+        <CardTitle className="text-xl">Sign in to your account</CardTitle>
+        <CardDescription>Enter your email below to sign in</CardDescription>
+      </CardHeader>
+      <CardContent className="gap-4">
+        <View className="gap-2">
+          <Label nativeID="email">
+            <Text>Email</Text>
+          </Label>
+          <Input
+            aria-labelledby="email"
+            value={email}
+            onChangeText={setEmail}
+            placeholder="m@example.com"
+            autoCapitalize="none"
+            autoComplete="email"
+            keyboardType="email-address"
+          />
+        </View>
+        <View className="gap-2">
+          <View className="flex-row items-center justify-between">
+            <Label nativeID="password">
+              <Text>Password</Text>
+            </Label>
+            <Button variant="link" size="sm" className="h-auto p-0" onPress={() => {}}>
+              <Text>Forgot password?</Text>
+            </Button>
+          </View>
+          <Input
+            aria-labelledby="password"
+            value={password}
+            onChangeText={setPassword}
+            placeholder="Enter your password"
+            secureTextEntry
+            autoComplete="password"
+          />
+        </View>
+      </CardContent>
+      <CardFooter className="flex-col gap-3">
+        <Button className="w-full" onPress={onSubmit}>
+          <Text>Sign in</Text>
+        </Button>
+        <View className="flex-row items-center justify-center gap-1">
+          <Text className="text-muted-foreground text-sm">Don&apos;t have an account?</Text>
+          <Link href="/sign-up" asChild>
+            <Button variant="link" size="sm" className="h-auto p-0">
+              <Text>Sign up</Text>
+            </Button>
+          </Link>
+        </View>
+      </CardFooter>
+    </Card>
+  );
+}

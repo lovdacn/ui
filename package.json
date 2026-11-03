@@ -1,0 +1,70 @@
+{
+  "name": "lvcn",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "devDependencies": {
+    "@babel/plugin-transform-react-jsx": "^7.25.9",
+    "prettier": "^3.7.4",
+    "turbo": "^2.10.0",
+    "typescript": "5.9.2"
+  },
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "packageManager": "pnpm@9.0.0",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "check-types": "turbo run check-types"
+  },
+  "dependencies": {
+    "@types/mdx": "^2.0.14",
+    "fumadocs-core": "^16.11.1",
+    "fumadocs-mdx": "^15.1.0",
+    "zod": "^4"
+  },
+  "overrides": {
+    "minimatch@3": "^3.1.3",
+    "minimatch@9": "^9.0.7",
+    "next": "^16.2.11",
+    "sharp": "^0.35.0",
+    "js-yaml@5": "^5.2.2",
+    "brace-expansion@1": "^1.1.13",
+    "brace-expansion@2": "^2.0.3",
+    "brace-expansion@5": "^5.0.8"
+  },
+  "resolutions": {
+    "minimatch@3": "^3.1.3",
+    "minimatch@9": "^9.0.7",
+    "next": "^16.2.11",
+    "sharp": "^0.35.0",
+    "js-yaml@5": "^5.2.2",
+    "brace-expansion@1": "^1.1.13",
+    "brace-expansion@2": "^2.0.3",
+    "brace-expansion@5": "^5.0.8"
+  },
+  "pnpm": {
+    "overrides": {
+      "minimatch@3": "^3.1.3",
+      "minimatch@9": "^9.0.7",
+      "next": "^16.2.11",
+      "sharp": "^0.35.0",
+      "flatted": "^3.4.2",
+      "picomatch@2": "2.3.2",
+      "ajv@6": "^6.15.0",
+      "brace-expansion@1": "^1.1.13",
+      "brace-expansion@2": "^2.0.3",
+      "brace-expansion@5": "^5.0.8",
+      "js-yaml@4": "^4.3.0",
+      "js-yaml@5": "^5.2.2",
+      "postcss@8": "^8.5.10",
+      "esbuild@>=0.27.3 <0.28.1": "0.28.1",
+      "uuid@7": "^11.1.1"
+    }
+  }
+}

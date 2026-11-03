@@ -1,0 +1,38 @@
+---
+title: Blocks
+description: Ready-made screens and sections you can drop into your Expo app.
+---
+
+Blocks are pre-composed, opinionated pieces of UI built from lvcn components — a
+sign-in screen, a sign-up screen, a stats dashboard. Unlike a single component,
+**a block installs real files into your app**: an Expo Router route (and a group
+layout where needed) plus the component(s) it renders, and it pulls in every UI
+component it depends on.
+
+```bash
+npx lvcn@latest add login-01
+```
+
+For example, `add login-01` writes `app/(auth)/_layout.tsx`, `app/(auth)/sign-in.tsx`,
+and `components/login-form.tsx`, then installs `card`, `input`, `label`, `button`,
+and `text`. If your project uses a `src/` layout, routes are placed under `src/app`.
+
+## Available blocks
+
+| Block | What you get |
+| --- | --- |
+| [Dashboard 01](/docs/blocks/dashboard-01) | A full dashboard built around the sidebar. |
+| [Dashboard 02](/docs/blocks/dashboard-02) | An app shell with a collapsible sidebar + bottom tab bar. |
+| [Login 01](/docs/blocks/login-01) | A centered sign-in card at `/sign-in`. |
+| [Login 02](/docs/blocks/login-02) | A sign-in screen with social providers. |
+| [Login 03](/docs/blocks/login-03) | A compact branded login with provider and account links. |
+| [Login 04](/docs/blocks/login-04) | A responsive split-panel login screen. |
+| [Signup 01](/docs/blocks/signup-01) | A registration screen with a terms checkbox. |
+| [Signup 02](/docs/blocks/signup-02) | A detailed responsive registration screen. |
+| [Signup 03](/docs/blocks/signup-03) | A compact branded registration card. |
+| [Stats 01](/docs/blocks/stats-01) | A dashboard route with KPI stat cards. |
+
+The `login-*` and `signup-*` blocks share the same `(auth)` route group. Pair one
+of each to create an auth flow with cross-navigation between `/sign-in` and
+`/sign-up`. Each block writes the shared route files, so review overwrite prompts
+when combining them.

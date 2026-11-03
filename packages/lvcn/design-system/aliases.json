@@ -1,0 +1,8 @@
+{
+  "styles": {
+    "default": { "to": "vega", "reason": "Legacy label without a distinct recipe" },
+    "new-york": { "to": "vega", "reason": "Legacy label without a distinct recipe" }
+  },
+  "iconLibraries": {},
+  "fonts": {}
+}

@@ -1,0 +1,61 @@
+{
+  "name": "lvcn",
+  "type": "module",
+  "version": "0.5.0",
+  "private": false,
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "lvcn": "dist/index.js"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "start": "node dist/index.js",
+    "clean": "rimraf dist",
+    "prepack": "npm run build",
+    "design-system:generate": "node scripts/generate-design-system.cjs",
+    "design-system:check": "node scripts/generate-design-system.cjs --check",
+    "registry:build": "node scripts/generate-design-system.cjs && node scripts/build-registry.cjs",
+    "blocks:build": "node scripts/build-blocks.cjs",
+    "extra:build": "node scripts/build-extra-components.cjs",
+    "registry:build:all": "node scripts/build-all-channels.cjs",
+    "registry:validate": "node scripts/validate-registry-channel.cjs",
+    "registry:check": "node scripts/check-native-invariants.cjs --strict && node scripts/check-registry-syntax.cjs",
+    "version:beta": "npm version prerelease --preid=beta --no-git-tag-version",
+    "release:beta": "npm publish --tag beta --access public"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^22",
+    "@types/prompts": "^2.4.9",
+    "rimraf": "^6.0.1",
+    "tailwind-merge": "^3.6.0",
+    "tsup": "^8.5.0",
+    "vitest": "^3.0.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "commander": "^15.0.0",
+    "execa": "^9.6.0",
+    "fs-extra": "^11.3.1",
+    "picocolors": "^1.1.1",
+    "prompts": "^2.4.2",
+    "zod": "^3.24.1"
+  },
+  "module": "src/index.ts"
+}

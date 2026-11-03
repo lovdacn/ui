@@ -1,0 +1,272 @@
+[
+  {
+    "name": "accordion",
+    "category": "Layout",
+    "isAvailable": true,
+    "path": "@/components/ui/accordion"
+  },
+  {
+    "name": "alert",
+    "category": "Feedback",
+    "isAvailable": true,
+    "path": "@/components/ui/alert"
+  },
+  {
+    "name": "alert-dialog",
+    "category": "Overlay",
+    "isAvailable": true,
+    "path": "@/components/ui/alert-dialog"
+  },
+  {
+    "name": "aspect-ratio",
+    "category": "Layout",
+    "isAvailable": true,
+    "path": "@/components/ui/aspect-ratio"
+  },
+  {
+    "name": "avatar",
+    "category": "Data Display",
+    "isAvailable": true,
+    "path": "@/components/ui/avatar"
+  },
+  {
+    "name": "badge",
+    "category": "Data Display",
+    "isAvailable": true,
+    "path": "@/components/ui/badge"
+  },
+  {
+    "name": "bottom-sheet",
+    "category": "Overlay",
+    "isAvailable": true,
+    "path": "@/components/ui/bottom-sheet"
+  },
+  {
+    "name": "breadcrumb",
+    "category": "Navigation",
+    "isAvailable": true,
+    "path": "@/components/ui/breadcrumb"
+  },
+  {
+    "name": "button",
+    "category": "Action",
+    "isAvailable": true,
+    "path": "@/components/ui/button"
+  },
+  {
+    "name": "calendar",
+    "category": "Advanced",
+    "isAvailable": true,
+    "path": "@/components/ui/calendar"
+  },
+  {
+    "name": "card",
+    "category": "Layout",
+    "isAvailable": true,
+    "path": "@/components/ui/card"
+  },
+  {
+    "name": "carousel",
+    "category": "Advanced",
+    "isAvailable": true,
+    "path": "@/components/ui/carousel"
+  },
+  {
+    "name": "checkbox",
+    "category": "Forms",
+    "isAvailable": true,
+    "path": "@/components/ui/checkbox"
+  },
+  {
+    "name": "collapsible",
+    "category": "Layout",
+    "isAvailable": true,
+    "path": "@/components/ui/collapsible"
+  },
+  {
+    "name": "context-menu",
+    "category": "Overlay",
+    "isAvailable": true,
+    "path": "@/components/ui/context-menu"
+  },
+  {
+    "name": "dialog",
+    "category": "Overlay",
+    "isAvailable": true,
+    "path": "@/components/ui/dialog"
+  },
+  {
+    "name": "dropdown-menu",
+    "category": "Overlay",
+    "isAvailable": true,
+    "path": "@/components/ui/dropdown-menu"
+  },
+  {
+    "name": "hover-card",
+    "category": "Overlay",
+    "isAvailable": true,
+    "path": "@/components/ui/hover-card"
+  },
+  {
+    "name": "icon",
+    "category": "Data Display",
+    "isAvailable": true,
+    "path": "@/components/ui/icon"
+  },
+  {
+    "name": "input",
+    "category": "Forms",
+    "isAvailable": true,
+    "path": "@/components/ui/input"
+  },
+  {
+    "name": "input-otp",
+    "category": "Forms",
+    "isAvailable": true,
+    "path": "@/components/ui/input-otp"
+  },
+  {
+    "name": "label",
+    "category": "Data Display",
+    "isAvailable": true,
+    "path": "@/components/ui/label"
+  },
+  {
+    "name": "menubar",
+    "category": "Navigation",
+    "isAvailable": true,
+    "path": "@/components/ui/menubar"
+  },
+  {
+    "name": "motion",
+    "category": "Animation",
+    "isAvailable": true,
+    "path": "@/components/ui/motion"
+  },
+  {
+    "name": "motion-primitives",
+    "category": "Animation",
+    "isAvailable": true,
+    "path": "@/components/ui/motion-primitives"
+  },
+  {
+    "name": "native-only-animated-view",
+    "category": "Animation",
+    "isAvailable": true,
+    "path": "@/components/ui/native-only-animated-view"
+  },
+  {
+    "name": "popover",
+    "category": "Overlay",
+    "isAvailable": true,
+    "path": "@/components/ui/popover"
+  },
+  {
+    "name": "primitives",
+    "category": "Core",
+    "isAvailable": true,
+    "path": "@/components/ui/primitives"
+  },
+  {
+    "name": "progress",
+    "category": "Feedback",
+    "isAvailable": true,
+    "path": "@/components/ui/progress"
+  },
+  {
+    "name": "radio-group",
+    "category": "Forms",
+    "isAvailable": true,
+    "path": "@/components/ui/radio-group"
+  },
+  {
+    "name": "select",
+    "category": "Forms",
+    "isAvailable": true,
+    "path": "@/components/ui/select"
+  },
+  {
+    "name": "semantic-icon",
+    "category": "General",
+    "isAvailable": true,
+    "path": "@/components/ui/semantic-icon"
+  },
+  {
+    "name": "separator",
+    "category": "Layout",
+    "isAvailable": true,
+    "path": "@/components/ui/separator"
+  },
+  {
+    "name": "sheet",
+    "category": "Overlay",
+    "isAvailable": true,
+    "path": "@/components/ui/sheet"
+  },
+  {
+    "name": "sidebar",
+    "category": "Navigation",
+    "isAvailable": true,
+    "path": "@/components/ui/sidebar"
+  },
+  {
+    "name": "skeleton",
+    "category": "Feedback",
+    "isAvailable": true,
+    "path": "@/components/ui/skeleton"
+  },
+  {
+    "name": "sonner",
+    "category": "Feedback",
+    "isAvailable": true,
+    "path": "@/components/ui/sonner"
+  },
+  {
+    "name": "spinner",
+    "category": "Feedback",
+    "isAvailable": true,
+    "path": "@/components/ui/spinner"
+  },
+  {
+    "name": "switch",
+    "category": "Forms",
+    "isAvailable": true,
+    "path": "@/components/ui/switch"
+  },
+  {
+    "name": "tabs",
+    "category": "Navigation",
+    "isAvailable": true,
+    "path": "@/components/ui/tabs"
+  },
+  {
+    "name": "text",
+    "category": "Data Display",
+    "isAvailable": true,
+    "path": "@/components/ui/text"
+  },
+  {
+    "name": "textarea",
+    "category": "Forms",
+    "isAvailable": true,
+    "path": "@/components/ui/textarea"
+  },
+  {
+    "name": "toggle",
+    "category": "Action",
+    "isAvailable": true,
+    "path": "@/components/ui/toggle"
+  },
+  {
+    "name": "toggle-group",
+    "category": "Action",
+    "isAvailable": true,
+    "path": "@/components/ui/toggle-group"
+  },
+  {
+    "name": "tooltip",
+    "category": "Overlay",
+    "isAvailable": true,
+    "path": "@/components/ui/tooltip"
+  }
+]

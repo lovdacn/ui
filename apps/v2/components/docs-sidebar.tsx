@@ -1,0 +1,164 @@
+"use client"
+
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+
+import { COMPONENTS } from "@/lib/components"
+import { useBeta } from "@/lib/beta"
+import { cn } from "@/lib/utils"
+
+type NavItem = {
+  name: string
+  href: string
+  isNew?: boolean
+  isBeta?: boolean
+}
+type NavSection = { title: string; items: NavItem[] }
+
+const SECTIONS: NavSection[] = [
+  {
+    title: "Get Started",
+    items: [
+      { name: "Introduction", href: "/docs" },
+      { name: "Installation", href: "/docs/installation" },
+      { name: "Theming", href: "/docs/theming" },
+      { name: "CLI", href: "/docs/cli" },
+      { name: "Skills", href: "/docs/skills" },
+      { name: "Dark Mode", href: "/docs/dark-mode" },
+    ],
+  },
+  {
+    title: "Components",
+    items: [
+      { name: "All Components", href: "/docs/components" },
+      ...COMPONENTS.map((c) => ({
+        name: c.title,
+        href: `/docs/components/${c.name}`,
+        isNew: c.new,
+        isBeta: c.beta,
+      })),
+    ],
+  },
+]
+
+/**
+ * Beta entries are hidden until beta mode is on, so the default navigation only advertises what
+ * the stable CLI can install. The badge is kept for the entries that do appear in beta mode.
+ */
+function visibleSections(beta: boolean): NavSection[] {
+  if (beta) return SECTIONS
+  return SECTIONS.map((section) => ({
+    ...section,
+    items: section.items.filter((item) => !item.isBeta),
+  })).filter((section) => section.items.length > 0)
+}
+
+/** A small "New" pill, mirroring shadcn's new-component marker. */
+function NewBadge() {
+  return (
+    <span className="ml-2 shrink-0 rounded-full bg-green-500/15 px-1.5 py-0.5 text-[10px] font-medium leading-none text-green-600 dark:text-green-400">
+      New
+    </span>
+  )
+}
+
+function BetaBadge() {
+  return (
+    <span className="ml-2 shrink-0 rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-medium leading-none text-amber-700 dark:text-amber-300">
+      Beta
+    </span>
+  )
+}
+
+export function DocsSidebar({ className }: { className?: string }) {
+  const pathname = usePathname()
+  const beta = useBeta()
+  const sections = visibleSections(beta)
+
+  return (
+    <aside
+      className={cn(
+        "sticky top-[calc(var(--header-height)+0.5rem)] hidden h-[calc(100svh-var(--header-height)-2rem)] w-full max-w-56 shrink-0 overflow-y-auto overscroll-contain pr-4 no-scrollbar lg:block",
+        className
+      )}
+    >
+      <div className="pb-10 pt-6">
+        {sections.map((section) => (
+          <div key={section.title} className="mb-6">
+            <h4 className="mb-2 px-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/80">
+              {section.title}
+            </h4>
+            <ul className="space-y-0.5">
+              {section.items.map((item) => {
+                const isActive =
+                  item.href === "/docs"
+                    ? pathname === "/docs"
+                    : pathname === item.href
+                return (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href}
+                      className={cn(
+                        "flex items-center justify-between rounded-full border border-transparent px-3 py-1.5 text-[0.8rem] font-medium transition-all duration-200",
+                        isActive
+                          ? "border-border bg-accent text-accent-foreground shadow-sm"
+                          : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+                      )}
+                    >
+                      <span className="truncate">{item.name}</span>
+                      {item.isNew ? (
+                        <NewBadge />
+                      ) : item.isBeta ? (
+                        <BetaBadge />
+                      ) : null}
+                    </Link>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </aside>
+  )
+}
+
+export function DocsMobileNav() {
+  const pathname = usePathname()
+  const beta = useBeta()
+  const sections = visibleSections(beta)
+
+  return (
+    <div className="sticky top-[var(--header-height)] z-30 border-b border-border/60 bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60 lg:hidden">
+      <div className="no-scrollbar flex gap-2 overflow-x-auto px-4 py-3">
+        {sections.flatMap((s) => s.items)
+          .filter(
+            (item) =>
+              !item.href.startsWith("/docs/components/") ||
+              item.href === "/docs/components"
+          )
+          .map((item) => {
+            const isActive =
+              item.href === "/docs"
+                ? pathname === "/docs"
+                : pathname === item.href
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "flex shrink-0 items-center rounded-full border px-3 py-1 text-xs font-medium shadow-sm transition-colors",
+                  isActive
+                    ? "border-foreground bg-foreground text-background"
+                    : "border-border bg-card text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <span>{item.name}</span>
+                {item.isBeta ? <BetaBadge /> : null}
+              </Link>
+            )
+          })}
+      </div>
+    </div>
+  )
+}

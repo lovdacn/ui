@@ -1,0 +1,42 @@
+"use client"
+
+import Link from "next/link"
+
+import { COMPONENTS } from "@/lib/components"
+import { useBeta } from "@/lib/beta"
+
+/**
+ * Beta components are hidden until beta mode is on.
+ *
+ * The list is rendered on the client so the toggle takes effect immediately. `useBeta` reports
+ * `false` during server render and hydration, so the server output is the stable list and beta
+ * entries appear only after the reader opts in — the markup never disagrees with itself.
+ */
+export function ComponentsList() {
+  const beta = useBeta()
+  const components = beta ? COMPONENTS : COMPONENTS.filter((component) => !component.beta)
+
+  return (
+    <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-x-8 lg:gap-x-16 lg:gap-y-6 xl:gap-x-20">
+      {components.map((component) => (
+        <div key={component.name} className="flex items-center gap-2">
+          <Link
+            href={`/docs/components/${component.name}`}
+            className="no-underline! inline-flex items-center gap-2 border-b border-transparent pb-0.5 text-lg font-medium transition-colors hover:border-foreground md:text-base"
+          >
+            {component.title}
+          </Link>
+          {component.new ? (
+            <span className="inline-flex shrink-0 items-center rounded-full bg-green-500/15 px-1.5 py-0.5 text-[10px] font-medium leading-none text-green-600 dark:text-green-400">
+              New
+            </span>
+          ) : component.beta ? (
+            <span className="inline-flex shrink-0 items-center rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-medium leading-none text-amber-700 dark:text-amber-300">
+              Beta
+            </span>
+          ) : null}
+        </div>
+      ))}
+    </div>
+  )
+}
