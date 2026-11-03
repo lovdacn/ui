@@ -1,5 +1,5 @@
 {
-  "name": "@lvcn/ui",
+  "name": "lvcn-ui",
   "type": "module",
   "version": "0.1.0",
   "private": false,
@@ -18,8 +18,7 @@
   },
   "bin": {
     "lvcn": "dist/index.js",
-    "lvcn-ui": "dist/index.js",
-    "ui": "dist/index.js"
+    "lvcn-ui": "dist/index.js"
   },
   "scripts": {
     "test": "vitest run",

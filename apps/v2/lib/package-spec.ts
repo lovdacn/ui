@@ -17,7 +17,7 @@ export const STABLE_PACKAGE_TAG = "latest"
 export const BETA_PACKAGE_TAG = "beta"
 
 /** Published name first, then the documented shorthand. */
-export const PACKAGE_NAMES = ["@lvcn/ui"] as const
+export const PACKAGE_NAMES = ["lvcn-ui", "lvcn"] as const
 
 export type PackageChannel = "stable" | "beta"
 

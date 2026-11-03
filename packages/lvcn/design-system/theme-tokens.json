@@ -1,5 +1,5 @@
 {
-  "$note": "Canonical theme tokens vendored from shadcn. Do NOT hand-edit values. Regenerate typed modules via `pnpm --filter @lvcn/ui design-system:generate`.",
+  "$note": "Canonical theme tokens vendored from shadcn. Do NOT hand-edit values. Regenerate typed modules via `pnpm --filter lvcn-ui design-system:generate`.",
   "provenance": {
     "description": "Exact OKLCH design tokens sourced from the local shadcn registry. Base themes carry the full token set (incl. sidebar tokens); accent themes carry the partial primary/secondary/chart/sidebar-primary overrides.",
     "vendoredDate": "2026-09-01",
