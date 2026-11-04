@@ -802,7 +802,7 @@ export async function runInit(options: z.infer<typeof initOptionsSchema>) {
   if (!hasPackageJson && projectName) {
     console.log(`  ${pc.cyan(`cd ${projectName}`)}`)
   }
-  console.log(`  ${pc.cyan(`${runner} lvcn add`)} ${pc.dim("[...components]")}`)
+  console.log(`  ${pc.cyan(`${runner} lvcn-ui add`)} ${pc.dim("[...components]")}`)
 }
 
 // Map a package manager to its one-off package runner (dlx-style).

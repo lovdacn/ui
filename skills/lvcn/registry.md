@@ -11,8 +11,8 @@ lvcn is a **consumer** of a hosted registry — it does not author registries th
 Default: `https://lvcn.vercel.app/r`. Override with the `LVCN_REGISTRY_URL` environment variable — a URL, or a local folder for development:
 
 ```bash
-LVCN_REGISTRY_URL=https://your-registry/r npx lvcn@latest add button
-LVCN_REGISTRY_URL=/abs/path/to/registry/r npx lvcn@latest add button   # local dir or file://
+LVCN_REGISTRY_URL=https://your-registry/r npx lvcn-ui@latest add button
+LVCN_REGISTRY_URL=/abs/path/to/registry/r npx lvcn-ui@latest add button   # local dir or file://
 ```
 
 When run from inside the lvcn monorepo, the CLI also auto-detects a locally served registry (`apps/v2/public/r`) if `LVCN_REGISTRY_URL` is unset.

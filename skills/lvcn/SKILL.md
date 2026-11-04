@@ -2,14 +2,14 @@
 name: lvcn
 description: Manages lvcn components and projects for Expo & React Native — adding, initializing, fixing, debugging, styling, theming, and composing UI with NativeWind or Uniwind. Provides project context, component APIs, and usage examples. Applies when working with lvcn, Expo/React Native UI components, an lvcn.json file, style engines (nativewind/uniwind), presets, or preset codes. Also triggers for "lvcn init", "lvcn add", or "apply a preset".
 user-invocable: false
-allowed-tools: Bash(npx lvcn@latest *), Bash(pnpm dlx lvcn@latest *), Bash(bunx --bun lvcn@latest *), Bash(yarn dlx lvcn@latest *)
+allowed-tools: Bash(npx lvcn-ui@latest *), Bash(pnpm dlx lvcn-ui@latest *), Bash(bunx --bun lvcn-ui@latest *), Bash(yarn dlx lvcn-ui@latest *)
 ---
 
 # lvcn
 
 A CLI and registry for building premium, customizable UI components for **Expo & React Native**, styled with **NativeWind** or **Uniwind**. Like shadcn/ui, components are copied as source into the user's project — they own and can customize the code.
 
-> **IMPORTANT:** Run all CLI commands using the project's package runner: `npx lvcn@latest`, `pnpm dlx lvcn@latest`, `bunx --bun lvcn@latest`, or `yarn dlx lvcn@latest` — based on the project's package manager (detected from its lockfile). Examples below use `npx lvcn@latest`; substitute the correct runner.
+> **IMPORTANT:** Run all CLI commands using the project's package runner: `npx lvcn-ui@latest`, `pnpm dlx lvcn-ui@latest`, `bunx --bun lvcn-ui@latest`, or `yarn dlx lvcn-ui@latest` — based on the project's package manager (detected from its lockfile). Examples below use `npx lvcn-ui@latest`; substitute the correct runner.
 
 > **These are React Native components, not web.** They render to native views, not the DOM. The single most important rule: **all text must be wrapped in the `<Text>` component** — you cannot put a bare string inside `<Button>`, `<Badge>`, or a `<View>`. See [rules/native.md](./rules/native.md).
 
@@ -22,8 +22,8 @@ lvcn has **no `info` command**. Read the project's `lvcn.json` file directly to 
 cat lvcn.json
 
 # See the current theme preset and its shareable code (read-only).
-npx lvcn@latest present
-npx lvcn@latest present --json
+npx lvcn-ui@latest present
+npx lvcn-ui@latest present --json
 ```
 
 The `lvcn.json` fields you care about: `style`, `styleEngine`, `tsx`, `tailwind.{config,css,baseColor}`, `aliases.{components,utils,ui}`, `components`, and the preset fields (`baseColor`, `theme`, `chartColor`, `font`, `iconLibrary`, `radius`). See [config.md](./config.md) for the full schema.
@@ -161,7 +161,7 @@ See [config.md](./config.md) for the full field reference.
 
 1. **Get project context** — read `lvcn.json`. If it doesn't exist, the project isn't initialized; run `init` first.
 2. **Check installed components first** — before `add`, check the `components` array in `lvcn.json` and list the `aliases.ui` directory. Don't import components that aren't installed; don't re-add installed ones.
-3. **Add components** — `npx lvcn@latest add <name...>`. Run with no args for an interactive multi-select. The CLI resolves registry dependencies, installs npm deps (via `expo install` on Expo projects), wires up portals for overlays, and rewrites import aliases.
+3. **Add components** — `npx lvcn-ui@latest add <name...>`. Run with no args for an interactive multi-select. The CLI resolves registry dependencies, installs npm deps (via `expo install` on Expo projects), wires up portals for overlays, and rewrites import aliases.
 4. **Review added files** — after `add`, **read the added files and verify they are correct**: text wrapped in `<Text>`, icons imported from the project's `iconLibrary`, correct composition, semantic tokens. Fix issues before moving on.
 5. **Get docs/examples** — fetch component docs from `https://lvcn.vercel.app/docs/components/<name>` when you need the exact API or usage. See [Component Docs](#component-docs) below.
 6. **Theme changes** — use `apply` to change the preset; use `present` to inspect the current one. See [customization.md](./customization.md).
@@ -184,28 +184,28 @@ https://lvcn.vercel.app/docs/dark-mode
 
 ```bash
 # Initialize or create a project.
-npx lvcn@latest init
-npx lvcn@latest init -n my-app                 # create a new project by name
-npx lvcn@latest init --engine uniwind          # choose style engine (nativewind | uniwind)
-npx lvcn@latest init --preset nova             # named preset, preset code, or style name
+npx lvcn-ui@latest init
+npx lvcn-ui@latest init -n my-app                 # create a new project by name
+npx lvcn-ui@latest init --engine uniwind          # choose style engine (nativewind | uniwind)
+npx lvcn-ui@latest init --preset nova             # named preset, preset code, or style name
 
 # Add components (resolves deps, wires portals, rewrites aliases).
-npx lvcn@latest add button
-npx lvcn@latest add input select checkbox label text
-npx lvcn@latest add                            # interactive multi-select
-npx lvcn@latest add dialog --overwrite         # overwrite existing files
+npx lvcn-ui@latest add button
+npx lvcn-ui@latest add input select checkbox label text
+npx lvcn-ui@latest add                            # interactive multi-select
+npx lvcn-ui@latest add dialog --overwrite         # overwrite existing files
 
 # Apply a theme preset to an existing project.
-npx lvcn@latest apply nova                     # named preset or style name
-npx lvcn@latest apply a2r6bw                   # preset code from the web builder
-npx lvcn@latest apply nova --only theme,font   # only parts: theme | colors | font | radius
+npx lvcn-ui@latest apply nova                     # named preset or style name
+npx lvcn-ui@latest apply a2r6bw                   # preset code from the web builder
+npx lvcn-ui@latest apply nova --only theme,font   # only parts: theme | colors | font | radius
 
 # Inspect the current preset (read-only).
-npx lvcn@latest present
-npx lvcn@latest present --json
+npx lvcn-ui@latest present
+npx lvcn-ui@latest present --json
 
 # Point at a different registry (dev/self-hosted).
-LVCN_REGISTRY_URL=https://your-registry/r npx lvcn@latest add button
+LVCN_REGISTRY_URL=https://your-registry/r npx lvcn-ui@latest add button
 ```
 
 **Named presets:** `new-york`, `default`, `luma`, `lyra`, `maia`, `mira`, `nova`, `rhea`, `sera`, `vega`

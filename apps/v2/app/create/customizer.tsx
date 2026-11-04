@@ -914,7 +914,7 @@ export function CreateCustomizer({ initialConfig }: { initialConfig: PresetConfi
               {target === "existing" && (
                 <p className="-mt-1 mb-3 text-[11px] leading-4 text-muted-foreground">
                   Run inside a project already set up with{" "}
-                  <span className="font-mono text-foreground">lvcn init</span>. It restyles all your installed components. Icons are switched manually.
+                  <span className="font-mono text-foreground">lvcn-ui init</span>. It restyles all your installed components. Icons are switched manually.
                 </p>
               )}
 

@@ -4,10 +4,10 @@
  * Kept free of React and of the DOM so the rule that decides what a reader copies is a plain
  * function that can be reasoned about and tested directly.
  *
- * The CLI is published under lvcn:
+ * The CLI is published under lvcn-ui:
  *
- *   npx lvcn@latest init
- *   npx lvcn@latest add button
+ *   npx lvcn-ui@latest init
+ *   npx lvcn-ui@latest add button
  *
  * Beta mode has to move BOTH to the `beta` tag, because a stable CLI cannot resolve the beta
  * registry (it derives the registry from its own version).
@@ -17,7 +17,7 @@ export const STABLE_PACKAGE_TAG = "latest"
 export const BETA_PACKAGE_TAG = "beta"
 
 /** Published name first, then the documented shorthand. */
-export const PACKAGE_NAMES = ["lvcn-ui", "lvcn"] as const
+export const PACKAGE_NAMES = ["lvcn-ui"] as const
 
 export type PackageChannel = "stable" | "beta"
 

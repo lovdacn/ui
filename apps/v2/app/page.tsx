@@ -57,12 +57,12 @@ const workflow = [
   {
     title: "Initialize",
     body: "Set up your Expo project with your style engine and base color.",
-    command: "npx lvcn init",
+    command: "npx lvcn-ui init",
   },
   {
     title: "Add components",
     body: "Copy only the components you need straight into your repo.",
-    command: "npx lvcn add button",
+    command: "npx lvcn-ui add button",
   },
   {
     title: "Make it yours",
@@ -167,7 +167,7 @@ export default function IndexPage() {
                   </span>
                 </div>
                 <div className="space-y-1 p-5 font-mono text-sm leading-7 text-foreground">
-                  {["npx lvcn init", "npx lvcn add button"].map((cmd) => (
+                  {["npx lvcn-ui init", "npx lvcn-ui add button"].map((cmd) => (
                     <div
                       key={cmd}
                       className="flex items-center justify-between gap-4 rounded-md px-2 hover:bg-muted/50"
@@ -309,11 +309,11 @@ export default function IndexPage() {
               <p className="text-sm leading-relaxed text-muted-foreground">
                 Scaffold projects and add components with{" "}
                 <code className="rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-xs text-foreground">
-                  npx lvcn init
+                  npx lvcn-ui init
                 </code>{" "}
                 and{" "}
                 <code className="rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-xs text-foreground">
-                  npx lvcn add
+                  npx lvcn-ui add
                 </code>
                 .
               </p>

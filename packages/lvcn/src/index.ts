@@ -7,7 +7,7 @@ import { present } from "./commands/present"
 import { version } from "../package.json"
 
 const program = new Command()
-  .name("lvcn")
+  .name("lvcn-ui")
   .description("A CLI to initialize and manage Expo/NativeWind projects")
   .version(version)
 

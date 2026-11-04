@@ -198,18 +198,18 @@ Ready-made combinations you can pass to `init --preset` or `apply`:
 
 ```bash
 # Inspect the current preset (read-only) and its shareable code.
-npx lvcn@latest present
-npx lvcn@latest present --json
+npx lvcn-ui@latest present
+npx lvcn-ui@latest present --json
 
 # Full apply: updates lvcn.json + CSS, installs the font, re-installs components in the new style.
-npx lvcn@latest apply nova
-npx lvcn@latest apply a2r6bw          # opaque preset code from the web builder
+npx lvcn-ui@latest apply nova
+npx lvcn-ui@latest apply a2r6bw          # opaque preset code from the web builder
 
 # Partial apply: only the named parts; does NOT re-install components; never changes style.
-npx lvcn@latest apply nova --only theme
-npx lvcn@latest apply nova --only theme,font
-npx lvcn@latest apply nova --only colors     # base color palette
-npx lvcn@latest apply nova --only radius
+npx lvcn-ui@latest apply nova --only theme
+npx lvcn-ui@latest apply nova --only theme,font
+npx lvcn-ui@latest apply nova --only colors     # base color palette
+npx lvcn-ui@latest apply nova --only radius
 ```
 
 - A full `apply` overwrites component files, so it guards against a dirty git tree — commit/stash first or pass `--force`.

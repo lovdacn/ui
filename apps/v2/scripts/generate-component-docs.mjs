@@ -36,34 +36,32 @@ function cliBlock(name) {
 <PMTabContent value="npm">
 
 \`\`\`bash
-npx lvcn@latest add ${name}
+npx lvcn-ui@latest add ${name}
 \`\`\`
 
 </PMTabContent>
 <PMTabContent value="yarn">
 
 \`\`\`bash
-yarn dlx lvcn@latest add ${name}
+yarn dlx lvcn-ui@latest add ${name}
 \`\`\`
 
 </PMTabContent>
 <PMTabContent value="pnpm">
 
 \`\`\`bash
-pnpm dlx lvcn@latest add ${name}
+pnpm dlx lvcn-ui@latest add ${name}
 \`\`\`
 
 </PMTabContent>
 <PMTabContent value="bun">
 
 \`\`\`bash
-bunx --bun lvcn@latest add ${name}
+bunx --bun lvcn-ui@latest add ${name}
 \`\`\`
 
 </PMTabContent>
 </PackageManagerTabs>
-
-*(You can also use the shortened \`lvcn\` alias, e.g., \`npx lvcn@latest add ${name}\`)*`
 }
 
 /** shadcn-style "Manual" install: dependencies + copy-paste source. */

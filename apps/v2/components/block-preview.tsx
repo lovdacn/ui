@@ -40,7 +40,7 @@ export function BlockPreview({ block }: { block: BlockMeta }) {
   const [viewport, setViewport] = React.useState<ViewportKey>("desktop")
   const { isCopied, copyToClipboard } = useCopyToClipboard()
 
-  const installCommand = `npx lvcn@latest add ${name}`
+  const installCommand = `npx lvcn-ui@latest add ${name}`
   // `chrome=web` renders the desktop-style preview (no phone status bar / clock /
   // battery) — the blocks are shown as a web view here, not a device frame.
   const src = React.useMemo(

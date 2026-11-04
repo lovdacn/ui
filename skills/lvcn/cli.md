@@ -2,7 +2,7 @@
 
 Configuration is read from `lvcn.json`. The CLI has exactly **four** commands: `init`, `add`, `apply`, `present`.
 
-> **IMPORTANT:** Always run commands using the project's package runner: `npx lvcn@latest`, `pnpm dlx lvcn@latest`, `bunx --bun lvcn@latest`, or `yarn dlx lvcn@latest`. The CLI auto-detects the package manager from the project's lockfile. `lvcn` is a shorthand alias for `lvcn` (`npx lvcn@latest add button`). Examples below use `npx lvcn@latest`.
+> **IMPORTANT:** Always run commands using the project's package runner: `npx lvcn-ui@latest`, `pnpm dlx lvcn-ui@latest`, `bunx --bun lvcn-ui@latest`, or `yarn dlx lvcn-ui@latest`. The CLI auto-detects the package manager from the project's lockfile. Examples below use `npx lvcn-ui@latest`.
 
 > **IMPORTANT:** Only use the flags documented below. Do not invent flags. There is **no** `search`, `docs`, `info`, `view`, `build`, `list`, or `mcp` command — those exist in web shadcn, not in lvcn. To browse components, fetch the docs site (`https://lvcn.vercel.app/docs/components/<name>`) or read installed source in the project's `ui` alias.
 
@@ -21,7 +21,7 @@ Configuration is read from `lvcn.json`. The CLI has exactly **four** commands: `
 ### `init` — Initialize or create a project
 
 ```bash
-npx lvcn@latest init [options]
+npx lvcn-ui@latest init [options]
 ```
 
 Creates a new Expo project (when `-n/--name` is provided, scaffolding a NativeWind or Uniwind template) or configures an existing one. Writes `lvcn.json`, sets up CSS variables and `lib/utils`, and installs required dependencies.
@@ -46,7 +46,7 @@ Creates a new Expo project (when `-n/--name` is provided, scaffolding a NativeWi
 ### `add` — Add components
 
 ```bash
-npx lvcn@latest add [components...] [options]
+npx lvcn-ui@latest add [components...] [options]
 ```
 
 Resolves each component and its registry dependencies from the registry, installs npm dependencies (via `expo install` on Expo projects so native modules match the SDK), rewrites import aliases to match the project, wires up the portal host + gesture handler for overlay components, writes files into the `ui` alias directory, and records the components in `lvcn.json`.
@@ -66,22 +66,22 @@ Requires an existing `lvcn.json` (run `init` first). If a target file already ex
 
 ```bash
 # Single component.
-npx lvcn@latest add button
+npx lvcn-ui@latest add button
 
 # Multiple components.
-npx lvcn@latest add button card input label text
+npx lvcn-ui@latest add button card input label text
 
 # Interactive picker.
-npx lvcn@latest add
+npx lvcn-ui@latest add
 
 # Overwrite existing files without prompting.
-npx lvcn@latest add dialog --overwrite
+npx lvcn-ui@latest add dialog --overwrite
 ```
 
 ### `apply` — Apply a theme preset
 
 ```bash
-npx lvcn@latest apply <code> [options]
+npx lvcn-ui@latest apply <code> [options]
 ```
 
 Applies a **preset code** (from the web builder), a **named preset**, or a **style name** to an existing project: updates `lvcn.json`, regenerates the global CSS from the effective config, installs the font package, and (on a full apply) re-installs all installed components in the new style. **Icons are never changed automatically** — switching icon libraries is manual.
@@ -100,17 +100,17 @@ Applies a **preset code** (from the web builder), a **named preset**, or a **sty
 - On failure, `apply` rolls back `lvcn.json`, the global CSS, and component files to their previous state.
 
 ```bash
-npx lvcn@latest apply nova                 # named preset
-npx lvcn@latest apply a2r6bw               # preset code
-npx lvcn@latest apply nova --only theme    # only the accent theme
-npx lvcn@latest apply nova --only theme,font
-npx lvcn@latest apply sera --force         # bypass dirty-tree guard
+npx lvcn-ui@latest apply nova                 # named preset
+npx lvcn-ui@latest apply a2r6bw               # preset code
+npx lvcn-ui@latest apply nova --only theme    # only the accent theme
+npx lvcn-ui@latest apply nova --only theme,font
+npx lvcn-ui@latest apply sera --force         # bypass dirty-tree guard
 ```
 
 ### `present` — Show the current preset (read-only)
 
 ```bash
-npx lvcn@latest present [options]
+npx lvcn-ui@latest present [options]
 ```
 
 Reads `lvcn.json` and prints the project's current preset — its shareable **code** and decoded values (`style`, `baseColor`, `theme`, `chartColor`, `font`, `iconLibrary`, `radius`). Makes **no changes**. Use `apply <code>` to change the theme.
@@ -121,8 +121,8 @@ Reads `lvcn.json` and prints the project's current preset — its shareable **co
 | `--json`       |       | Output as JSON    | `false` |
 
 ```bash
-npx lvcn@latest present
-npx lvcn@latest present --json   # { "code": "...", "values": { ... } }
+npx lvcn-ui@latest present
+npx lvcn-ui@latest present --json   # { "code": "...", "values": { ... } }
 ```
 
 > **Note:** The command is `present`, not `preset`. It is read-only. There is no separate command to *edit* individual preset fields — use `apply` (optionally with `--only`) to change the theme, or edit `lvcn.json` + the global CSS directly.
@@ -159,8 +159,8 @@ A preset bundles: `style`, `baseColor`, `theme` (accent/primary), `chartColor`, 
 Components resolve from `https://lvcn.vercel.app/r` by default. Override with the `LVCN_REGISTRY_URL` environment variable (a URL, or a local folder for development):
 
 ```bash
-LVCN_REGISTRY_URL=https://your-registry/r npx lvcn@latest add button
-LVCN_REGISTRY_URL=/abs/path/to/local/r     npx lvcn@latest add button
+LVCN_REGISTRY_URL=https://your-registry/r npx lvcn-ui@latest add button
+LVCN_REGISTRY_URL=/abs/path/to/local/r     npx lvcn-ui@latest add button
 ```
 
 The CLI fetches each item from `<registry>/styles/<styleEngine>/<style>/<name>.json`. See [registry.md](./registry.md).

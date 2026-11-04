@@ -1920,7 +1920,7 @@ function CenteredStage({
           </Text>
           <View className="bg-border h-3 w-px" />
           <Text className="text-muted-foreground font-mono text-[11px]">
-            npx lvcn add {component}
+            npx lvcn-ui add {component}
           </Text>
         </View>
       ) : null}

@@ -112,8 +112,8 @@ These capture the resolved theme preset and are read by `present` and updated by
 cat lvcn.json
 
 # Current theme preset + shareable code (read-only, derived from lvcn.json).
-npx lvcn@latest present
-npx lvcn@latest present --json
+npx lvcn-ui@latest present
+npx lvcn-ui@latest present --json
 ```
 
 When advising or editing:

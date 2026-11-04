@@ -33,10 +33,10 @@ lvcn copies component source straight into your project so you have full control
 
 ```sh
 # add a single component
-npx lvcn add button
+npx lvcn-ui add button
 
 # add several at once
-npx lvcn add card badge input
+npx lvcn-ui add card badge input
 ```
 
 Components land in `src/components/ui/` and import through the `@/` alias.

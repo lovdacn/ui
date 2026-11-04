@@ -17,34 +17,34 @@ You don't need to install anything — run it with your package manager's runner
 Sets up configuration (`lvcn.json`), theme, and the required files.
 
 ```sh
-npx lvcn@latest init
+npx lvcn-ui@latest init
 # pnpm
-pnpm dlx lvcn@latest init
+pnpm dlx lvcn-ui@latest init
 # bun
-bunx --bun lvcn@latest init
+bunx --bun lvcn-ui@latest init
 ```
 
 The latest Expo SDK template is used by default. To scaffold an Expo SDK 54
 starter, pass `--expo-version 54` (works with both NativeWind and Uniwind):
 
 ```sh
-npx lvcn@latest init --expo-version 54
+npx lvcn-ui@latest init --expo-version 54
 ```
 
 During beta you can also pin the beta tag explicitly:
 
 ```sh
-npx lvcn@beta init
+npx lvcn-ui@beta init
 ```
 
 ### Add components
 
 ```sh
 # a single component
-npx lvcn@latest add button
+npx lvcn-ui@latest add button
 
 # multiple components
-npx lvcn@latest add input select checkbox
+npx lvcn-ui@latest add input select checkbox
 ```
 
 Running `add` with no arguments opens an interactive multi-select of all available components.
@@ -64,7 +64,7 @@ Components are resolved from the registry at `https://lvcn.vercel.app/r`. You ca
 different registry (a URL, or a local folder for development) with:
 
 ```sh
-LVCN_REGISTRY_URL=https://your-registry/r npx lvcn@latest add button
+LVCN_REGISTRY_URL=https://your-registry/r npx lvcn-ui@latest add button
 ```
 
 ## Links

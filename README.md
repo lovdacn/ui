@@ -25,13 +25,13 @@ Set up your project configuration by running the initialization command in your 
 
 ```sh
 # Using npx
-npx lvcn init
+npx lvcn-ui init
 
 # Using pnpm
-pnpm dlx lvcn init
+pnpm dlx lvcn-ui init
 
 # Using bun
-bunx --bun lvcn init
+bunx --bun lvcn-ui init
 ```
 
 This will create a `lvcn.json` configuration file and bootstrap the necessary folders and theme configurations.
@@ -42,10 +42,10 @@ Install individual components (like `button`, `input`, `dialog`, etc.) directly 
 
 ```sh
 # Add a single component
-npx lvcn add button
+npx lvcn-ui add button
 
 # Add multiple components
-npx lvcn add input select checkbox
+npx lvcn-ui add input select checkbox
 ```
 
 ---

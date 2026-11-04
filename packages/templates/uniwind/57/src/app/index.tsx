@@ -43,7 +43,7 @@ export default function HomeScreen() {
               1. Edit <ThemedText type="code">src/app/index.tsx</ThemedText>
             </ThemedText>
             <ThemedText type="small" themeColor="textSecondary">
-              2. Add components — <ThemedText type="code">npx lvcn add button</ThemedText>
+              2. Add components — <ThemedText type="code">npx lvcn-ui add button</ThemedText>
             </ThemedText>
             <ThemedText type="small" themeColor="textSecondary">
               3. Browse the full catalog in the docs
