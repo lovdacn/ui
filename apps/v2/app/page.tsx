@@ -6,6 +6,11 @@ import { COMPONENTS } from "@/lib/components"
 import { siteConfig } from "@/lib/config"
 import { VenomCanvas } from "@/components/venom-canvas"
 import { HeroStrip } from "@/components/hero-strip"
+import {
+  HeroTerminal,
+  WorkflowStepCommand,
+  InlineCommandCopy,
+} from "@/components/terminal-copy"
 
 const title = "lvcn - The UI Toolkit for React Native & Expo"
 const description =
@@ -152,41 +157,7 @@ export default function IndexPage() {
             </div>
 
             {/* Terminal */}
-            <div className="relative mt-12 w-full max-w-2xl text-left">
-              <div
-                aria-hidden
-                className="absolute -inset-px rounded-xl bg-gradient-to-b from-foreground/15 to-transparent blur-sm"
-              />
-              <div className="relative overflow-hidden rounded-xl border border-border bg-card shadow-xl">
-                <div className="flex items-center gap-2 border-b border-border bg-muted/50 px-4 py-2.5">
-                  <span aria-hidden className="size-2.5 rounded-full bg-red-500/80" />
-                  <span aria-hidden className="size-2.5 rounded-full bg-yellow-500/80" />
-                  <span aria-hidden className="size-2.5 rounded-full bg-green-500/80" />
-                  <span className="ml-3 font-mono text-[11px] text-muted-foreground">
-                    terminal
-                  </span>
-                </div>
-                <div className="space-y-1 p-5 font-mono text-sm leading-7 text-foreground">
-                  {["npx lvcn-ui init", "npx lvcn-ui add button"].map((cmd) => (
-                    <div
-                      key={cmd}
-                      className="flex items-center justify-between gap-4 rounded-md px-2 hover:bg-muted/50"
-                    >
-                      <code className="overflow-x-auto whitespace-nowrap">
-                        <span className="select-none text-primary">$ </span>
-                        {cmd}
-                      </code>
-                      <span
-                        aria-hidden
-                        className="select-none rounded border border-border px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground"
-                      >
-                        copy
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+            <HeroTerminal />
           </div>
         </div>
       </section>
@@ -219,10 +190,7 @@ export default function IndexPage() {
                     {step.body}
                   </p>
                 </div>
-                <code className="relative mt-auto overflow-x-auto whitespace-nowrap rounded-md border border-border bg-muted/50 px-3 py-2 font-mono text-xs text-foreground">
-                  <span className="select-none text-primary">$ </span>
-                  {step.command}
-                </code>
+                <WorkflowStepCommand command={step.command} />
               </li>
             ))}
           </ol>
@@ -308,13 +276,9 @@ export default function IndexPage() {
               </h3>
               <p className="text-sm leading-relaxed text-muted-foreground">
                 Scaffold projects and add components with{" "}
-                <code className="rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-xs text-foreground">
-                  npx lvcn-ui init
-                </code>{" "}
+                <InlineCommandCopy command="npx lvcn-ui init" />{" "}
                 and{" "}
-                <code className="rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-xs text-foreground">
-                  npx lvcn-ui add
-                </code>
+                <InlineCommandCopy command="npx lvcn-ui add" />
                 .
               </p>
             </div>
